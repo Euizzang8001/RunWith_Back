@@ -1,7 +1,7 @@
 package park.brothers.runwith_back.Login;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ public class LoginController {
     @PostMapping("/api/runners/login")
     public ResponseEntity<Object> login(@RequestBody @Valid LoginForm form,
                                         BindingResult bindingResult,
-                                        HttpServletRequest request){
+                                        HttpServletResponse response) {
 
         if(bindingResult.hasErrors()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bindingResult.getAllErrors());
@@ -42,8 +42,10 @@ public class LoginController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         }
 
-        HttpSession session = request.getSession();
-        session.setAttribute("loginRunner", loginRunner);
+        Cookie idCookie = new Cookie("runnerId", String.valueOf(loginRunner.getId()));
+        idCookie.setPath("/");
+        idCookie.setHttpOnly(true);
+        response.addCookie(idCookie);
 
         return ResponseEntity.ok(loginRunner);
     }
@@ -51,11 +53,15 @@ public class LoginController {
 
     // logout api
     @PostMapping("/api/runners/logout")
-    public ResponseEntity<String> logout(HttpServletRequest request){
-        HttpSession session = request.getSession(false);
-        if(session != null){
-            session.invalidate();
-        }
+    public ResponseEntity<String> logout(HttpServletResponse response){
+        expireCookie(response);
         return ResponseEntity.ok("로그아웃 성공");
+    }
+
+    private void expireCookie(HttpServletResponse response){
+        Cookie cookie = new Cookie("runnerId", null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        response.addCookie(cookie);
     }
 }
