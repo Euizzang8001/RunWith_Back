@@ -15,7 +15,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/runners")
+@RequestMapping("/api/v1/runners")
 public class RunnerController {
     private final MemoryRunnerRepository runnerRepository;
 

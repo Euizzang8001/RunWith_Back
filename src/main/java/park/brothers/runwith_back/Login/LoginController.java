@@ -24,7 +24,7 @@ public class LoginController {
     private final LoginService loginService;
 
     //login api
-    @PostMapping("/api/runners/login")
+    @PostMapping("/api/v1/runners/login")
     public ResponseEntity<Object> login(@RequestBody @Valid LoginForm form,
                                         BindingResult bindingResult,
                                         HttpServletResponse response) {
@@ -52,7 +52,7 @@ public class LoginController {
 
 
     // logout api
-    @PostMapping("/api/runners/logout")
+    @PostMapping("/api/v1/runners/logout")
     public ResponseEntity<String> logout(HttpServletResponse response){
         expireCookie(response);
         return ResponseEntity.ok("로그아웃 성공");
