@@ -1,7 +1,8 @@
-package park.brothers.runwith_back.domain.Runner;
+package park.brothers.runwith_back.domain.Runner.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import park.brothers.runwith_back.domain.Runner.entity.Runner;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -10,7 +11,7 @@ import java.util.*;
 @Repository
 public class MemoryRunnerRepository {
 
-    private static Map<Long,Runner> store = new HashMap<>();
+    private static Map<Long, Runner> store = new HashMap<>();
     private static long sequence = 0L;
 
     public void save(Runner runner){

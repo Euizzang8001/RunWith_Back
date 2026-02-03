@@ -1,10 +1,10 @@
-package park.brothers.runwith_back.domain.Login;
+package park.brothers.runwith_back.domain.Login.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 @Data
-public class LoginForm {
+public class LoginRequestDto {
 
     @NotEmpty
     private String email;

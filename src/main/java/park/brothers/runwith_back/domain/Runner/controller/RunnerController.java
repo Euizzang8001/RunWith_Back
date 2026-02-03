@@ -1,4 +1,4 @@
-package park.brothers.runwith_back.domain.Runner;
+package park.brothers.runwith_back.domain.Runner.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import park.brothers.runwith_back.domain.Runner.entity.Runner;
+import park.brothers.runwith_back.domain.Runner.repository.MemoryRunnerRepository;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,9 +1,9 @@
-package park.brothers.runwith_back.domain.Login;
+package park.brothers.runwith_back.domain.Login.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import park.brothers.runwith_back.domain.Runner.MemoryRunnerRepository;
-import park.brothers.runwith_back.domain.Runner.Runner;
+import park.brothers.runwith_back.domain.Runner.repository.MemoryRunnerRepository;
+import park.brothers.runwith_back.domain.Runner.entity.Runner;
 
 @Service
 @RequiredArgsConstructor
