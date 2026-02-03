@@ -1,4 +1,4 @@
-package park.brothers.runwith_back.Runner;
+package park.brothers.runwith_back.domain.Runner;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

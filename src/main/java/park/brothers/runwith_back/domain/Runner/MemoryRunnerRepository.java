@@ -1,4 +1,4 @@
-package park.brothers.runwith_back.Runner;
+package park.brothers.runwith_back.domain.Runner;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;

@@ -1,4 +1,4 @@
-package park.brothers.runwith_back.Login;
+package park.brothers.runwith_back.domain.Login;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
