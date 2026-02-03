@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import park.brothers.runwith_back.domain.Login.dto.LoginRequestDto;
 import park.brothers.runwith_back.domain.Login.service.LoginService;
-import park.brothers.runwith_back.domain.Runner.entity.Runner;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +26,7 @@ public class LoginController {
 
     //login api
     @PostMapping("/api/v1/runners/login")
-    public ResponseEntity<Object> login(@RequestBody @Valid LoginRequestDto form,
+    public ResponseEntity<Object> login(@RequestBody @Valid LoginRequestDto loginRequestDto,
                                         BindingResult bindingResult,
                                         HttpServletResponse response) {
 
@@ -35,21 +34,21 @@ public class LoginController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bindingResult.getAllErrors());
         }
 
-        Runner loginRunner = loginService.login(form.getEmail(), form.getPassword());
+        Long loginRunnerId = loginService.login(loginRequestDto);
 
-        if(loginRunner == null){
+        if(loginRunnerId == null){
             Map<String, String> error = new HashMap<>();
             error.put("message", "아이디 또는 비밀번호가 일치하지 않습니다.");
 
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         }
 
-        Cookie idCookie = new Cookie("runnerId", String.valueOf(loginRunner.getId()));
+        Cookie idCookie = new Cookie("runnerId", String.valueOf(loginRunnerId));
         idCookie.setPath("/");
         idCookie.setHttpOnly(true);
         response.addCookie(idCookie);
 
-        return ResponseEntity.ok(loginRunner);
+        return ResponseEntity.ok(loginRunnerId);
     }
 
 

@@ -4,19 +4,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j
 @Repository
-public class MemoryRunnerRepository {
+public class MemoryRunnerRepository implements RunnerRepository {
 
     private static Map<Long, Runner> store = new HashMap<>();
-    private static long sequence = 0L;
 
     public void save(Runner runner){
-        runner.setId(++sequence);
-        runner.setCreatedAt(LocalDateTime.now());
         log.info("save: runner ={}", runner);
         store.put(runner.getId(), runner);
     }
