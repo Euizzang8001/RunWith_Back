@@ -11,6 +11,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import park.brothers.runwith_back.common.Response.ValidationErrorUtils;
 import park.brothers.runwith_back.domain.Login.dto.LoginRequestDto;
 import park.brothers.runwith_back.domain.Login.service.LoginService;
 
@@ -30,8 +31,8 @@ public class LoginController {
                                         BindingResult bindingResult,
                                         HttpServletResponse response) {
 
-        if(bindingResult.hasErrors()){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bindingResult.getAllErrors());
+        if (bindingResult.hasErrors()) {
+            return ValidationErrorUtils.handleValidationErrors(bindingResult);
         }
 
         Long loginRunnerId = loginService.login(loginRequestDto);
