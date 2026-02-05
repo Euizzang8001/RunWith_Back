@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import park.brothers.runwith_back.domain.Group.entity.Group;
-import park.brothers.runwith_back.domain.Runner.entity.Runner;
 
 import java.util.List;
 
