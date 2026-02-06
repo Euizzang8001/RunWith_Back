@@ -1,4 +1,4 @@
-package park.brothers.runwith_back.domain.Runner.entity;
+package park.brothers.runwith_back.domain.Group.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -10,26 +10,18 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-@Table(name = "runners")
-public class Runner {
+@Table(name = "groups")
+public class Group {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(nullable = false)
-    private String email;
-
-    @Column(nullable = false)
-    private String password;
-
-    @Column
-    private String imageLink;
-
-    @CreationTimestamp //data insert 시 자동 현재 시간 대입
+    @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
 }
