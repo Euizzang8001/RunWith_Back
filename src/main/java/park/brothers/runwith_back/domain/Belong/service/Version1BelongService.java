@@ -7,7 +7,7 @@ import park.brothers.runwith_back.domain.Belong.dto.Request.JoinGroupRequestDto;
 import park.brothers.runwith_back.domain.Belong.dto.Request.LeaveGroupRequestDto;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
 import park.brothers.runwith_back.domain.Belong.repository.BelongRepository;
-import park.brothers.runwith_back.domain.Group.dto.GetGroupResponseDto;
+import park.brothers.runwith_back.domain.Group.dto.Response.GetGroupResponseDto;
 import park.brothers.runwith_back.domain.Group.entity.Group;
 import park.brothers.runwith_back.domain.Group.repository.GroupRepository;
 import park.brothers.runwith_back.domain.Runner.dto.Response.GetRunnerResponseDto;

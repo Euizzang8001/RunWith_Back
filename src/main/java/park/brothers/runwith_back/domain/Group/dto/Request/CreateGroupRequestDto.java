@@ -1,4 +1,4 @@
-package park.brothers.runwith_back.domain.Group.dto;
+package park.brothers.runwith_back.domain.Group.dto.Request;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Data
 @Getter
-public class CreateGroupDto {
+public class CreateGroupRequestDto {
     @NotEmpty
     private String name;
 

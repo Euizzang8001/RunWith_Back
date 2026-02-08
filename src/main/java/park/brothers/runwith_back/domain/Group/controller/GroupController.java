@@ -7,8 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import park.brothers.runwith_back.domain.Group.dto.CreateGroupDto;
-import park.brothers.runwith_back.domain.Group.dto.GetGroupResponseDto;
+import park.brothers.runwith_back.domain.Group.dto.Request.CreateGroupRequestDto;
+import park.brothers.runwith_back.domain.Group.dto.Response.GetGroupResponseDto;
 import park.brothers.runwith_back.domain.Group.dto.Request.DeleteGroupRequestDto;
 import park.brothers.runwith_back.domain.Group.service.GroupService;
 import park.brothers.runwith_back.common.Response.ValidationErrorUtils;
@@ -24,14 +24,14 @@ public class GroupController {
     private final GroupService groupService;
 
     @PostMapping
-    public ResponseEntity<Object> save(@RequestBody @Valid CreateGroupDto createGroupDto, BindingResult bindingResult){ //BindingResult은 DTO만
+    public ResponseEntity<Object> save(@RequestBody @Valid CreateGroupRequestDto createGroupRequestDto, BindingResult bindingResult){ //BindingResult은 DTO만
         if (bindingResult.hasErrors()) {
             return ValidationErrorUtils.handleValidationErrors(bindingResult);
         }
 
-        groupService.save(createGroupDto);
+        groupService.save(createGroupRequestDto);
 
-        return ResponseEntity.status(HttpStatus.OK).body(createGroupDto);
+        return ResponseEntity.status(HttpStatus.OK).body(createGroupRequestDto);
     }
 
     @GetMapping("/{name}")

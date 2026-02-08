@@ -1,4 +1,4 @@
-package park.brothers.runwith_back.domain.Group.dto;
+package park.brothers.runwith_back.domain.Group.dto.Response;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;

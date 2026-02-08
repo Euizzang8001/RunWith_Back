@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
 import park.brothers.runwith_back.domain.Belong.repository.BelongRepository;
-import park.brothers.runwith_back.domain.Group.dto.CreateGroupDto;
-import park.brothers.runwith_back.domain.Group.dto.GetGroupResponseDto;
+import park.brothers.runwith_back.domain.Group.dto.Request.CreateGroupRequestDto;
+import park.brothers.runwith_back.domain.Group.dto.Response.GetGroupResponseDto;
 import park.brothers.runwith_back.domain.Group.dto.Request.DeleteGroupRequestDto;
 import park.brothers.runwith_back.domain.Group.entity.Group;
 import park.brothers.runwith_back.domain.Group.repository.GroupRepository;
@@ -25,23 +25,23 @@ public class Version1GroupService implements GroupService {
     private final BelongRepository belongRepository;
 
     @Override
-    public void save(CreateGroupDto createGroupDto) {
-        Optional<Runner> runner = runnerRepository.findById(createGroupDto.getRunnerId());
+    public void save(CreateGroupRequestDto createGroupRequestDto) {
+        Optional<Runner> runner = runnerRepository.findById(createGroupRequestDto.getRunnerId());
 
-         if(groupRepository.findByName(createGroupDto.getName()) == null && runner.isPresent()){
+         if(groupRepository.findByName(createGroupRequestDto.getName()) == null && runner.isPresent()){
              //그룹 객체 생성
              Group group = new Group();
-             group.setName(createGroupDto.getName());
+             group.setName(createGroupRequestDto.getName());
              groupRepository.save(group);
 
              //그룹 가져오기
-             Group saved_group = groupRepository.findByName(createGroupDto.getName());
+             Group saved_group = groupRepository.findByName(createGroupRequestDto.getName());
 
              //이 그룹에 자기가 속했고, 리더임을 나타내는 Belong객체 생성
              Belong belong = new Belong();
              belong.setRunner(runner.get());
              belong.setGroup(saved_group);
-             belong.setNickname(createGroupDto.getNickname());
+             belong.setNickname(createGroupRequestDto.getNickname());
              belong.setLeader(true);
              belongRepository.save(belong);
          }
