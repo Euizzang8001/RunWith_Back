@@ -1,5 +1,6 @@
 package park.brothers.runwith_back.domain.Belong.repository;
 
+import jakarta.validation.constraints.NotNull;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
 
 import java.util.List;
@@ -19,4 +20,6 @@ public interface BelongRepository {
     List<Belong> findByGroupId(Long groupId);
 
     void changeIsLeader(Long runnerId, Long groupId, boolean isLeader);
+
+    Belong getById(@NotNull Long id);
 }

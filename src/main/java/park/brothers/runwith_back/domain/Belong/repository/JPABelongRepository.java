@@ -79,4 +79,11 @@ public class JPABelongRepository implements BelongRepository{
 
         belong.setLeader(isLeader);
     }
+
+    @Override
+    public Belong getById(Long id) {
+        return em.createQuery("select b from Belong b where b.id = :id", Belong.class)
+                .setParameter("id", id)
+                .getSingleResult();
+    }
 }
