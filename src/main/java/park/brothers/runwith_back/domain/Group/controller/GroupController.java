@@ -9,6 +9,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import park.brothers.runwith_back.domain.Group.dto.CreateGroupDto;
 import park.brothers.runwith_back.domain.Group.dto.GetGroupResponseDto;
+import park.brothers.runwith_back.domain.Group.dto.Request.DeleteGroupRequestDto;
 import park.brothers.runwith_back.domain.Group.service.GroupService;
 import park.brothers.runwith_back.common.Response.ValidationErrorUtils;
 
@@ -45,9 +46,12 @@ public class GroupController {
         return ResponseEntity.status(HttpStatus.OK).body(groups);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteGroup(@PathVariable @Valid Long id) {
-        groupService.delete(id);
-        return ResponseEntity.status(HttpStatus.OK).body(id);
+    @DeleteMapping()
+    public ResponseEntity<Object> deleteGroup(@RequestBody @Valid DeleteGroupRequestDto deleteGroupRequestDto, BindingResult bindingResult) {
+        if(bindingResult.hasErrors()){
+            return ValidationErrorUtils.handleValidationErrors(bindingResult);
+        }
+        groupService.delete(deleteGroupRequestDto);
+        return ResponseEntity.status(HttpStatus.OK).body(deleteGroupRequestDto);
     }
 }

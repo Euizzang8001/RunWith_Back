@@ -2,12 +2,18 @@ package park.brothers.runwith_back.domain.Group.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import park.brothers.runwith_back.domain.Belong.entity.Belong;
+import park.brothers.runwith_back.domain.Belong.repository.BelongRepository;
 import park.brothers.runwith_back.domain.Group.dto.CreateGroupDto;
 import park.brothers.runwith_back.domain.Group.dto.GetGroupResponseDto;
+import park.brothers.runwith_back.domain.Group.dto.Request.DeleteGroupRequestDto;
 import park.brothers.runwith_back.domain.Group.entity.Group;
 import park.brothers.runwith_back.domain.Group.repository.GroupRepository;
+import park.brothers.runwith_back.domain.Runner.entity.Runner;
+import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -15,13 +21,29 @@ import java.util.stream.Collectors;
 public class Version1GroupService implements GroupService {
 
     private final GroupRepository groupRepository;
+    private final RunnerRepository runnerRepository;
+    private final BelongRepository belongRepository;
 
     @Override
     public void save(CreateGroupDto createGroupDto) {
-         if(groupRepository.findByName(createGroupDto.getName()) == null){
+        Optional<Runner> runner = runnerRepository.findById(createGroupDto.getRunnerId());
+
+         if(groupRepository.findByName(createGroupDto.getName()) == null && runner.isPresent()){
+             //그룹 객체 생성
              Group group = new Group();
              group.setName(createGroupDto.getName());
              groupRepository.save(group);
+
+             //그룹 가져오기
+             Group saved_group = groupRepository.findByName(createGroupDto.getName());
+
+             //이 그룹에 자기가 속했고, 리더임을 나타내는 Belong객체 생성
+             Belong belong = new Belong();
+             belong.setRunner(runner.get());
+             belong.setGroup(saved_group);
+             belong.setNickname(createGroupDto.getNickname());
+             belong.setLeader(true);
+             belongRepository.save(belong);
          }
     }
 
@@ -50,8 +72,19 @@ public class Version1GroupService implements GroupService {
     }
 
     @Override
-    public void delete(Long id) {
-        Group group = groupRepository.getById(id);
-        groupRepository.delete(group);
+    public void delete(DeleteGroupRequestDto deleteGroupRequestDto) {
+        Long groupId = deleteGroupRequestDto.getGroupId();
+        Long runnerId = deleteGroupRequestDto.getRunnerId();
+
+        Group group = groupRepository.getById(groupId);
+        Optional<Runner> runner = runnerRepository.findById(runnerId);
+        if(runner.isPresent()){
+            List<Belong> belongs = belongRepository.findByGroupId(groupId);
+
+            if(belongs.size() == 1 && belongs.get(0).isLeader() && belongs.get(0).getRunner() == runner.get()) {
+                belongRepository.deleteByRunnerIdAndGroupId(runnerId, groupId);
+                groupRepository.delete(group);
+            }
+        }
     }
 }

@@ -17,8 +17,8 @@ public class MemoryRunnerRepository implements RunnerRepository {
         store.put(runner.getId(), runner);
     }
 
-    public Runner findById(Long id){
-        return store.get(id);
+    public Optional<Runner> findById(Long id){
+        return Optional.ofNullable(store.get(id));
     }
 
     public Optional<Runner> findByEmail(String email){

@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import park.brothers.runwith_back.domain.Group.entity.Group;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Slf4j
@@ -52,5 +53,12 @@ public class JPAGroupRepository implements GroupRepository {
     @Override
     public Group getById(Long id) {
         return em.find(Group.class, id);
+    }
+
+    @Override
+    public Optional<Group> findById(Long id) {
+        return Optional.ofNullable(em.createQuery("select g from Group g where g.id = :id", Group.class)
+                .setParameter("id", id)
+                .getSingleResult());
     }
 }

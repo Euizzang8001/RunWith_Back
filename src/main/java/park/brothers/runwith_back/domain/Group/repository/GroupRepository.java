@@ -3,6 +3,7 @@ package park.brothers.runwith_back.domain.Group.repository;
 
 import park.brothers.runwith_back.domain.Group.entity.Group;
 import java.util.List;
+import java.util.Optional;
 
 public interface GroupRepository {
     void save(Group group);
@@ -16,4 +17,6 @@ public interface GroupRepository {
     List<Group> findBySimilarName(String name);
 
     Group getById(Long id);
+
+    Optional<Group> findById(Long groupId);
 }
