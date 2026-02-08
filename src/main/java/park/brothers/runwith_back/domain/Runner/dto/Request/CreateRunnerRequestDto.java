@@ -1,4 +1,4 @@
-package park.brothers.runwith_back.domain.Runner.dto;
+package park.brothers.runwith_back.domain.Runner.dto.Request;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Data
 @Getter
-public class CreateRunnerDto {
+public class CreateRunnerRequestDto {
     @NotEmpty
     private String name;
 

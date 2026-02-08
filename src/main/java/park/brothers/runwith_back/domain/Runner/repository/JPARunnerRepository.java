@@ -1,6 +1,7 @@
 package park.brothers.runwith_back.domain.Runner.repository;
 
 import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
@@ -13,13 +14,10 @@ import java.util.*;
 @Slf4j
 @Primary
 @Transactional
+@RequiredArgsConstructor
 public class JPARunnerRepository implements RunnerRepository {
 
     private final EntityManager em;
-
-    public JPARunnerRepository(EntityManager em) {
-        this.em = em;
-    }
 
     @Override
     @Transactional
@@ -34,5 +32,12 @@ public class JPARunnerRepository implements RunnerRepository {
                 .getResultList();
 
         return result.stream().findFirst();
+    }
+
+    @Override
+    public Optional<Runner> findById(Long runnerId) {
+        return Optional.ofNullable(em.createQuery("select r from Runner r where r.id = :id", Runner.class)
+                .setParameter("id", runnerId)
+                .getSingleResult());
     }
 }

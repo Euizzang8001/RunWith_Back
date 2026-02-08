@@ -8,4 +8,6 @@ public interface RunnerRepository {
     void save(Runner runner);
 
     Optional<Runner> findByEmail(String email);
+
+    Optional<Runner> findById(Long runnerId);
 }

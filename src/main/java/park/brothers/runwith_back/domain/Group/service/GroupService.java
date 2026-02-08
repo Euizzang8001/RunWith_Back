@@ -1,13 +1,14 @@
 package park.brothers.runwith_back.domain.Group.service;
 
-import park.brothers.runwith_back.domain.Group.dto.CreateGroupDto;
-import park.brothers.runwith_back.domain.Group.dto.GetGroupResponseDto;
+import park.brothers.runwith_back.domain.Group.dto.Request.CreateGroupRequestDto;
+import park.brothers.runwith_back.domain.Group.dto.Response.GetGroupResponseDto;
+import park.brothers.runwith_back.domain.Group.dto.Request.DeleteGroupRequestDto;
 
 import java.util.List;
 
 public interface GroupService {
 
-    void save(CreateGroupDto createGroupDto);
+    void save(CreateGroupRequestDto createGroupRequestDto);
 
     List<GetGroupResponseDto> getAllGroups();
 
@@ -15,5 +16,5 @@ public interface GroupService {
 
     List<GetGroupResponseDto> getGroupsBySimilarName(String name);
 
-    void delete(Long id);
+    void delete(DeleteGroupRequestDto deleteGroupRequestDto);
 }
