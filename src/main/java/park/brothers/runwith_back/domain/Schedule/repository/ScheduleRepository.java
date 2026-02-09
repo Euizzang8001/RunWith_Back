@@ -19,4 +19,6 @@ public interface ScheduleRepository {
     List<Schedule> getByBelongIdAndLocalDate(Long belongId, LocalDate localDate);
 
     void reviseSchedule(Long id, String description);
+
+    Schedule getScheduleById(Long scheduleId);
 }
