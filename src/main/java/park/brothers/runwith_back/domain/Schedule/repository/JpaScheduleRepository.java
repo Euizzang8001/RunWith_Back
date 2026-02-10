@@ -76,4 +76,12 @@ public class JpaScheduleRepository implements ScheduleRepository{
                 .getSingleResult();
         schedule.setDescription(description);
     }
+
+    //id로 스케줄 객체 하나 찾기
+    @Override
+    public Schedule getScheduleById(Long id) {
+        return em.createQuery("select s from Schedule s where s.id = :id", Schedule.class)
+                .setParameter("id", id)
+                .getSingleResult();
+    }
 }
