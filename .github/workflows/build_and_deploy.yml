@@ -53,11 +53,13 @@ jobs:
             echo "TARGET_TAG=${{ secrets.DOCKER_PROD_TAG }}" >> $GITHUB_ENV
             echo "INNER_PORT=${{ secrets.SERVER_PROD_INNER_PORT }}" >> $GITHUB_ENV
             echo "OUTER_PORT=${{ secrets.SERVER_OUTER_PROD_PORT }}" >> $GITHUB_ENV
+            echo "CONTAINER_NAME=${{ secrets.DOCKER_PROD_CONTAINER }}" >> $GITHUB_ENV
           else
             echo "Deploying to DEVELOPMENT"
             echo "TARGET_TAG=${{ secrets.DOCKER_DEV_TAG }}" >> $GITHUB_ENV
             echo "INNER_PORT=${{ secrets.SERVER_DEV_INNER_PORT }}" >> $GITHUB_ENV
             echo "OUTER_PORT=${{ secrets.SERVER_OUTER_DEV_PORT }}" >> $GITHUB_ENV
+            echo "CONTAINER_NAME=${{ secrets.DOCKER_DEV_CONTAINER }}" >> $GITHUB_ENV
           fi
 
       - name: Deploy to EC2 via SSH
@@ -71,7 +73,7 @@ jobs:
             # 환경변수를 스크립트 내 변수로 저장 (가독성 및 안전성)
             IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}"
             TAG="${{ env.TARGET_TAG }}"
-            CONTAINER_NAME="${{ secrets.DOCKER_IMAGE }}"
+            CONTAINER_NAME="${{ env.CONTAINER_NAME }}"
             INNER_PORT="${{ env.INNER_PORT }}"
             OUTER_PORT="${{ env.OUTER_PORT }}"
             
