@@ -25,6 +25,8 @@ jobs:
             echo "TARGET_TAG=${{ secrets.DOCKER_DEV_TAG }}" >> $GITHUB_ENV
             echo "BUILD_PORT=${{ secrets.SERVER_OUTER_DEV_PORT }}" >> $GITHUB_ENV
           fi
+          
+          echo 
 
       # 도커 허브 로그인
       # 도커 허브에 이미지를 push한 후, deploy시 다운 받을 예정
@@ -65,6 +67,9 @@ jobs:
             echo "OUTER_PORT=${{ secrets.SERVER_OUTER_DEV_PORT }}" >> $GITHUB_ENV
             echo "CONTAINER_NAME=${{ secrets.DOCKER_DEV_CONTAINER }}" >> $GITHUB_ENV
           fi
+          
+          echo "prod container name: ${{ secrets.DOCKER_PROD_CONTAINER }}"
+          echo "dev container name: ${{ secrets.DOCKER_DEV_CONTAINER }}"
 
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@master
@@ -89,7 +94,7 @@ jobs:
             # 도커 허브로부터 도커 이미지 받기
             sudo docker pull $IMAGE_NAME:$TAG
             
-            echo $$CONTAINER_NAME
+            echo "container name: $CONTAINER_NAME"
             # 기존 컨테이너 중지 및 삭제
             sudo docker stop $CONTAINER_NAME || true
             sudo docker rm $CONTAINER_NAME || true
