@@ -78,7 +78,10 @@ jobs:
             OUTER_PORT="${{ env.OUTER_PORT }}"
             
             echo "Deploying $IMAGE_NAME:$TAG to Port $OUTER_PORT:$INNER_PORT"
-
+            
+            #도커 로그인
+            echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+            
             # 도커 허브로부터 도커 이미지 받기
             sudo docker pull $IMAGE_NAME:$TAG
             
