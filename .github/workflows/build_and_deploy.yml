@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-push:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -43,7 +43,7 @@ jobs:
 
   deploy:
     needs: build-and-push
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       # deploy 잡에서 실행될 때 필요한 secret설정 -> main과 dev 분리
       - name: Set Environment Variables for Deploy
