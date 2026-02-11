@@ -45,7 +45,10 @@ USER appuser
 # builder 스테이지(1단계)에서 생성된 파일들 중 JAR파일만 뽑아서 현재 단계에 app.jar이름으로 복사
 COPY --from=builder /app/build/libs/*.jar app.jar
 
-# 이 컨테이너의 포트가 32108임을 설정
+# 이 컨테이너의 포트는 깃허브 액션 수행 시 브랜치에 따라 설정
+# 기본값은 8080
+ARG PORT=8080
+ENV SERVER_PORT=${PORT}
 EXPOSE ${PORT}
 
 # 컨테이너가 시작될 때 실행할 명령어를 설정
