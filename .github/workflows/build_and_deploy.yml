@@ -19,9 +19,11 @@ jobs:
           if [[ "${{ github.ref_name }}" == "main" || "${{ github.base_ref }}" == "main" ]]; then
             echo "Building for PRODUCTION (main)"
             echo "TARGET_TAG=${{ secrets.DOCKER_PROD_TAG }}" >> $GITHUB_ENV
+            echo "BUILD_PORT=${{ secrets.SERVER_OUTER_PROD_PORT }}" >> $GITHUB_ENV
           else
             echo "Building for DEVELOPMENT (dev)"
             echo "TARGET_TAG=${{ secrets.DOCKER_DEV_TAG }}" >> $GITHUB_ENV
+            echo "BUILD_PORT=${{ secrets.SERVER_OUTER_DEV_PORT }}" >> $GITHUB_ENV
           fi
 
       # 도커 허브 로그인
@@ -40,6 +42,8 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}:${{ env.TARGET_TAG }}
+          build-args: |
+            PORT=${{ env.BUILD_PORT }} 
 
   deploy:
     needs: build-and-push
