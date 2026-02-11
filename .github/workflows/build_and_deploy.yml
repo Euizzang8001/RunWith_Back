@@ -89,6 +89,7 @@ jobs:
             # 도커 허브로부터 도커 이미지 받기
             sudo docker pull $IMAGE_NAME:$TAG
             
+            echo $$CONTAINER_NAME
             # 기존 컨테이너 중지 및 삭제
             sudo docker stop $CONTAINER_NAME || true
             sudo docker rm $CONTAINER_NAME || true
