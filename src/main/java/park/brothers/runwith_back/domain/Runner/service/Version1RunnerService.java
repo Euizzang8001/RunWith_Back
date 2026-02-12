@@ -10,7 +10,6 @@ import park.brothers.runwith_back.domain.Runner.dto.Request.CreateRunnerRequestD
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
 
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
