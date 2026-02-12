@@ -32,6 +32,12 @@ public class Version1GroupService implements GroupService {
              //그룹 객체 생성
              Group group = new Group();
              group.setName(createGroupRequestDto.getName());
+             group.setDescription(createGroupRequestDto.getDescription());
+             group.setIsSelf(false);
+             if(createGroupRequestDto.getImageLink() != null){
+                 group.setImageLink(createGroupRequestDto.getImageLink());
+             }
+             group.setCertificationCriteria(createGroupRequestDto.getCertificationCriteria());
              groupRepository.save(group);
 
              //그룹 가져오기
