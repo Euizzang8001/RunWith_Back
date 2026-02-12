@@ -10,4 +10,6 @@ public interface RunnerRepository {
     Optional<Runner> findByEmail(String email);
 
     Optional<Runner> findById(Long runnerId);
+
+    Runner getByEmail(String email);
 }

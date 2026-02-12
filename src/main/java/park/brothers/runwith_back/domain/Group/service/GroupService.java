@@ -1,6 +1,8 @@
 package park.brothers.runwith_back.domain.Group.service;
 
+import jakarta.validation.Valid;
 import park.brothers.runwith_back.domain.Group.dto.Request.CreateGroupRequestDto;
+import park.brothers.runwith_back.domain.Group.dto.Request.ReviseGroupRequestDto;
 import park.brothers.runwith_back.domain.Group.dto.Response.GetGroupResponseDto;
 import park.brothers.runwith_back.domain.Group.dto.Request.DeleteGroupRequestDto;
 
@@ -17,4 +19,6 @@ public interface GroupService {
     List<GetGroupResponseDto> getGroupsBySimilarName(String name);
 
     void delete(DeleteGroupRequestDto deleteGroupRequestDto);
+
+    void reviseGroup(@Valid ReviseGroupRequestDto reviseGroupRequestDto) throws IllegalAccessException;
 }

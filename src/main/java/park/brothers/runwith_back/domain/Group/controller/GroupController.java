@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import park.brothers.runwith_back.domain.Group.dto.Request.CreateGroupRequestDto;
+import park.brothers.runwith_back.domain.Group.dto.Request.ReviseGroupRequestDto;
 import park.brothers.runwith_back.domain.Group.dto.Response.GetGroupResponseDto;
 import park.brothers.runwith_back.domain.Group.dto.Request.DeleteGroupRequestDto;
 import park.brothers.runwith_back.domain.Group.service.GroupService;
@@ -53,5 +54,22 @@ public class GroupController {
         }
         groupService.delete(deleteGroupRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(deleteGroupRequestDto);
+    }
+
+    @PatchMapping
+    public ResponseEntity<Object> reviseGroupInfo(
+            @RequestBody @Valid ReviseGroupRequestDto reviseGroupRequestDto,
+            BindingResult bindingResult
+            ){
+        if(bindingResult.hasErrors()){
+            return ValidationErrorUtils.handleValidationErrors(bindingResult);
+        }
+        try {
+            groupService.reviseGroup(reviseGroupRequestDto);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(reviseGroupRequestDto);
     }
 }
