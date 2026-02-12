@@ -77,7 +77,7 @@ public class Version1BelongService implements BelongService{
     public List<GetGroupResponseDto> getAllGroupsRunnerJoin(Long runnerId) {
         List<Belong> belongs = belongRepository.findByRunnerId(runnerId);
         return belongs.stream()
-                .map(belong -> new GetGroupResponseDto(belong.getGroup().getId(), belong.getGroup().getName()))
+                .map(belong -> new GetGroupResponseDto(belong.getGroup().getId(), belong.getGroup().getName(), belong.getGroup().getDescription(), belong.getGroup().getImageLink()))
                 .collect(Collectors.toList());
     }
 
@@ -86,7 +86,7 @@ public class Version1BelongService implements BelongService{
     public List<GetRunnerResponseDto> getAllRunnersInGroup(Long groupId) {
         List<Belong> belongs = belongRepository.findByGroupId(groupId);
         return belongs.stream()
-                .map(belong -> new GetRunnerResponseDto(belong.getRunner().getId(), belong.getRunner().getName()))
+                .map(belong -> new GetRunnerResponseDto(belong.getRunner().getId(), belong.getRunner().getName(), belong.getRunner().getImageLink()))
                 .collect(Collectors.toList());
     }
 
