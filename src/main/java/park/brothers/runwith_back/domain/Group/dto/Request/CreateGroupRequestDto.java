@@ -16,4 +16,12 @@ public class CreateGroupRequestDto {
 
     @NotEmpty
     private String nickname;
+
+    @NotNull
+    private int certificationCriteria;
+
+    @NotEmpty
+    private String description;
+
+    private String imageLink;
 }

@@ -24,4 +24,16 @@ public class Group {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(nullable = false)
+    private int certificationCriteria;
+
+    @Column(nullable = false)
+    private String description;
+
+    @Column(nullable = false)
+    private Boolean isSelf;
+
+    @Column
+    private String imageLink;
+
 }
