@@ -58,7 +58,6 @@ public class GroupController {
 
     @PatchMapping
     public ResponseEntity<Object> reviseGroupInfo(
-            @RequestParam @Valid Long id,
             @RequestBody @Valid ReviseGroupRequestDto reviseGroupRequestDto,
             BindingResult bindingResult
             ){
