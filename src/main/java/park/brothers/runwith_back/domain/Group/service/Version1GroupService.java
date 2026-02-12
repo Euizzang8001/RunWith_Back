@@ -59,14 +59,14 @@ public class Version1GroupService implements GroupService {
         List<Group> groups = groupRepository.findAll();
 
         return groups.stream()
-                .map(group -> new GetGroupResponseDto(group.getId(), group.getName()))
+                .map(group -> new GetGroupResponseDto(group.getId(), group.getName(), group.getDescription(), group.getImageLink()))
                 .collect(Collectors.toList());
     }
 
     @Override
     public GetGroupResponseDto getGroupByName(String name) {
         Group group = groupRepository.findByName(name);
-        return new GetGroupResponseDto(group.getId(), group.getName());
+        return new GetGroupResponseDto(group.getId(), group.getName(), group.getDescription(), group.getImageLink());
 
     }
 
@@ -74,7 +74,7 @@ public class Version1GroupService implements GroupService {
     public List<GetGroupResponseDto> getGroupsBySimilarName(String name) {
         List<Group> groups = groupRepository.findBySimilarName(name);
         return groups.stream()
-                .map(group -> new GetGroupResponseDto(group.getId(), group.getName()))
+                .map(group -> new GetGroupResponseDto(group.getId(), group.getName(), group.getDescription(), group.getImageLink()))
                 .collect(Collectors.toList());
     }
 
