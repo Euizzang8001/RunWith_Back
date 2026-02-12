@@ -40,4 +40,11 @@ public class JPARunnerRepository implements RunnerRepository {
                 .setParameter("id", runnerId)
                 .getSingleResult());
     }
+
+    @Override
+    public Runner getByEmail(String email) {
+        return em.createQuery("select r from Runner r where r.email = :email", Runner.class)
+                .setParameter("email", email)
+                .getSingleResult();
+    }
 }
