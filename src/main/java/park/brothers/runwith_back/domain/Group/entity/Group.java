@@ -30,7 +30,7 @@ public class Group {
     @Column(nullable = false)
     private String description;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private Boolean isSelf;
 
     @Column
