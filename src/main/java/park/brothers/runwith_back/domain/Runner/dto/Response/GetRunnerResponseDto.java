@@ -13,4 +13,6 @@ public class GetRunnerResponseDto {
 
     @NotEmpty
     String name;
+
+    String imageLink;
 }
