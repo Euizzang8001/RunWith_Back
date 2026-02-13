@@ -11,9 +11,6 @@ import park.brothers.runwith_back.domain.Runner.dto.Response.CreateRunnerRespons
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
 
-import java.util.Optional;
-
-
 @Service
 @RequiredArgsConstructor
 public class Version1RunnerService implements RunnerService {
@@ -36,7 +33,7 @@ public class Version1RunnerService implements RunnerService {
             runner.setImageLink(createRunnerRequestDto.getImageLink());
         }
 
-        runnerRepository.save(runner);
+        Runner savedRunner = runnerRepository.save(runner);
 
         //러너가 리더인 그룹 하나 생성
         Group group = new Group();
@@ -44,30 +41,22 @@ public class Version1RunnerService implements RunnerService {
         group.setName(runner.getName() + "'s self group");
         group.setDescription(runner.getName() + "'s self group");
         group.setCertificationCriteria(0);
-        groupRepository.save(group);
+        Group savedGroup = groupRepository.save(group);
 
         //러너가 이 그룹의 리더이자 속한다는 것을 나타낸 belong 객체 저장
-        Group selfGroup =  groupRepository.findByName(runner.getName() + "'s self group");
-        Runner selfRunner = runnerRepository.getByEmail(runner.getEmail());
-
         Belong belong = new Belong();
         belong.setLeader(true);
-        belong.setGroup(selfGroup);
+        belong.setGroup(savedGroup);
         belong.setNickname(runner.getName());
-        belong.setRunner(selfRunner);
+        belong.setRunner(savedRunner);
         belongRepository.save(belong);
 
         //리턴해줄 값
-        Optional<Runner> savedRunner = runnerRepository.findByName(runner.getName());
-        if(savedRunner.isEmpty()){
-            throw new IllegalAccessError("러너가 저장되지 않았습니다.");
-        }
-
         return new CreateRunnerResponseDto(
-                savedRunner.get().getId(),
-                savedRunner.get().getName(),
-                savedRunner.get().getEmail(),
-                savedRunner.get().getImageLink()
+                savedRunner.getId(),
+                savedRunner.getName(),
+                savedRunner.getEmail(),
+                savedRunner.getImageLink()
         );
     }
 
