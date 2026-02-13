@@ -13,8 +13,6 @@ import park.brothers.runwith_back.domain.Runner.dto.Request.CreateRunnerRequestD
 import park.brothers.runwith_back.domain.Runner.dto.Response.CreateRunnerResponseDto;
 import park.brothers.runwith_back.domain.Runner.service.RunnerService;
 
-import java.util.Map;
-
 @Slf4j
 @RestController
 @RequiredArgsConstructor
