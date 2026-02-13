@@ -11,7 +11,7 @@ public interface BelongRepository {
 
     Optional<Object> findByGroupIdAndNickname(Long groupId, String nickname);
 
-    void save(Belong belong);
+    Belong save(Belong belong);
 
     void deleteByRunnerIdAndGroupId(Long runnerId, Long groupId);
 

@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class Belong {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY) //Belong을 조회할 때 Belog만 조회하고, Runner는 나중에 조회(지연 로딩)
