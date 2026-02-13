@@ -7,8 +7,11 @@ import park.brothers.runwith_back.domain.Belong.repository.BelongRepository;
 import park.brothers.runwith_back.domain.Group.entity.Group;
 import park.brothers.runwith_back.domain.Group.repository.GroupRepository;
 import park.brothers.runwith_back.domain.Runner.dto.Request.CreateRunnerRequestDto;
+import park.brothers.runwith_back.domain.Runner.dto.Response.CreateRunnerResponseDto;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
+
+import java.util.Optional;
 
 
 @Service
@@ -20,13 +23,15 @@ public class Version1RunnerService implements RunnerService {
     private final BelongRepository belongRepository;
 
     @Override
-    public void save(CreateRunnerRequestDto createRunnerRequestDto) {
+    public CreateRunnerResponseDto save(CreateRunnerRequestDto createRunnerRequestDto) throws IllegalAccessError {
         //러너 생성
         Runner runner = new Runner();
+        if(runnerRepository.findByName(createRunnerRequestDto.getName()).isPresent()){
+            throw new IllegalAccessError("이미 존재하는 이름입니다.");
+        }
         runner.setName(createRunnerRequestDto.getName());
         runner.setPassword(createRunnerRequestDto.getPassword());
         runner.setEmail(createRunnerRequestDto.getEmail());
-
         if(createRunnerRequestDto.getImageLink() != null){
             runner.setImageLink(createRunnerRequestDto.getImageLink());
         }
@@ -51,5 +56,23 @@ public class Version1RunnerService implements RunnerService {
         belong.setNickname(runner.getName());
         belong.setRunner(selfRunner);
         belongRepository.save(belong);
+
+        //리턴해줄 값
+        Optional<Runner> savedRunner = runnerRepository.findByName(runner.getName());
+        if(savedRunner.isEmpty()){
+            throw new IllegalAccessError("러너가 저장되지 않았습니다.");
+        }
+
+        return new CreateRunnerResponseDto(
+                savedRunner.get().getId(),
+                savedRunner.get().getName(),
+                savedRunner.get().getEmail(),
+                savedRunner.get().getImageLink()
+        );
+    }
+
+    @Override
+    public Boolean checkDuplication(CreateRunnerRequestDto createRunnerRequestDto) {
+        return runnerRepository.checkDuplication(createRunnerRequestDto.getName(), createRunnerRequestDto.getEmail());
     }
 }
