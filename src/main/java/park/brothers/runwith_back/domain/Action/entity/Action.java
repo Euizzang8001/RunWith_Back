@@ -12,7 +12,7 @@ import park.brothers.runwith_back.domain.Schedule.entity.Schedule;
 public class Action {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @JoinColumn(name = "schedules")

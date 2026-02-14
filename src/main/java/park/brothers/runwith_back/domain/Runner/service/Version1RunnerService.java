@@ -7,9 +7,9 @@ import park.brothers.runwith_back.domain.Belong.repository.BelongRepository;
 import park.brothers.runwith_back.domain.Group.entity.Group;
 import park.brothers.runwith_back.domain.Group.repository.GroupRepository;
 import park.brothers.runwith_back.domain.Runner.dto.Request.CreateRunnerRequestDto;
+import park.brothers.runwith_back.domain.Runner.dto.Response.CreateRunnerResponseDto;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
-
 
 @Service
 @RequiredArgsConstructor
@@ -20,18 +20,20 @@ public class Version1RunnerService implements RunnerService {
     private final BelongRepository belongRepository;
 
     @Override
-    public void save(CreateRunnerRequestDto createRunnerRequestDto) {
+    public CreateRunnerResponseDto save(CreateRunnerRequestDto createRunnerRequestDto) throws IllegalAccessError {
         //러너 생성
         Runner runner = new Runner();
+        if(runnerRepository.findByName(createRunnerRequestDto.getName()).isPresent()){
+            throw new IllegalAccessError("이미 존재하는 이름입니다.");
+        }
         runner.setName(createRunnerRequestDto.getName());
         runner.setPassword(createRunnerRequestDto.getPassword());
         runner.setEmail(createRunnerRequestDto.getEmail());
-
         if(createRunnerRequestDto.getImageLink() != null){
             runner.setImageLink(createRunnerRequestDto.getImageLink());
         }
 
-        runnerRepository.save(runner);
+        Runner savedRunner = runnerRepository.save(runner);
 
         //러너가 리더인 그룹 하나 생성
         Group group = new Group();
@@ -39,17 +41,27 @@ public class Version1RunnerService implements RunnerService {
         group.setName(runner.getName() + "'s self group");
         group.setDescription(runner.getName() + "'s self group");
         group.setCertificationCriteria(0);
-        groupRepository.save(group);
+        Group savedGroup = groupRepository.save(group);
 
         //러너가 이 그룹의 리더이자 속한다는 것을 나타낸 belong 객체 저장
-        Group selfGroup =  groupRepository.findByName(runner.getName() + "'s self group");
-        Runner selfRunner = runnerRepository.getByEmail(runner.getEmail());
-
         Belong belong = new Belong();
         belong.setLeader(true);
-        belong.setGroup(selfGroup);
+        belong.setGroup(savedGroup);
         belong.setNickname(runner.getName());
-        belong.setRunner(selfRunner);
+        belong.setRunner(savedRunner);
         belongRepository.save(belong);
+
+        //리턴해줄 값
+        return new CreateRunnerResponseDto(
+                savedRunner.getId(),
+                savedRunner.getName(),
+                savedRunner.getEmail(),
+                savedRunner.getImageLink()
+        );
+    }
+
+    @Override
+    public Boolean checkDuplication(CreateRunnerRequestDto createRunnerRequestDto) {
+        return runnerRepository.checkDuplication(createRunnerRequestDto.getName(), createRunnerRequestDto.getEmail());
     }
 }

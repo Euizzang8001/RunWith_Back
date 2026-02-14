@@ -21,8 +21,9 @@ public class JPAGroupRepository implements GroupRepository {
     private final EntityManager em;
 
     @Override
-    public void save(Group group) {
+    public Group save(Group group) {
         em.persist(group);
+        return group;
     }
 
     @Override

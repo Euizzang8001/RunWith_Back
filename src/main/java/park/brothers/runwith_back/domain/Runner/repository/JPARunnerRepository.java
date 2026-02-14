@@ -19,32 +19,48 @@ public class JPARunnerRepository implements RunnerRepository {
 
     private final EntityManager em;
 
+    //러너 저장하기
     @Override
     @Transactional
-    public void save(Runner runner) {
+    public Runner save(Runner runner) {
         em.persist(runner);
+        return runner;
     }
 
+    //이메일로 runner 찾기
     @Override
     public Optional<Runner> findByEmail(String email) {
         List<Runner> result = em.createQuery("select r from Runner r where r.email = :email", Runner.class)
                 .setParameter("email", email)
                 .getResultList();
-
-        return result.stream().findFirst();
+        return result.stream().findAny();
     }
 
+    //Id로 러너 찾기
     @Override
     public Optional<Runner> findById(Long runnerId) {
-        return Optional.ofNullable(em.createQuery("select r from Runner r where r.id = :id", Runner.class)
+        List<Runner> result =  em.createQuery("select r from Runner r where r.id = :id", Runner.class)
                 .setParameter("id", runnerId)
-                .getSingleResult());
+                .getResultList();
+        return result.stream().findAny();
     }
 
+    //이름으로 러너 찾기
     @Override
-    public Runner getByEmail(String email) {
-        return em.createQuery("select r from Runner r where r.email = :email", Runner.class)
-                .setParameter("email", email)
-                .getSingleResult();
+    public Optional<Runner> findByName(String name) {
+        List<Runner> result = em.createQuery("select r from Runner r where r.name = :name", Runner.class)
+                .setParameter("name", name)
+                .getResultList();
+        return result.stream().findAny();
+    }
+
+    //DB에서 동일한 정보의 러너가 있는지 확인
+    @Override
+    public Boolean checkDuplication(String name, String email) {
+         List<Runner> result = em.createQuery("select r from Runner r where r.name = :name or r.email = :email", Runner.class)
+                 .setParameter("name", name)
+                 .setParameter("email", email)
+                 .getResultList();
+        return !result.isEmpty();
     }
 }

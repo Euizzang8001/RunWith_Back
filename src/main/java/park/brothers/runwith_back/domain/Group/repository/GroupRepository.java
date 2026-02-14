@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface GroupRepository {
-    void save(Group group);
+    Group save(Group group);
 
     void delete(Group group);
 
