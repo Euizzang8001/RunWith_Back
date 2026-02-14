@@ -57,10 +57,10 @@ public class JPARunnerRepository implements RunnerRepository {
     //DB에서 동일한 정보의 러너가 있는지 확인
     @Override
     public Boolean checkDuplication(String name, String email) {
-         Optional<Runner> runner = Optional.ofNullable(em.createQuery("select r from Runner r where r.name = :name or r.email = :email", Runner.class)
+         List<Runner> result = em.createQuery("select r from Runner r where r.name = :name or r.email = :email", Runner.class)
                  .setParameter("name", name)
                  .setParameter("email", email)
-                 .getSingleResult());
-        return runner.isPresent();
+                 .getResultList();
+        return !result.isEmpty();
     }
 }
