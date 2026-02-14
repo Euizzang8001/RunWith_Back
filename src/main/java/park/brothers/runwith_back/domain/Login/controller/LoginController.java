@@ -11,12 +11,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import park.brothers.runwith_back.common.CommonMessage;
 import park.brothers.runwith_back.common.Response.ValidationErrorUtils;
-import park.brothers.runwith_back.domain.Login.dto.LoginRequestDto;
+import park.brothers.runwith_back.domain.Login.dto.Request.LoginRequestDto;
+import park.brothers.runwith_back.domain.Login.dto.Response.LoginResponseDto;
 import park.brothers.runwith_back.domain.Login.service.LoginService;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -35,29 +34,30 @@ public class LoginController {
             return ValidationErrorUtils.handleValidationErrors(bindingResult);
         }
 
+        //로그인
         Long loginRunnerId = loginService.login(loginRequestDto);
 
+        //로그인 성공 여부 파악
         if(loginRunnerId == null){
-            Map<String, String> error = new HashMap<>();
-            error.put("message", "아이디 또는 비밀번호가 일치하지 않습니다.");
-
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new CommonMessage("아이디 또는 비밀번호가 일치하지 않습니다."));
         }
 
+        //Http 쿠키 설정
         Cookie idCookie = new Cookie("runnerId", String.valueOf(loginRunnerId));
         idCookie.setPath("/");
         idCookie.setHttpOnly(true);
         response.addCookie(idCookie);
 
-        return ResponseEntity.ok(loginRunnerId);
+        return ResponseEntity.status(HttpStatus.OK).body(new LoginResponseDto(loginRunnerId));
     }
 
 
     // logout api
     @PostMapping("/api/v1/runners/logout")
-    public ResponseEntity<String> logout(HttpServletResponse response){
+    public ResponseEntity<Object> logout(HttpServletResponse response){
         expireCookie(response);
-        return ResponseEntity.ok("로그아웃 성공");
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonMessage("로그아웃 성공"));
+
     }
 
     private void expireCookie(HttpServletResponse response){
