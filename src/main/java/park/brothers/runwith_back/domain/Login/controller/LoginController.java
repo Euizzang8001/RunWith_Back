@@ -54,9 +54,10 @@ public class LoginController {
 
     // logout api
     @PostMapping("/api/v1/runners/logout")
-    public ResponseEntity<String> logout(HttpServletResponse response){
+    public ResponseEntity<Object> logout(HttpServletResponse response){
         expireCookie(response);
-        return ResponseEntity.ok("로그아웃 성공");
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonMessage("로그아웃 성공"));
+
     }
 
     private void expireCookie(HttpServletResponse response){
