@@ -11,7 +11,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import park.brothers.runwith_back.common.ErrorMessage;
+import park.brothers.runwith_back.common.CommonMessage;
 import park.brothers.runwith_back.common.Response.ValidationErrorUtils;
 import park.brothers.runwith_back.domain.Login.dto.Request.LoginRequestDto;
 import park.brothers.runwith_back.domain.Login.dto.Response.LoginResponseDto;
@@ -39,7 +39,7 @@ public class LoginController {
 
         //로그인 성공 여부 파악
         if(loginRunnerId == null){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorMessage("아이디 또는 비밀번호가 일치하지 않습니다."));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new CommonMessage("아이디 또는 비밀번호가 일치하지 않습니다."));
         }
 
         //Http 쿠키 설정
