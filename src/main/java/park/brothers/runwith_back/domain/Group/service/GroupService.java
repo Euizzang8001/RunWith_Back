@@ -16,8 +16,6 @@ public interface GroupService {
 
     List<GetGroupResponseDto> getAllGroups();
 
-    GetGroupResponseDto getGroupByName(String name);
-
     List<GetGroupResponseDto> getGroupsBySimilarName(String name);
 
     void delete(DeleteGroupRequestDto deleteGroupRequestDto);
