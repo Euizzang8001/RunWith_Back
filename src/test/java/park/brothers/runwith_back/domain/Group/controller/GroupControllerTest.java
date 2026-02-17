@@ -70,7 +70,8 @@ class GroupControllerTest {
                 0L,
                 "test_name",
                 "test_description",
-                "test_imageLink"
+                "test_imageLink",
+                0
         );
 
         //가정 설정

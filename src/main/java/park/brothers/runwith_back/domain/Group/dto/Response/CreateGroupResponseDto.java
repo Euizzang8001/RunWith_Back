@@ -22,4 +22,6 @@ public class CreateGroupResponseDto {
 
     private String imageLink;
 
+    @NotEmpty
+    private int certificationCriteria;
 }
