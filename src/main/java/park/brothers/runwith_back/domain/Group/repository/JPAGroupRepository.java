@@ -33,7 +33,7 @@ public class JPAGroupRepository implements GroupRepository {
 
     @Override
     public List<Group> findAll() {
-        return em.createQuery("select g from Group g", Group.class)
+        return em.createQuery("select g from Group g where g.isSelf = false", Group.class)
                 .getResultList();
     }
 
