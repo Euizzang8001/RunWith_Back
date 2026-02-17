@@ -116,9 +116,7 @@ class Version1GroupServiceTest {
         given(groupRepository.findByName(anyString())).willReturn(group);
 
         //when & then
-        assertThrows(IllegalAccessError.class, () -> {
-            groupService.save(createGroupRequestDto);
-        });
+        assertThrows(IllegalAccessError.class, () -> groupService.save(createGroupRequestDto));
 
         //repository.save() 코드들은 1번식만 실행되어야 한다.
         verify(groupRepository, times(1)).findByName(anyString());
@@ -147,9 +145,7 @@ class Version1GroupServiceTest {
         given(runnerRepository.findById(anyLong())).willReturn(Optional.empty());
 
         //when & then
-        assertThrows(IllegalAccessError.class, () -> {
-            groupService.save(createGroupRequestDto);
-        });
+        assertThrows(IllegalAccessError.class, () -> groupService.save(createGroupRequestDto));
 
         //repository.save() 코드들은 1번식만 실행되어야 한다.
         verify(groupRepository, times(1)).findByName(anyString());
