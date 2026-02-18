@@ -109,7 +109,7 @@ public class Version1GroupService implements GroupService {
 
         //그룹애 속해있는 인원이 1명이 아님.
         if(belongs.size() > 1){
-            throw new IllegalAccessError("그룹애 속해있는 인원이 2명 이상입니다.");
+            throw new IllegalAccessError("그룹에 속해있는 인원이 2명 이상입니다.");
         }
 
         //그룹의 리더가 삭재하는 것이 아님
@@ -123,7 +123,7 @@ public class Version1GroupService implements GroupService {
 
     //그룹 정보 수정
     @Override
-    public ReviseGroupResponseDto reviseGroup(ReviseGroupRequestDto reviseGroupRequestDto) throws IllegalAccessException{
+    public ReviseGroupResponseDto reviseGroup(ReviseGroupRequestDto reviseGroupRequestDto) throws IllegalAccessError{
         Long groupId = reviseGroupRequestDto.getId();
         Long runnerId = reviseGroupRequestDto.getRunnerId();
 
@@ -133,15 +133,21 @@ public class Version1GroupService implements GroupService {
             throw new IllegalAccessError("존재하지 않는 그룹입니다.");
         }
 
+        //러너가 없으면 에러
+        Optional<Runner> runner = runnerRepository.findById(runnerId);
+        if(runner.isEmpty()){
+            throw new IllegalAccessError("존재하지 않는 러너입니다.");
+        }
+
         Optional<Belong> belong = belongRepository.findByRunnerIdAndGroupId(runnerId, groupId);
 
         //그룹에 속하지 않으면 에러
         if(belong.isEmpty()){
-            throw new IllegalArgumentException("해당 러너는 그룹에 속하지 않습니다.");
+            throw new IllegalAccessError("해당 러너는 그룹에 속하지 않습니다.");
         }
         //그룹의 리더가 아니면 에러
         if(!belong.get().isLeader()){
-            throw new IllegalAccessException("해당 러너는 이 그룹의 리더가 아닙니다.");
+            throw new IllegalAccessError("해당 러너는 이 그룹의 리더가 아닙니다.");
         }
 
         if(reviseGroupRequestDto.getCertificationCriteria() != 0){
