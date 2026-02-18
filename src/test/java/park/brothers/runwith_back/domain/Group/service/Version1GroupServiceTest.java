@@ -9,8 +9,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
 import park.brothers.runwith_back.domain.Belong.repository.BelongRepository;
 import park.brothers.runwith_back.domain.Group.dto.Request.CreateGroupRequestDto;
+import park.brothers.runwith_back.domain.Group.dto.Request.DeleteGroupRequestDto;
+import park.brothers.runwith_back.domain.Group.dto.Request.ReviseGroupRequestDto;
 import park.brothers.runwith_back.domain.Group.dto.Response.CreateGroupResponseDto;
 import park.brothers.runwith_back.domain.Group.dto.Response.GetGroupResponseDto;
+import park.brothers.runwith_back.domain.Group.dto.Response.ReviseGroupResponseDto;
 import park.brothers.runwith_back.domain.Group.entity.Group;
 import park.brothers.runwith_back.domain.Group.repository.GroupRepository;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
@@ -72,7 +75,7 @@ class Version1GroupServiceTest {
 
         //레퍼지토리 부분 가정
         given(runnerRepository.findById(anyLong())).willReturn(Optional.of(runner));
-        given(groupRepository.findByName(anyString())).willReturn(null);
+        given(groupRepository.findByName(anyString())).willReturn(Optional.empty());
         given(groupRepository.save(any(Group.class))).willReturn(group);
 
         //when
@@ -129,7 +132,7 @@ class Version1GroupServiceTest {
 
     @Test
     @DisplayName("그룹 생성 실패 서비스 테스트 - 러너가 존재하지 않음")
-    void saveFailByNotExistRunner(){
+    void saveFailByNotExistRunner() {
         //given
         CreateGroupRequestDto createGroupRequestDto = new CreateGroupRequestDto(
                 "test_name",
@@ -140,7 +143,7 @@ class Version1GroupServiceTest {
                 "test_imageLink"
         );
 
-        given(groupRepository.findByName(anyString())).willReturn(null);
+        given(groupRepository.findByName(anyString())).willReturn(Optional.empty());
         //없는 러너라고 나타나야 한다.
         given(runnerRepository.findById(anyLong())).willReturn(Optional.empty());
 
@@ -206,5 +209,326 @@ class Version1GroupServiceTest {
         group.setCertificationCriteria(certificationCriteria);
         group.setIsSelf(false);
         return group;
+    }
+
+    @Test
+    @DisplayName("그룹 삭제 성공 서비스 테스트")
+    void deleteSuccess(){
+        //given
+        //request 설정
+        DeleteGroupRequestDto deleteGroupRequestDto = new DeleteGroupRequestDto(
+                1L,
+                1L
+        );
+        Group group = new Group();
+        group.setId(1L);
+        given(groupRepository.findById(anyLong())).willReturn(Optional.of(group));
+
+        Runner runner = new Runner();
+        runner.setId(1L);
+        given(runnerRepository.findById(anyLong())).willReturn(Optional.of(runner));
+
+        Belong belong = new Belong();
+        belong.setRunner(runner);
+        belong.setGroup(group);
+        belong.setLeader(true);
+
+        given(belongRepository.findByGroupId(anyLong())).willReturn(List.of(belong));
+
+        //when
+        groupService.delete(deleteGroupRequestDto);
+
+        //then
+        verify(groupRepository, times(1)).findById(anyLong());
+        verify(runnerRepository, times(1)).findById(anyLong());
+        verify(belongRepository, times(1)).findByGroupId(anyLong());
+        verify(belongRepository, times(1)).deleteByRunnerIdAndGroupId(anyLong(), anyLong());
+        verify(groupRepository, times(1)).delete(any(Group.class));
+    }
+
+    @Test
+    @DisplayName("그룹 삭제 실패 서비스 테스트 - 존재하지 않는 그룹")
+    void deleteFailByNotExistGroup(){
+        //given
+        DeleteGroupRequestDto deleteGroupRequestDto = new DeleteGroupRequestDto(
+                1L,
+                1L
+        );
+        given(groupRepository.findById(anyLong())).willReturn(Optional.empty());
+
+        //when & then
+        assertThrows(IllegalAccessError.class, () -> groupService.delete(deleteGroupRequestDto));
+
+        verify(groupRepository, times(1)).findById(anyLong());
+        verify(runnerRepository, times(0)).findById(anyLong());
+        verify(belongRepository, times(0)).findByGroupId(anyLong());
+        verify(belongRepository, times(0)).deleteByRunnerIdAndGroupId(anyLong(), anyLong());
+        verify(groupRepository, times(0)).delete(any(Group.class));
+    }
+
+    @Test
+    @DisplayName("그룹 삭제 실패 서비스 테스트 - 존재하지 않는 러너")
+    void deleteFailByNotExistRunner(){
+        //given
+        DeleteGroupRequestDto deleteGroupRequestDto = new DeleteGroupRequestDto(
+                1L,
+                1L
+        );
+        Group group = new Group();
+        group.setId(1L);
+        given(groupRepository.findById(anyLong())).willReturn(Optional.of(group));
+
+        given(runnerRepository.findById(anyLong())).willReturn(Optional.empty());
+
+        //when & then
+        assertThrows(IllegalAccessError.class, () -> groupService.delete(deleteGroupRequestDto));
+
+        //then
+        verify(groupRepository, times(1)).findById(anyLong());
+        verify(runnerRepository, times(1)).findById(anyLong());
+        verify(belongRepository, times(0)).findByGroupId(anyLong());
+        verify(belongRepository, times(0)).deleteByRunnerIdAndGroupId(anyLong(), anyLong());
+        verify(groupRepository, times(0)).delete(any(Group.class));
+    }
+
+    @Test
+    @DisplayName("그룹 삭제 실패 서비스 테스트 - 그룹에 존재하는 인원이 2명 이상")
+    void deleteFailByExistRunnersInGroup(){
+        //given
+        DeleteGroupRequestDto deleteGroupRequestDto = new DeleteGroupRequestDto(
+                1L,
+                1L
+        );
+        Group group = new Group();
+        group.setId(1L);
+        given(groupRepository.findById(anyLong())).willReturn(Optional.of(group));
+
+        Runner runner1 = new Runner();
+        runner1.setId(1L);
+        given(runnerRepository.findById(anyLong())).willReturn(Optional.of(runner1));
+
+        Runner runner2 = new Runner();
+        runner2.setId(2L);
+
+        Belong belong1 = new Belong();
+        belong1.setRunner(runner1);
+        belong1.setGroup(group);
+        belong1.setLeader(true);
+
+        Belong belong2 = new Belong();
+        belong2.setRunner(runner2);
+        belong2.setGroup(group);
+        belong2.setLeader(false);
+
+        given(belongRepository.findByGroupId(anyLong())).willReturn(List.of(belong1, belong2));
+
+        //when & then
+        assertThrows(IllegalAccessError.class, () -> groupService.delete(deleteGroupRequestDto));
+
+        //then
+        verify(groupRepository, times(1)).findById(anyLong());
+        verify(runnerRepository, times(1)).findById(anyLong());
+        verify(belongRepository, times(1)).findByGroupId(anyLong());
+        verify(belongRepository, times(0)).deleteByRunnerIdAndGroupId(anyLong(), anyLong());
+        verify(groupRepository, times(0)).delete(any(Group.class));
+    }
+
+    @Test
+    @DisplayName("그룹 삭제 실패 서비스 테스트 - 리더가 아님")
+    void deleteFailByNotLeaderRunner(){
+        //given
+        DeleteGroupRequestDto deleteGroupRequestDto = new DeleteGroupRequestDto(
+                1L,
+                1L
+        );
+        Group group = new Group();
+        group.setId(1L);
+        given(groupRepository.findById(anyLong())).willReturn(Optional.of(group));
+
+        Runner runner = new Runner();
+        runner.setId(1L);
+        given(runnerRepository.findById(anyLong())).willReturn(Optional.of(runner));
+
+        Belong belong = new Belong();
+        belong.setRunner(runner);
+        belong.setGroup(group);
+        belong.setLeader(false);
+
+        given(belongRepository.findByGroupId(anyLong())).willReturn(List.of(belong));
+
+        //when
+        assertThrows(IllegalAccessError.class, () -> groupService.delete(deleteGroupRequestDto));
+
+        //then
+        verify(groupRepository, times(1)).findById(anyLong());
+        verify(runnerRepository, times(1)).findById(anyLong());
+        verify(belongRepository, times(1)).findByGroupId(anyLong());
+        verify(belongRepository, times(0)).deleteByRunnerIdAndGroupId(anyLong(), anyLong());
+        verify(groupRepository, times(0)).delete(any(Group.class));
+    }
+
+    @Test
+    @DisplayName("그룹 수정 성공 서비스 테스트")
+    void ReviseSuccess() {
+        //given
+        ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
+                1L,
+                1L,
+                1,
+                "test_revised_description",
+                "test_revised_imageLink"
+        );
+
+        Group group = new Group();
+        group.setId(1L);
+        group.setName("test_group");
+        group.setDescription("test_description");
+        group.setCertificationCriteria(0);
+        group.setImageLink("test_imageLink");
+        given(groupRepository.findById(anyLong())).willReturn(Optional.of(group));
+
+        Runner runner = new Runner();
+        runner.setId(1L);
+        given(runnerRepository.findById(anyLong())).willReturn(Optional.of(runner));
+
+        Belong belong = new Belong();
+        belong.setGroup(group);
+        belong.setRunner(runner);
+        belong.setLeader(true);
+        given(belongRepository.findByRunnerIdAndGroupId(anyLong(), anyLong())).willReturn(Optional.of(belong));
+
+        //when
+        ReviseGroupResponseDto reviseGroupResponseDto = groupService.reviseGroup(reviseGroupRequestDto);
+
+        //then
+        assertThat(reviseGroupResponseDto.getCertificationCriteria()).isEqualTo(1);
+        assertThat(reviseGroupResponseDto.getDescription()).isEqualTo("test_revised_description");
+        assertThat(reviseGroupResponseDto.getImageLink()).isEqualTo("test_revised_imageLink");
+
+    }
+
+    @Test
+    @DisplayName("그룹 수정 실패 서비스 테스트 - 존재하지 않는 그룹")
+    void ReviseFailByNotExistGroup() {
+        //given
+        ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
+                1L,
+                1L,
+                1,
+                "test_revised_description",
+                "test_revised_imageLink"
+        );
+
+        given(groupRepository.findById(anyLong())).willReturn(Optional.empty());
+
+        //when & then
+        assertThrows(IllegalAccessError.class, () -> groupService.reviseGroup(reviseGroupRequestDto));
+
+        verify(groupRepository, times(1)).findById(anyLong());
+        verify(runnerRepository, times(0)).findById(anyLong());
+        verify(belongRepository, times(0)).findByRunnerIdAndGroupId(anyLong(), anyLong());
+    }
+
+    @Test
+    @DisplayName("그룹 수정 실패 서비스 테스트 - 존재하지 않는 러너")
+    void ReviseFailByNotExistRunner() {
+        //given
+        ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
+                1L,
+                1L,
+                1,
+                "test_revised_description",
+                "test_revised_imageLink"
+        );
+
+        Group group = new Group();
+        group.setId(1L);
+        group.setName("test_group");
+        group.setDescription("test_description");
+        group.setCertificationCriteria(0);
+        group.setImageLink("test_imageLink");
+        given(groupRepository.findById(anyLong())).willReturn(Optional.of(group));
+
+        given(runnerRepository.findById(anyLong())).willReturn(Optional.empty());
+
+        //when & then
+        assertThrows(IllegalAccessError.class, () -> groupService.reviseGroup(reviseGroupRequestDto));
+
+        verify(groupRepository, times(1)).findById(anyLong());
+        verify(runnerRepository, times(1)).findById(anyLong());
+        verify(belongRepository, times(0)).findByRunnerIdAndGroupId(anyLong(), anyLong());
+    }
+
+    @Test
+    @DisplayName("그룹 수정 실패 서비스 테스트 - 그룹에 속하지 않는 오류")
+    void ReviseFailByBelongToGroup() {
+        //given
+        ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
+                1L,
+                1L,
+                1,
+                "test_revised_description",
+                "test_revised_imageLink"
+        );
+
+        Group group = new Group();
+        group.setId(1L);
+        group.setName("test_group");
+        group.setDescription("test_description");
+        group.setCertificationCriteria(0);
+        group.setImageLink("test_imageLink");
+        given(groupRepository.findById(anyLong())).willReturn(Optional.of(group));
+
+        Runner runner = new Runner();
+        runner.setId(1L);
+        given(runnerRepository.findById(anyLong())).willReturn(Optional.of(runner));
+
+        given(belongRepository.findByRunnerIdAndGroupId(anyLong(), anyLong())).willReturn(Optional.empty());
+
+
+        //when & then
+        assertThrows(IllegalAccessError.class, () -> groupService.reviseGroup(reviseGroupRequestDto));
+
+        verify(groupRepository, times(1)).findById(anyLong());
+        verify(runnerRepository, times(1)).findById(anyLong());
+        verify(belongRepository, times(1)).findByRunnerIdAndGroupId(anyLong(), anyLong());
+    }
+
+    @Test
+    @DisplayName("그룹 수정 실패 서비스 테스트 - 리더가 아닌 러너가 수정")
+    void ReviseFailByNotLeaderRunner() {
+        //given
+        ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
+                1L,
+                1L,
+                1,
+                "test_revised_description",
+                "test_revised_imageLink"
+        );
+
+        Group group = new Group();
+        group.setId(1L);
+        group.setName("test_group");
+        group.setDescription("test_description");
+        group.setCertificationCriteria(0);
+        group.setImageLink("test_imageLink");
+        given(groupRepository.findById(anyLong())).willReturn(Optional.of(group));
+
+        Runner runner = new Runner();
+        runner.setId(1L);
+        given(runnerRepository.findById(anyLong())).willReturn(Optional.of(runner));
+
+        Belong belong = new Belong();
+        belong.setGroup(group);
+        belong.setRunner(runner);
+        belong.setLeader(false);
+        given(belongRepository.findByRunnerIdAndGroupId(anyLong(), anyLong())).willReturn(Optional.of(belong));
+
+        //when & then
+        assertThrows(IllegalAccessError.class, () -> groupService.reviseGroup(reviseGroupRequestDto));
+
+        verify(groupRepository, times(1)).findById(anyLong());
+        verify(runnerRepository, times(1)).findById(anyLong());
+        verify(belongRepository, times(1)).findByRunnerIdAndGroupId(anyLong(), anyLong());
     }
 }
