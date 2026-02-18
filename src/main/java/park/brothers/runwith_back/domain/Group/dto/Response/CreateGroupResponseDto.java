@@ -1,5 +1,6 @@
-package park.brothers.runwith_back.domain.Group.dto.Request;
+package park.brothers.runwith_back.domain.Group.dto.Response;
 
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,17 +9,19 @@ import lombok.Getter;
 @Data
 @Getter
 @AllArgsConstructor
-public class ReviseGroupRequestDto {
+public class CreateGroupResponseDto {
 
     @NotNull
     private Long id;
 
-    @NotNull //Long에서는 NotNull을 사용해야 한다.
-    private Long runnerId;
+    @NotEmpty
+    private String name;
 
-    private int certificationCriteria;
-
+    @NotEmpty
     private String description;
 
     private String imageLink;
+
+    @NotEmpty
+    private int certificationCriteria;
 }

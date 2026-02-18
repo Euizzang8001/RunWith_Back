@@ -38,22 +38,17 @@ public class JPAGroupRepository implements GroupRepository {
     }
 
     @Override
-    public Group findByName(String name) {
+    public Optional<Group> findByName(String name) {
         List<Group> groups = em.createQuery("select g from Group g where g.name = :name", Group.class)
                 .setParameter("name", name)
                 .getResultList();
-        return groups.isEmpty() ? null : groups.get(0);
+        return groups.isEmpty() ? Optional.empty() : Optional.of(groups.get(0));
     }
 
     public List<Group> findBySimilarName(String name) {
         return em.createQuery("select g from Group g where g.name like :name", Group.class)
                 .setParameter("name", "%" + name + "%") //jpa query에서 파라미터를 커스텀하는 방식
                 .getResultList();
-    }
-
-    @Override
-    public Group getById(Long id) {
-        return em.find(Group.class, id);
     }
 
     @Override
