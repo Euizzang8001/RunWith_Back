@@ -113,7 +113,7 @@ class Version1GroupServiceTest {
         group.setImageLink("test_group_imageLink");
         group.setCertificationCriteria(0);
 
-        given(groupRepository.findByName(anyString())).willReturn(group);
+        given(groupRepository.findByName(anyString())).willReturn(Optional.of(group));
 
         //when & then
         assertThrows(IllegalAccessError.class, () -> groupService.save(createGroupRequestDto));

@@ -30,7 +30,8 @@ public class Version1GroupService implements GroupService {
     @Override
     public CreateGroupResponseDto save(CreateGroupRequestDto createGroupRequestDto) throws IllegalAccessError {
         //이미 존재하는 그룹 이름인지 확인하기
-        if(groupRepository.findByName(createGroupRequestDto.getName()) != null){
+        Optional<Group> existGroup = groupRepository.findByName(createGroupRequestDto.getName());
+        if(existGroup.isPresent()){
             throw new IllegalAccessError("이미 존재하는 그룹 이름입니다.");
         }
 
@@ -92,7 +93,12 @@ public class Version1GroupService implements GroupService {
         Long groupId = deleteGroupRequestDto.getGroupId();
         Long runnerId = deleteGroupRequestDto.getRunnerId();
 
-        Group group = groupRepository.getById(groupId);
+        Optional<Group> group = groupRepository.findById(groupId);
+        //group이 없으면 에러
+        if(group.isEmpty()){
+            throw new IllegalAccessError("존재하지 않는 그룹입니다.");
+        }
+
         Optional<Runner> runner = runnerRepository.findById(runnerId);
 
         //runner가 없으면 에러
@@ -112,7 +118,7 @@ public class Version1GroupService implements GroupService {
         }
 
         belongRepository.deleteByRunnerIdAndGroupId(runnerId, groupId);
-        groupRepository.delete(group);
+        groupRepository.delete(group.get());
     }
 
     //그룹 정보 수정
@@ -121,31 +127,38 @@ public class Version1GroupService implements GroupService {
         Long groupId = reviseGroupRequestDto.getId();
         Long runnerId = reviseGroupRequestDto.getRunnerId();
 
-        Group group = groupRepository.getById(groupId);
+        Optional<Group> group = groupRepository.findById(groupId);
+        //그룹이 없으면 에러
+        if(group.isEmpty()){
+            throw new IllegalAccessError("존재하지 않는 그룹입니다.");
+        }
+
         Optional<Belong> belong = belongRepository.findByRunnerIdAndGroupId(runnerId, groupId);
 
+        //그룹에 속하지 않으면 에러
         if(belong.isEmpty()){
             throw new IllegalArgumentException("해당 러너는 그룹에 속하지 않습니다.");
         }
+        //그룹의 리더가 아니면 에러
         if(!belong.get().isLeader()){
             throw new IllegalAccessException("해당 러너는 이 그룹의 리더가 아닙니다.");
         }
 
         if(reviseGroupRequestDto.getCertificationCriteria() != 0){
-            group.setCertificationCriteria(reviseGroupRequestDto.getCertificationCriteria());
+            group.get().setCertificationCriteria(reviseGroupRequestDto.getCertificationCriteria());
         }
         if(reviseGroupRequestDto.getDescription() != null){
-            group.setDescription(reviseGroupRequestDto.getDescription());
+            group.get().setDescription(reviseGroupRequestDto.getDescription());
         }
         if(reviseGroupRequestDto.getImageLink() != null){
-            group.setImageLink(reviseGroupRequestDto.getImageLink());
+            group.get().setImageLink(reviseGroupRequestDto.getImageLink());
         }
         return new ReviseGroupResponseDto(
-                group.getId(),
-                group.getName(),
-                group.getDescription(),
-                group.getImageLink(),
-                group.getCertificationCriteria()
+                group.get().getId(),
+                group.get().getName(),
+                group.get().getDescription(),
+                group.get().getImageLink(),
+                group.get().getCertificationCriteria()
         );
     }
 }

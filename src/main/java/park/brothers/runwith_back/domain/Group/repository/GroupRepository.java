@@ -12,11 +12,9 @@ public interface GroupRepository {
 
     List<Group> findAll();
 
-    Group findByName(String name);
+    Optional<Group> findByName(String name);
 
     List<Group> findBySimilarName(String name);
-
-    Group getById(Long id);
 
     Optional<Group> findById(Long groupId);
 }
