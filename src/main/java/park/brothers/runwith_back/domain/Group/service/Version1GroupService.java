@@ -113,7 +113,7 @@ public class Version1GroupService implements GroupService {
         }
 
         //그룹의 리더가 삭재하는 것이 아님
-        if(!belongs.get(0).isLeader() || belongs.get(0).getRunner() != runner.get()){
+        if(!belongs.getFirst().isLeader() || belongs.getFirst().getRunner() != runner.get()){
             throw new IllegalAccessError("리더만 삭제할 수 있습니다.");
         }
 
