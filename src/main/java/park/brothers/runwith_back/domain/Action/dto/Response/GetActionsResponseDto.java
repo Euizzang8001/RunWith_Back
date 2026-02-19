@@ -12,17 +12,17 @@ public class GetActionsResponseDto {
     Long actionId;
 
     @NotEmpty
-    String name;
+    String actionName;
 
     @NotNull
-    int startHour;
+    int actionStartHour;
 
     @NotNull
-    int startMinute;
+    int actionStartMinute;
 
     @NotNull
-    int endHour;
+    int actionEndHour;
 
     @NotNull
-    int endMinute;
+    int actionEndMinute;
 }

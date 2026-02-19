@@ -13,20 +13,20 @@ public class ReviseActionRequestDto {
     Long actionId;
 
     @NotEmpty
-    String name;
+    String actionName;
 
     @NotEmpty
-    String description;
+    String actionDescription;
 
     @NotNull
-    int startHour;
+    int actionStartHour;
 
     @NotNull
-    int startMinute;
+    int actionStartMinute;
 
     @NotNull
-    int endHour;
+    int actionEndHour;
 
     @NotNull
-    int endMinute;
+    int actionEndMinute;
 }

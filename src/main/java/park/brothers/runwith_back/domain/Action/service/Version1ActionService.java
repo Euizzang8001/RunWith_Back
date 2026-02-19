@@ -30,10 +30,10 @@ public class Version1ActionService implements ActionService{
     @Override
     public void createAction(CreateActionRequestDto createActionRequestDto) {
         Long scheduleId = createActionRequestDto.getScheduleId();
-        int startHour = createActionRequestDto.getStartHour();
-        int startMinute = createActionRequestDto.getStartMinute();
-        int endHour = createActionRequestDto.getEndHour();
-        int endMinute = createActionRequestDto.getEndMinute();
+        int startHour = createActionRequestDto.getActionStartHour();
+        int startMinute = createActionRequestDto.getActionStartMinute();
+        int endHour = createActionRequestDto.getActionEndHour();
+        int endMinute = createActionRequestDto.getActionEndMinute();
 
         List<Action> overlappedActions = actionRepository.getOverlappedActions(scheduleId, startHour, startMinute, endHour, endMinute);
         if (!overlappedActions.isEmpty()) {
@@ -41,8 +41,8 @@ public class Version1ActionService implements ActionService{
         }
 
         Action action = new Action();
-        action.setDescription(createActionRequestDto.getDescription());
-        action.setName(createActionRequestDto.getName());
+        action.setDescription(createActionRequestDto.getActionDescription());
+        action.setName(createActionRequestDto.getActionName());
         action.setStartHour(startHour);
         action.setStartMinute(startMinute);
         action.setEndHour(endHour);
@@ -82,12 +82,12 @@ public class Version1ActionService implements ActionService{
     //Action 수정
     @Override
     public void reviseAction(ReviseActionRequestDto reviseActionRequestDto) {
-        String name = reviseActionRequestDto.getName();
-        String description = reviseActionRequestDto.getDescription();
-        int startHour = reviseActionRequestDto.getStartHour();
-        int startMinute = reviseActionRequestDto.getStartMinute();
-        int endHour = reviseActionRequestDto.getEndHour();
-        int endMinute = reviseActionRequestDto.getEndMinute();
+        String name = reviseActionRequestDto.getActionName();
+        String description = reviseActionRequestDto.getActionDescription();
+        int startHour = reviseActionRequestDto.getActionStartHour();
+        int startMinute = reviseActionRequestDto.getActionStartMinute();
+        int endHour = reviseActionRequestDto.getActionEndHour();
+        int endMinute = reviseActionRequestDto.getActionEndMinute();
         Long id = reviseActionRequestDto.getActionId();
 
         actionRepository.reviseAction(id, name, description, startHour, startMinute, endHour, endMinute);
