@@ -12,7 +12,7 @@ import lombok.Getter;
 @Getter
 public class ReviseGroupResponseDto {
     @NotNull
-    private Long id;
+    private Long groupId;
 
     @NotEmpty
     private String name;

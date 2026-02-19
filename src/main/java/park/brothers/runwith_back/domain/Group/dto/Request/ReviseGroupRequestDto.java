@@ -11,7 +11,7 @@ import lombok.Getter;
 public class ReviseGroupRequestDto {
 
     @NotNull
-    private Long id;
+    private Long groupId;
 
     @NotNull //Long에서는 NotNull을 사용해야 한다.
     private Long runnerId;

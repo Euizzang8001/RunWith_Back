@@ -84,7 +84,7 @@ class GroupControllerTest {
                         .contentType(MediaType.APPLICATION_JSON) // 요청 타입 확인
                         .content(content)) // Body에 JSON 문자열 담기
                 .andExpect(status().isCreated()) //
-                .andExpect(jsonPath("$.id").value(0L)) // runnerId 확인
+                .andExpect(jsonPath("$.groupId").value(0L)) // runnerId 확인
                 .andExpect(jsonPath("$.name").value("test_name")) // 이름 확인
                 .andExpect(jsonPath("$.description").value("test_description"))
                 .andExpect(jsonPath("$.imageLink").value("test_imageLink"));
@@ -102,11 +102,11 @@ class GroupControllerTest {
         mockMvc.perform(get("/api/v1/groups/test")) // get요청
                 .andExpect(status().isOk()) //
                 .andExpect(jsonPath("$", hasSize(2))) //전체 길이가 2인지 확인
-                .andExpect(jsonPath("$[0].id").value(1L)) // runnerId 확인
+                .andExpect(jsonPath("$[0].groupId").value(1L)) // runnerId 확인
                 .andExpect(jsonPath("$[0].name").value("test_name1")) // 이름 확인
                 .andExpect(jsonPath("$[0].description").value("test_description1"))
                 .andExpect(jsonPath("$[0].imageLink").value("test_imageLink1"))
-                .andExpect(jsonPath("$[1].id").value(2L)) // runnerId 확인
+                .andExpect(jsonPath("$[1].groupId").value(2L)) // runnerId 확인
                 .andExpect(jsonPath("$[1].name").value("test_name2")) // 이름 확인
                 .andExpect(jsonPath("$[1].description").value("test_description2"))
                 .andExpect(jsonPath("$[1].imageLink").value("test_imageLink2"));
@@ -125,11 +125,11 @@ class GroupControllerTest {
         mockMvc.perform(get("/api/v1/groups")) // get요청
                 .andExpect(status().isOk()) //
                 .andExpect(jsonPath("$", hasSize(2))) //전체 길이가 2인지 확인
-                .andExpect(jsonPath("$[0].id").value(1L)) // runnerId 확인
+                .andExpect(jsonPath("$[0].groupId").value(1L)) // runnerId 확인
                 .andExpect(jsonPath("$[0].name").value("test_name1")) // 이름 확인
                 .andExpect(jsonPath("$[0].description").value("test_description1"))
                 .andExpect(jsonPath("$[0].imageLink").value("test_imageLink1"))
-                .andExpect(jsonPath("$[1].id").value(2L)) // runnerId 확인
+                .andExpect(jsonPath("$[1].groupId").value(2L)) // runnerId 확인
                 .andExpect(jsonPath("$[1].name").value("test_name2")) // 이름 확인
                 .andExpect(jsonPath("$[1].description").value("test_description2"))
                 .andExpect(jsonPath("$[1].imageLink").value("test_imageLink2"));
@@ -185,7 +185,7 @@ class GroupControllerTest {
                         .contentType(MediaType.APPLICATION_JSON) // 요청 타입 확인
                         .content(content)) // Body에 JSON 문자열 담기
                 .andExpect(status().isOk()) //
-                .andExpect(jsonPath("$.id").value(0L))
+                .andExpect(jsonPath("$.groupId").value(0L))
                 .andExpect(jsonPath("$.name").value("test_revised_name"))
                 .andExpect(jsonPath("$.description").value("test_revised_description"))
                 .andExpect(jsonPath("$.imageLink").value("test_revised_imageLink"));

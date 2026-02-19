@@ -12,7 +12,7 @@ import lombok.Getter;
 public class CreateGroupResponseDto {
 
     @NotNull
-    private Long id;
+    private Long groupId;
 
     @NotEmpty
     private String name;

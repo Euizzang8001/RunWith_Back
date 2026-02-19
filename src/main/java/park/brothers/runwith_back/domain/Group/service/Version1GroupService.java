@@ -124,7 +124,7 @@ public class Version1GroupService implements GroupService {
     //그룹 정보 수정
     @Override
     public ReviseGroupResponseDto reviseGroup(ReviseGroupRequestDto reviseGroupRequestDto) throws IllegalAccessError{
-        Long groupId = reviseGroupRequestDto.getId();
+        Long groupId = reviseGroupRequestDto.getGroupId();
         Long runnerId = reviseGroupRequestDto.getRunnerId();
 
         Optional<Group> group = groupRepository.findById(groupId);

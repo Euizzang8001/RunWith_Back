@@ -172,8 +172,8 @@ class Version1GroupServiceTest {
         //then
         List<GetGroupResponseDto> fakeResponse = groupService.getAllGroups();
         assertThat(fakeResponse.size()).isEqualTo(2);
-        assertThat(fakeResponse.get(0).getId()).isEqualTo(1L);
-        assertThat(fakeResponse.get(1).getId()).isEqualTo(2L);
+        assertThat(fakeResponse.get(0).getGroupId()).isEqualTo(1L);
+        assertThat(fakeResponse.get(1).getGroupId()).isEqualTo(2L);
 
         verify(groupRepository, times(1)).findAll();
 
@@ -194,8 +194,8 @@ class Version1GroupServiceTest {
         //then
         List<GetGroupResponseDto> fakeResponse = groupService.getGroupsBySimilarName("test");
         assertThat(fakeResponse.size()).isEqualTo(2);
-        assertThat(fakeResponse.get(0).getId()).isEqualTo(1L);
-        assertThat(fakeResponse.get(1).getId()).isEqualTo(2L);
+        assertThat(fakeResponse.get(0).getGroupId()).isEqualTo(1L);
+        assertThat(fakeResponse.get(1).getGroupId()).isEqualTo(2L);
 
         verify(groupRepository, times(1)).findBySimilarName(anyString());
     }
