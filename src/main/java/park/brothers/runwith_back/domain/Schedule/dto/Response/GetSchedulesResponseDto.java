@@ -10,7 +10,7 @@ import lombok.Data;
 public class GetSchedulesResponseDto {
 
     @NotNull
-    Long id;
+    Long scheduleId;
 
     @NotNull
     int scheduleYear;

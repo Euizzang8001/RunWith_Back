@@ -71,7 +71,7 @@ public class Version1ScheduleService implements ScheduleService{
     //특정 스케줄 수정
     @Override
     public void revise(ReviseScheduleRequestDto reviseScheduleRequestDto) {
-        Long id = reviseScheduleRequestDto.getId();
+        Long id = reviseScheduleRequestDto.getScheduleId();
         String description = reviseScheduleRequestDto.getDescription();
         scheduleRepository.reviseSchedule(id, description);
     }

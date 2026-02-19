@@ -10,7 +10,7 @@ import lombok.Getter;
 public class ReviseScheduleRequestDto {
 
     @NotNull
-    Long id;
+    Long scheduleId;
 
     @NotEmpty
     String description;
