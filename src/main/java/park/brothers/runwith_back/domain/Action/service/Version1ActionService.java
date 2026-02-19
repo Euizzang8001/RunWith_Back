@@ -88,7 +88,7 @@ public class Version1ActionService implements ActionService{
         int startMinute = reviseActionRequestDto.getStartMinute();
         int endHour = reviseActionRequestDto.getEndHour();
         int endMinute = reviseActionRequestDto.getEndMinute();
-        Long id = reviseActionRequestDto.getId();
+        Long id = reviseActionRequestDto.getActionId();
 
         actionRepository.reviseAction(id, name, description, startHour, startMinute, endHour, endMinute);
     }

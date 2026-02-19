@@ -10,7 +10,7 @@ import lombok.Getter;
 public class ReviseActionRequestDto {
 
     @NotNull
-    Long id;
+    Long actionId;
 
     @NotEmpty
     String name;

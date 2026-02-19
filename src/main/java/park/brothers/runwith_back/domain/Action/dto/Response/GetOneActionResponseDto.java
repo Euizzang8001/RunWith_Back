@@ -9,7 +9,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class GetOneActionResponseDto {
     @NotNull
-    Long id;
+    Long actionId;
 
     @NotEmpty
     String name;
