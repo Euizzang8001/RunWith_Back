@@ -123,9 +123,7 @@ class Version1RunnerServiceTest {
 
         //then & when
         //IllegalAccessError발생해야 함.
-        assertThrows(IllegalAccessError.class, () -> {
-            runnerService.save(createRunnerRequestDto, dummyImage);
-        });
+        assertThrows(IllegalAccessError.class, () -> runnerService.save(createRunnerRequestDto, dummyImage));
         // 저장 코드는 수행되어선 안됨.
         verify(runnerRepository, times(0)).save(any(Runner.class));
         verify(groupRepository, times(0)).save(any(Group.class));
