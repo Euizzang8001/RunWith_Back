@@ -17,6 +17,4 @@ public class CreateRunnerRequestDto {
 
     @NotEmpty
     private String password;
-
-    private String imageLink;
 }

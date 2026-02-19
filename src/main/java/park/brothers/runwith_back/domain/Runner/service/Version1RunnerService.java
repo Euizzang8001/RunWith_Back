@@ -2,6 +2,7 @@ package park.brothers.runwith_back.domain.Runner.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
 import park.brothers.runwith_back.domain.Belong.repository.BelongRepository;
 import park.brothers.runwith_back.domain.Group.entity.Group;
@@ -10,6 +11,9 @@ import park.brothers.runwith_back.domain.Runner.dto.Request.CreateRunnerRequestD
 import park.brothers.runwith_back.domain.Runner.dto.Response.CreateRunnerResponseDto;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
+import park.brothers.runwith_back.external.AWS_S3.AWSS3Service;
+
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -19,8 +23,10 @@ public class Version1RunnerService implements RunnerService {
     private final GroupRepository groupRepository;
     private final BelongRepository belongRepository;
 
+    private final AWSS3Service awss3Service;
+
     @Override
-    public CreateRunnerResponseDto save(CreateRunnerRequestDto createRunnerRequestDto) throws IllegalAccessError {
+    public CreateRunnerResponseDto save(CreateRunnerRequestDto createRunnerRequestDto, MultipartFile image) throws IllegalAccessError, IOException {
         //러너 생성
         Runner runner = new Runner();
         if(runnerRepository.findByName(createRunnerRequestDto.getName()).isPresent()){
@@ -29,9 +35,6 @@ public class Version1RunnerService implements RunnerService {
         runner.setName(createRunnerRequestDto.getName());
         runner.setPassword(createRunnerRequestDto.getPassword());
         runner.setEmail(createRunnerRequestDto.getEmail());
-        if(createRunnerRequestDto.getImageLink() != null){
-            runner.setImageLink(createRunnerRequestDto.getImageLink());
-        }
 
         Runner savedRunner = runnerRepository.save(runner);
 
@@ -51,12 +54,20 @@ public class Version1RunnerService implements RunnerService {
         belong.setRunner(savedRunner);
         belongRepository.save(belong);
 
+        //이미지 저장하고 presignedurl받기
+        String presignedImageUrl = awss3Service.putImageToAWSS3(
+                image,
+                "runners",
+                runner.getId(),
+                0
+        );
+
         //리턴해줄 값
         return new CreateRunnerResponseDto(
                 savedRunner.getId(),
                 savedRunner.getName(),
                 savedRunner.getEmail(),
-                savedRunner.getImageLink()
+                presignedImageUrl
         );
     }
 
