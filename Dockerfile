@@ -1,7 +1,7 @@
 # 1. 빌드 단계
 # 빌드를 위한 기본 베이스로 JDK 17 사용
 # 이 단계를 이후에 다시 참조할 수 있도록 builder라는 이름으로 설정
-FROM eclipse-temurin:17-jdk AS builder
+FROM eclipse-temurin:21-jdk AS builder
 
 # WORKDIR은 컨테이너 내부의 작업 디렉토리를 설정하는 것으로, 이후 명령어는 이 디렉토리에서 실행된다.
 # 이 서버에서는 /app으로 설정
@@ -30,7 +30,7 @@ RUN ./gradlew clean build -x test --no-daemon
 # 2. 실행 단계
 # 실행 단계로, JDK보다 가벼운 JRE로 수행
 # jammy: OS 버전(Ubuntu 22.04 LTS)을 의미
-FROM eclipse-temurin:17-jre-jammy
+FROM eclipse-temurin:21-jre-jammy
 
 # 작업 디렉토리를 /app으로 설정
 WORKDIR /app
