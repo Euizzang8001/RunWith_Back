@@ -54,13 +54,10 @@ public class Version1RunnerService implements RunnerService {
         belong.setRunner(savedRunner);
         belongRepository.save(belong);
 
-        //이미지 저장하고 presignedurl받기
-        String presignedImageUrl = awss3Service.putImageToAWSS3(
-                image,
-                "runners",
-                runner.getId(),
-                0
-        );
+        //이미지가 존재하면 저장하고 presignedurl받기 / 없으면 null return
+        String presignedImageUrl = (image != null && !image.isEmpty())
+                ? awss3Service.putImageToAWSS3(image, "runners", runner.getId(), 0)
+                : null;
 
         //리턴해줄 값
         return new CreateRunnerResponseDto(
