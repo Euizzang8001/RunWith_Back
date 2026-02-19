@@ -12,7 +12,7 @@ import lombok.Getter;
 public class CreateRunnerResponseDto {
 
     @NotNull
-    private Long id;
+    private Long runnerId;
 
     @NotEmpty
     private String name;

@@ -27,7 +27,6 @@ class JPARunnerRepositoryTest {
         runner.setName("test_name");
         runner.setEmail("test_email");
         runner.setPassword("test_password");
-        runner.setImageLink("test_imageLink");
 
         //when
         Runner savedRunner = runnerRepository.save(runner);
@@ -40,7 +39,6 @@ class JPARunnerRepositoryTest {
         assertThat(savedRunner.getName()).isEqualTo(runner.getName());
         assertThat(savedRunner.getEmail()).isEqualTo(runner.getEmail());
         assertThat(savedRunner.getPassword()).isEqualTo(runner.getPassword());
-        assertThat(savedRunner.getImageLink()).isEqualTo(runner.getImageLink());
     }
 
     @Test
@@ -50,7 +48,6 @@ class JPARunnerRepositoryTest {
         //러너 객체 저장
         Runner runner = new Runner();
         runner.setEmail("test_email");
-        runner.setImageLink("test_imageLink");
         runner.setPassword("test_password");
         runner.setName("test_name");
         runnerRepository.save(runner);
@@ -72,7 +69,6 @@ class JPARunnerRepositoryTest {
         //러너 객체 저장
         Runner runner = new Runner();
         runner.setEmail("test_email");
-        runner.setImageLink("test_imageLink");
         runner.setPassword("test_password");
         runner.setName("test_name");
         Runner savedRunner = runnerRepository.save(runner);
@@ -94,7 +90,6 @@ class JPARunnerRepositoryTest {
         //러너 객체 저장
         Runner runner = new Runner();
         runner.setEmail("test_email");
-        runner.setImageLink("test_imageLink");
         runner.setPassword("test_password");
         runner.setName("test_name");
         runnerRepository.save(runner);
@@ -115,7 +110,6 @@ class JPARunnerRepositoryTest {
         //러너 객체 저장
         Runner runner = new Runner();
         runner.setEmail("test_email");
-        runner.setImageLink("test_imageLink");
         runner.setPassword("test_password");
         runner.setName("test_name");
         runnerRepository.save(runner);

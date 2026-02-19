@@ -45,7 +45,7 @@ public class AWSS3Service {
         //파일을 png로 통일
         byte[] imageByte = convertToPNG(image);
 
-        String imageName = "%s/id=%dsequence=%d.png".formatted(imageType, id, sequence);
+        String imageName = "%s/runnerId=%dsequence=%d.png".formatted(imageType, id, sequence);
 
         s3Client.putObject(PutObjectRequest.builder()
                         .bucket(bucketName)
@@ -62,7 +62,7 @@ public class AWSS3Service {
     //image의 presignedUrl 얻기
     public String getImagePresignedUrl(String imageType, Long id, int sequence) {
 
-        String imageName = "%s/id=%dsequence=%d.png".formatted(imageType, id, sequence);
+        String imageName = "%s/runnerId=%dsequence=%d.png".formatted(imageType, id, sequence);
 
         //캐시맵에 저장되어 있고 만료되지 않았다면, 캐시에서 가져오기
         if(urlCacheMap.containsKey(imageName)){

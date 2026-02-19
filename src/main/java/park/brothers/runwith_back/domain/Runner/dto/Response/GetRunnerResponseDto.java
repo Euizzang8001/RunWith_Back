@@ -10,7 +10,7 @@ import lombok.Data;
 public class GetRunnerResponseDto {
 
     @NotNull
-    Long id;
+    Long runnerId;
 
     @NotEmpty
     String name;
