@@ -9,5 +9,5 @@ import lombok.Data;
 public class LoginResponseDto {
 
     @NotNull
-    private Long id;
+    private Long runnerId;
 }
