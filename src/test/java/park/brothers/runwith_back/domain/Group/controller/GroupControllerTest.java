@@ -59,15 +59,16 @@ class GroupControllerTest {
     @DisplayName("그룹 객체 저장 성공 테스트")
     void save() throws Exception {
         //given
+        String groupId = UUID.randomUUID().toString();
         CreateGroupRequestDto createGroupRequestDto = new CreateGroupRequestDto(
             "test_name",
-                UUID.randomUUID().toString(),
+                groupId,
                 "test_nickname",
                 0,
                 "test_description"
         );
         CreateGroupResponseDto createGroupResponseDto = new CreateGroupResponseDto(
-                UUID.randomUUID().toString(),
+                groupId,
                 "test_name",
                 "test_description",
                 "test_imageLink",
@@ -84,7 +85,7 @@ class GroupControllerTest {
                         .contentType(MediaType.APPLICATION_JSON) // 요청 타입 확인
                         .content(content)) // Body에 JSON 문자열 담기
                 .andExpect(status().isCreated()) //
-                .andExpect(jsonPath("$.groupId").value(UUID.class)) // runnerId 확인
+                .andExpect(jsonPath("$.groupId").value(groupId)) // groupId 확인
                 .andExpect(jsonPath("$.groupName").value("test_name")) // 이름 확인
                 .andExpect(jsonPath("$.groupDescription").value("test_description"))
                 .andExpect(jsonPath("$.groupImageLink").value("test_imageLink"));
@@ -102,11 +103,11 @@ class GroupControllerTest {
         mockMvc.perform(get("/api/v1/groups/test")) // get요청
                 .andExpect(status().isOk()) //
                 .andExpect(jsonPath("$", hasSize(2))) //전체 길이가 2인지 확인
-                .andExpect(jsonPath("$[0].groupId").value(UUID.class)) // runnerId 확인
+                .andExpect(jsonPath("$[0].groupId").value(resultGroups.getFirst().getGroupId())) // runnerId 확인
                 .andExpect(jsonPath("$[0].groupName").value("test_name1")) // 이름 확인
                 .andExpect(jsonPath("$[0].groupDescription").value("test_description1"))
                 .andExpect(jsonPath("$[0].groupImageLink").value("test_imageLink1"))
-                .andExpect(jsonPath("$[1].groupId").value(UUID.class)) // runnerId 확인
+                .andExpect(jsonPath("$[1].groupId").value(resultGroups.getLast().getGroupId())) // runnerId 확인
                 .andExpect(jsonPath("$[1].groupName").value("test_name2")) // 이름 확인
                 .andExpect(jsonPath("$[1].groupDescription").value("test_description2"))
                 .andExpect(jsonPath("$[1].groupImageLink").value("test_imageLink2"));
@@ -125,11 +126,11 @@ class GroupControllerTest {
         mockMvc.perform(get("/api/v1/groups")) // get요청
                 .andExpect(status().isOk()) //
                 .andExpect(jsonPath("$", hasSize(2))) //전체 길이가 2인지 확인
-                .andExpect(jsonPath("$[0].groupId").value(UUID.randomUUID())) // runnerId 확인
+                .andExpect(jsonPath("$[0].groupId").value(resultGroups.getFirst().getGroupId())) // runnerId 확인
                 .andExpect(jsonPath("$[0].groupName").value("test_name1")) // 이름 확인
                 .andExpect(jsonPath("$[0].groupDescription").value("test_description1"))
                 .andExpect(jsonPath("$[0].groupImageLink").value("test_imageLink1"))
-                .andExpect(jsonPath("$[1].groupId").value(UUID.randomUUID())) // runnerId 확인
+                .andExpect(jsonPath("$[1].groupId").value(resultGroups.getLast().getGroupId())) // runnerId 확인
                 .andExpect(jsonPath("$[1].groupName").value("test_name2")) // 이름 확인
                 .andExpect(jsonPath("$[1].groupDescription").value("test_description2"))
                 .andExpect(jsonPath("$[1].groupImageLink").value("test_imageLink2"));
@@ -160,15 +161,17 @@ class GroupControllerTest {
     @Test
     @DisplayName("그룹 정보 수정 성공 컨트롤러 테스트")
     void reviseGroupInfo() throws Exception {
+        String groupId = UUID.randomUUID().toString();
+        String runnerId = UUID.randomUUID().toString();
         ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
-                UUID.randomUUID().toString(),
-                UUID.randomUUID().toString(),
+                groupId,
+                runnerId,
                 0,
                 "test_description",
                 "test_imageLink"
         );
         ReviseGroupResponseDto reviseGroupResponseDto = new ReviseGroupResponseDto(
-                UUID.randomUUID().toString(),
+                groupId,
                 "test_revised_name",
                 "test_revised_description",
                 "test_revised_imageLink",
@@ -185,7 +188,7 @@ class GroupControllerTest {
                         .contentType(MediaType.APPLICATION_JSON) // 요청 타입 확인
                         .content(content)) // Body에 JSON 문자열 담기
                 .andExpect(status().isOk()) //
-                .andExpect(jsonPath("$.groupId").value(UUID.class))
+                .andExpect(jsonPath("$.groupId").value(groupId))
                 .andExpect(jsonPath("$.groupName").value("test_revised_name"))
                 .andExpect(jsonPath("$.groupDescription").value("test_revised_description"))
                 .andExpect(jsonPath("$.groupImageLink").value("test_revised_imageLink"));
