@@ -86,6 +86,21 @@ jobs:
             
             echo "Deploying $IMAGE_NAME:$TAG to Port $OUTER_PORT:$INNER_PORT"
             
+            # env파일 동적 생성
+            echo "env파일 생성"
+            cat <<EOF > .env
+            DB_URL=${{ secrets.DB_URL }}
+            DB_USERNAME=${{ secrets.DB_USERNAME }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            DB_DRIVER=${{ secrets.DB_DRIVER }}
+            DB_PLATFORM=${{ secrets.DB_PLATFORM }}
+            DDL_AUTO=${{ secrets.DDL_AUTO }}
+            AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
+            AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
+            AWS_REGION=${{ secrets.AWS_REGION }}
+            AWS_S3_BUCKET_NAME=${{ secrets.AWS_S3_BUCKET_NAME }}
+            EOF
+            
             #도커 로그인
             echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             
@@ -101,17 +116,11 @@ jobs:
             sudo docker run -d \
               -p ${OUTER_PORT}:${INNER_PORT} \
               --name $CONTAINER_NAME \
-              -e DB_URL="${{ secrets.DB_URL }}" \
-              -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
-              -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
-              -e DB_DRIVER="${{ secrets.DB_DRIVER }}" \
-              -e DB_PLATFORM="${{ secrets.DB_PLATFORM }}" \
-              -e DDL_AUTO="${{ secrets.DDL_AUTO }}" \
-              -e AWS_ACCESS_KEY="${{ secrets.AWS_ACCESS_KEY }}" \
-              -e AWS_SECRET_KEY="${{ secrets.AWS_SECRET_KEY }}" \
-              -e AWS_REGION="${{ secrets.AWS_REGION }}" \
-              -e AWS_S3_BUCKET_NAME="${{ secrets.AWS_S3_BUCKET_NAME }}" \
+              --env-file .env \
               $IMAGE_NAME:$TAG
+            
+            #컨테이너 실행 후 env 삭제
+            sudo rm .env
             
             # 미사용 이미지 정리
             sudo docker image prune -f
