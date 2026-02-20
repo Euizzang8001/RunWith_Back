@@ -11,19 +11,17 @@ import lombok.Getter;
 @AllArgsConstructor
 public class CreateGroupRequestDto {
     @NotEmpty
-    private String name;
-
-    @NotNull //Long에서는 NotNull을 사용해야 한다.
-    private Long runnerId;
+    private String groupName;
 
     @NotEmpty
-    private String nickname;
+    private String runnerId;
+
+    @NotEmpty
+    private String groupNickname;
 
     @NotNull
-    private int certificationCriteria;
+    private int groupCertificationCriteria;
 
     @NotEmpty
-    private String description;
-
-    private String imageLink;
+    private String groupDescription;
 }

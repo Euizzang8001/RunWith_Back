@@ -11,17 +11,17 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class ReviseGroupResponseDto {
-    @NotNull
-    private Long groupId;
+    @NotEmpty
+    private String groupId;
 
     @NotEmpty
-    private String name;
+    private String groupName;
 
     @NotEmpty
-    private String description;
+    private String groupDescription;
 
-    private String imageLink;
+    private String groupImageLink;
 
     @NotNull
-    private int certificationCriteria;
+    private int groupCertificationCriteria;
 }

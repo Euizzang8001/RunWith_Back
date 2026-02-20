@@ -4,6 +4,7 @@ package park.brothers.runwith_back.domain.Group.repository;
 import park.brothers.runwith_back.domain.Group.entity.Group;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface GroupRepository {
     Group save(Group group);
@@ -16,5 +17,5 @@ public interface GroupRepository {
 
     List<Group> findBySimilarName(String name);
 
-    Optional<Group> findById(Long groupId);
+    Optional<Group> findById(UUID groupId);
 }

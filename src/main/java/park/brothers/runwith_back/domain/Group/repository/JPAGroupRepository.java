@@ -10,6 +10,7 @@ import park.brothers.runwith_back.domain.Group.entity.Group;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @Slf4j
@@ -52,7 +53,7 @@ public class JPAGroupRepository implements GroupRepository {
     }
 
     @Override
-    public Optional<Group> findById(Long id) {
+    public Optional<Group> findById(UUID id) {
         return Optional.ofNullable(em.createQuery("select g from Group g where g.id = :id", Group.class)
                 .setParameter("id", id)
                 .getSingleResult());
