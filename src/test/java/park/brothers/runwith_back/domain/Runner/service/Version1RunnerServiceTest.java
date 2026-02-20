@@ -22,6 +22,7 @@ import park.brothers.runwith_back.external.AWS_S3.AWSS3Service;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -68,7 +69,7 @@ class Version1RunnerServiceTest {
 
         //가짜 러너 생성
         Runner mockRunner = new Runner();
-        mockRunner.setId(1L);
+        mockRunner.setId(UUID.randomUUID());
         mockRunner.setName("test_name");
         mockRunner.setPassword("test_password");
         mockRunner.setEmail("test_email");
@@ -95,8 +96,8 @@ class Version1RunnerServiceTest {
         //then
         assertThat(fakeResponse).isNotNull(); //응답값은 null이면 안됨
         //응답값은 아래 값들을 가져야만 한다.
-        assertThat(fakeResponse.getName()).isEqualTo("test_name");
-        assertThat(fakeResponse.getEmail()).isEqualTo("test_email");
+        assertThat(fakeResponse.getRunnerName()).isEqualTo("test_name");
+        assertThat(fakeResponse.getRunnerEmail()).isEqualTo("test_email");
         //repository.save() 코드들은 1번식만 실행되어야 한다.
         verify(runnerRepository, times(1)).save(any(Runner.class));
         verify(groupRepository, times(1)).save(any(Group.class));
