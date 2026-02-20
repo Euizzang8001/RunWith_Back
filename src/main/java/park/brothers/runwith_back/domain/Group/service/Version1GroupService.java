@@ -154,6 +154,9 @@ public class Version1GroupService implements GroupService {
         if(reviseGroupRequestDto.getGroupDescription() != null){
             group.get().setDescription(reviseGroupRequestDto.getGroupDescription());
         }
+        if(reviseGroupRequestDto.getGroupImageLink() != null){
+            group.get().setImageLink(reviseGroupRequestDto.getGroupImageLink());
+        }
 
         return new ReviseGroupResponseDto(
                 group.get().getId().toString(),
