@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import park.brothers.runwith_back.domain.Runner.dto.Request.CreateRunnerRequestDto;
@@ -15,9 +16,11 @@ import park.brothers.runwith_back.domain.Runner.dto.Response.CreateRunnerRespons
 import park.brothers.runwith_back.domain.Runner.service.RunnerService;
 import tools.jackson.databind.ObjectMapper;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -48,33 +51,48 @@ class RunnerControllerTest {
         CreateRunnerRequestDto createRunnerRequestDto = new CreateRunnerRequestDto(
               "test_runner_name",
               "test_runner_email",
-              "test_runner_password",
-              "test_runner_imageLink"
+              "test_runner_password"
         );
         //api response 생성
         CreateRunnerResponseDto createRunnerResponseDto = new CreateRunnerResponseDto(
-                1L,
+                "1",
                 "test_runner_name",
                 "test_runner_email",
                 "test_runner_imageLink"
         );
 
+        String content = new ObjectMapper().writeValueAsString(createRunnerRequestDto);
+        //가짜 request dto
+        MockMultipartFile requestPart = new MockMultipartFile(
+                "request",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                content.getBytes(StandardCharsets.UTF_8)
+        );
+        //가짜 이미지
+        MockMultipartFile imagePart = new MockMultipartFile(
+                "image",
+                "profile.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                "dummy_image_data".getBytes()
+        );
+
         //when
         //서비스 응답 시, 올바른 응답값을 return해야함
-        given(runnerService.save(any(CreateRunnerRequestDto.class))).willReturn(createRunnerResponseDto);
+        given(runnerService.checkDuplication(any(CreateRunnerRequestDto.class))).willReturn(false);
+        given(runnerService.save(any(CreateRunnerRequestDto.class), any())).willReturn(createRunnerResponseDto);
 
         //then
-        //JSON형식의 문자열로 반환
-        String content = new ObjectMapper().writeValueAsString(createRunnerRequestDto);
-
-        mockMvc.perform(post("/api/v1/runners/add") // POST 요청 URL
-                        .contentType(MediaType.APPLICATION_JSON) // 요청 타입 확인
-                        .content(content)) // Body에 JSON 문자열 담기
-                .andExpect(status().isCreated()) //
-                .andExpect(jsonPath("$.id").value(1L)) // id 확인
-                .andExpect(jsonPath("$.name").value("test_runner_name")) // 이름 확인
-                .andExpect(jsonPath("$.email").value("test_runner_email"))
-                .andExpect(jsonPath("$.imageLink").value("test_runner_imageLink"));
+        mockMvc.perform(multipart("/api/v1/runners") // POST 요청 URL
+                        .file(requestPart) //JSON데이터 추가
+                        .file(imagePart)   //image데이터 추가
+                        .contentType(MediaType.MULTIPART_FORM_DATA) // 전체 Content-Type
+                        .accept(MediaType.APPLICATION_JSON)) // JSON 응답을 기대함
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.runnerId").value("1")) // runnerId 확인
+                .andExpect(jsonPath("$.runnerName").value("test_runner_name")) // 이름 확인
+                .andExpect(jsonPath("$.runnerEmail").value("test_runner_email"))
+                .andExpect(jsonPath("$.runnerImageLink").value("test_runner_imageLink"));
 
     }
 
@@ -86,20 +104,34 @@ class RunnerControllerTest {
         CreateRunnerRequestDto createRunnerRequestDto = new CreateRunnerRequestDto(
                 "duplicate_runner_name",
                 "duplicate_runner_email",
-                "duplicate_runner_password",
-                "duplicate_runner_imageLink"
+                "duplicate_runner_password"
+        );
+
+        String content = new ObjectMapper().writeValueAsString(createRunnerRequestDto);
+        //가짜 request dto
+        MockMultipartFile requestPart = new MockMultipartFile(
+                "request",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                content.getBytes(StandardCharsets.UTF_8)
+        );
+        //가짜 이미지
+        MockMultipartFile imagePart = new MockMultipartFile(
+                "image",
+                "profile.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                "dummy_image_data".getBytes()
         );
 
         // 중복값 확인 서비스 수행 시 true로 반환해야 함
         given(runnerService.checkDuplication(any(CreateRunnerRequestDto.class))).willReturn(true);
 
-        //JSON형식의 문자열로 반환
-        String content = new ObjectMapper().writeValueAsString(createRunnerRequestDto);
-
         // when & then
-        mockMvc.perform(post("/api/v1/runners/add")
-                        .contentType(MediaType.APPLICATION_JSON) //content 타입 설정
-                        .content(content)) //Body에 content담기
+        mockMvc.perform(multipart("/api/v1/runners")
+                        .file(requestPart) //JSON데이터 추가
+                        .file(imagePart)   //image데이터 추가
+                        .contentType(MediaType.MULTIPART_FORM_DATA) // 전체 Content-Type
+                        .accept(MediaType.APPLICATION_JSON)) // JSON 응답을 기대함
                 .andExpect(status().isConflict()) //409코드 발생해야 함
                 .andExpect(jsonPath("$.message").value("생성하고자 하는 데이터를 가진 러너들이 이미 존재합니다.")); //오류 메시지 일치 확인
     }

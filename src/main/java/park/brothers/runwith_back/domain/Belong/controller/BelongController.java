@@ -53,14 +53,14 @@ public class BelongController {
 
     //특정 runner가 속한 모든 그룹들을 응답 받는 api
     @GetMapping("/runnerId={runnerId}")
-    public ResponseEntity<Object> getAllGroupsRunnerJoin(@PathVariable @Valid Long runnerId){
+    public ResponseEntity<Object> getAllGroupsRunnerJoin(@PathVariable @Valid String runnerId){
         List<GetGroupResponseDto> groups = belongService.getAllGroupsRunnerJoin(runnerId);
         return ResponseEntity.status(HttpStatus.OK).body(groups);
     }
 
     //특정 그룹에 속한 모든 runner들을 응답 받는 api
     @GetMapping("/groupId={groupId}")
-    public ResponseEntity<Object> getAllRunnersInGroup(@PathVariable @Valid Long groupId){
+    public ResponseEntity<Object> getAllRunnersInGroup(@PathVariable @Valid String groupId){
         List<GetRunnerResponseDto> runners = belongService.getAllRunnersInGroup(groupId);
         return ResponseEntity.status(HttpStatus.OK).body(runners);
     }

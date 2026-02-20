@@ -4,21 +4,23 @@ import park.brothers.runwith_back.domain.Schedule.entity.Schedule;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public interface ScheduleRepository {
     void save(Schedule schedule);
 
-    void delete(Long id);
+    void delete(UUID id);
 
-    List<Schedule> getAllSchedule();
+    List<Schedule> fintAllSchedule();
 
-    List<Schedule> getByLocalDate(LocalDate localDate);
+    List<Schedule> findByLocalDate(LocalDate localDate);
 
-    List<Schedule> getByBelongId(Long belongId);
+    List<Schedule> findByBelongId(UUID belongId);
 
-    List<Schedule> getByBelongIdAndLocalDate(Long belongId, LocalDate localDate);
+    List<Schedule> findByBelongIdAndLocalDate(UUID belongId, LocalDate localDate);
 
-    void reviseSchedule(Long id, String description);
+    void reviseSchedule(UUID id, String description);
 
-    Schedule getScheduleById(Long scheduleId);
+    Optional<Schedule> findScheduleById(UUID scheduleId);
 }

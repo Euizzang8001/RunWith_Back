@@ -8,21 +8,21 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class GetActionsResponseDto {
-    @NotNull
-    Long id;
+    @NotEmpty
+    String actionId;
 
     @NotEmpty
-    String name;
+    String actionName;
 
     @NotNull
-    int startHour;
+    int actionStartHour;
 
     @NotNull
-    int startMinute;
+    int actionStartMinute;
 
     @NotNull
-    int endHour;
+    int actionEndHour;
 
     @NotNull
-    int endMinute;
+    int actionEndMinute;
 }

@@ -3,17 +3,19 @@ package park.brothers.runwith_back.domain.Action.repository;
 import park.brothers.runwith_back.domain.Action.entity.Action;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public interface ActionRepository {
     void save(Action action);
 
     void delete(Action action);
 
-    Action getById(Long id);
+    Optional<Action> findById(UUID id);
 
-    List<Action> getOverlappedActions(Long scheduleId, int startHour, int startMinute, int endHour, int endMinute);
+    List<Action> findOverlappedActions(UUID scheduleId, int startHour, int startMinute, int endHour, int endMinute);
 
-    void reviseAction(Long id, String name, String description, int startHour, int startMinute, int endHour, int endMinute);
+    void reviseAction(UUID id, String name, String description, int startHour, int startMinute, int endHour, int endMinute);
 
-    List<Action> getActionsByScheduleId(Long scheduleId);
+    List<Action> findActionsByScheduleId(UUID scheduleId);
 }

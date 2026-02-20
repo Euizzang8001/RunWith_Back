@@ -5,21 +5,22 @@ import park.brothers.runwith_back.domain.Belong.entity.Belong;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface BelongRepository {
-    Optional<Belong> findByRunnerIdAndGroupId(Long runnerId, Long groupId);
+    Optional<Belong> findByRunnerIdAndGroupId(UUID runnerId, UUID groupId);
 
-    Optional<Object> findByGroupIdAndNickname(Long groupId, String nickname);
+    Optional<Object> findByGroupIdAndNickname(UUID groupId, String nickname);
 
     Belong save(Belong belong);
 
-    void deleteByRunnerIdAndGroupId(Long runnerId, Long groupId);
+    void deleteByRunnerIdAndGroupId(UUID runnerId, UUID groupId);
 
-    List<Belong> findByRunnerId(Long runnerId);
+    List<Belong> findByRunnerId(UUID runnerId);
 
-    List<Belong> findByGroupId(Long groupId);
+    List<Belong> findByGroupId(UUID groupId);
 
-    void changeIsLeader(Long runnerId, Long groupId, boolean isLeader);
+    void changeIsLeader(UUID runnerId, UUID groupId, boolean isLeader);
 
-    Belong getById(@NotNull Long id);
+    Optional<Belong> findById(@NotNull UUID id);
 }

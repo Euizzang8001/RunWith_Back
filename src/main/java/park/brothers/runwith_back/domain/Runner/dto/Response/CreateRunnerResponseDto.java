@@ -1,7 +1,6 @@
 package park.brothers.runwith_back.domain.Runner.dto.Response;
 
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -11,14 +10,14 @@ import lombok.Getter;
 @AllArgsConstructor
 public class CreateRunnerResponseDto {
 
-    @NotNull
-    private Long id;
+    @NotEmpty
+    private String runnerId;
 
     @NotEmpty
-    private String name;
+    private String runnerName;
 
     @NotEmpty
-    private String email;
+    private String runnerEmail;
 
-    private String imageLink;
+    private String runnerImageLink;
 }

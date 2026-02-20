@@ -49,7 +49,7 @@ class LoginControllerTest {
                 "test_password"
         );
         //servive 가정 선언
-        given(loginService.login(any(LoginRequestDto.class))).willReturn(1L);
+        given(loginService.login(any(LoginRequestDto.class))).willReturn("1");
 
         //when & then
         String content = new ObjectMapper().writeValueAsString(loginRequestDto);
@@ -58,7 +58,7 @@ class LoginControllerTest {
                         .contentType(MediaType.APPLICATION_JSON) // 요청 타입 확인
                         .content(content)) // Body에 JSON 문자열 담기
                 .andExpect(status().isOk()) //
-                .andExpect(jsonPath("$.id").value(1L)) // id 확인
+                .andExpect(jsonPath("$.runnerId").value("1")) // runnerId 확인
                 .andExpect(cookie().value("runnerId", "1")); //쿠키값 테스트
 
     }
@@ -73,7 +73,7 @@ class LoginControllerTest {
                 "test_password"
         );
         //servive 가정 선언
-        given(loginService.login(any(LoginRequestDto.class))).willReturn(null);
+        given(loginService.login(any(LoginRequestDto.class))).willReturn("");
 
         //when & then
         String content = new ObjectMapper().writeValueAsString(loginRequestDto);
@@ -82,7 +82,7 @@ class LoginControllerTest {
                         .contentType(MediaType.APPLICATION_JSON) // 요청 타입 확인
                         .content(content)) // Body에 JSON 문자열 담기
                 .andExpect(status().isUnauthorized()) //
-                .andExpect(jsonPath("$.message").value("아이디 또는 비밀번호가 일치하지 않습니다.")); // id 확인
+                .andExpect(jsonPath("$.message").value("아이디 또는 비밀번호가 일치하지 않습니다.")); // runnerId 확인
 
     }
 

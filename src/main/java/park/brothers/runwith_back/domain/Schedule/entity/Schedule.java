@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
 
+import java.util.UUID;
+
 @Entity
 @Getter
 @Setter
@@ -12,8 +14,9 @@ import park.brothers.runwith_back.domain.Belong.entity.Belong;
 public class Schedule {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(updatable = false, nullable = false)
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "belongs")

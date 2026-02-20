@@ -13,6 +13,8 @@ import park.brothers.runwith_back.domain.Schedule.repository.ScheduleRepository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -26,10 +28,13 @@ public class Version1ScheduleService implements ScheduleService{
     @Override
     public void create(CreateScheduleRequestDto createScheduleRequestDto) {
         Schedule schedule = new Schedule();
-        Belong belong = belongRepository.getById(createScheduleRequestDto.getBelongId());
-        String description = createScheduleRequestDto.getDescription();
+        Optional<Belong> belong = belongRepository.findById(UUID.fromString(createScheduleRequestDto.getBelongId()));
+        String description = createScheduleRequestDto.getScheduleDescription();
+        if(belong.isEmpty()){
+            throw new IllegalAccessError("그룹에 속하지 않습니다.");
+        }
 
-        schedule.setBelong(belong);
+        schedule.setBelong(belong.get());
         schedule.setDescription(description);
         schedule.setScheduleYear(LocalDate.now().getYear());
         schedule.setScheduleMonth(LocalDate.now().getMonthValue());
@@ -40,27 +45,27 @@ public class Version1ScheduleService implements ScheduleService{
 
     //스케줄 삭제
     @Override
-    public void delete(Long id) {
-        scheduleRepository.delete(id);
+    public void delete(String id) {
+        scheduleRepository.delete(UUID.fromString(id));
     }
 
     //특정 조건의 스케줄들 조회
     @Override
-    public List<GetSchedulesResponseDto> getSchedules(Long belongId, LocalDate localDate) {
+    public List<GetSchedulesResponseDto> getSchedules(String belongId, LocalDate localDate) {
         List<Schedule> schedules;
         if(belongId == null && localDate == null){
-            schedules = scheduleRepository.getAllSchedule();
+            schedules = scheduleRepository.fintAllSchedule();
         } else if (belongId == null) {
-            schedules = scheduleRepository.getByLocalDate(localDate);
+            schedules = scheduleRepository.findByLocalDate(localDate);
         } else if (localDate == null) {
-            schedules = scheduleRepository.getByBelongId(belongId);
+            schedules = scheduleRepository.findByBelongId(UUID.fromString(belongId));
         } else{
-            schedules = scheduleRepository.getByBelongIdAndLocalDate(belongId, localDate);
+            schedules = scheduleRepository.findByBelongIdAndLocalDate(UUID.fromString(belongId), localDate);
         }
 
         return schedules.stream()
                 .map(schedule -> new GetSchedulesResponseDto(
-                        schedule.getId(),
+                        schedule.getId().toString(),
                         schedule.getScheduleYear(),
                         schedule.getScheduleMonth(),
                         schedule.getScheduleDate(),
@@ -71,8 +76,8 @@ public class Version1ScheduleService implements ScheduleService{
     //특정 스케줄 수정
     @Override
     public void revise(ReviseScheduleRequestDto reviseScheduleRequestDto) {
-        Long id = reviseScheduleRequestDto.getId();
-        String description = reviseScheduleRequestDto.getDescription();
-        scheduleRepository.reviseSchedule(id, description);
+        String id = reviseScheduleRequestDto.getScheduleId();
+        String description = reviseScheduleRequestDto.getScheduleDescription();
+        scheduleRepository.reviseSchedule(UUID.fromString(id), description);
     }
 }

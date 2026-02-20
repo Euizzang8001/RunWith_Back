@@ -17,6 +17,7 @@ import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,13 +31,13 @@ public class Version1GroupService implements GroupService {
     @Override
     public CreateGroupResponseDto save(CreateGroupRequestDto createGroupRequestDto) throws IllegalAccessError {
         //이미 존재하는 그룹 이름인지 확인하기
-        Optional<Group> existGroup = groupRepository.findByName(createGroupRequestDto.getName());
+        Optional<Group> existGroup = groupRepository.findByName(createGroupRequestDto.getGroupName());
         if(existGroup.isPresent()){
             throw new IllegalAccessError("이미 존재하는 그룹 이름입니다.");
         }
 
         //저장하려는 러너가 존재하는지 확인
-        Optional<Runner> runner = runnerRepository.findById(createGroupRequestDto.getRunnerId());
+        Optional<Runner> runner = runnerRepository.findById(UUID.fromString(createGroupRequestDto.getRunnerId()));
 
         if(runner.isEmpty()){
             throw new IllegalAccessError("존재하지 않은 러너입니다.");
@@ -44,25 +45,22 @@ public class Version1GroupService implements GroupService {
 
          //그룹 객체 생성
          Group group = new Group();
-         group.setName(createGroupRequestDto.getName());
-         group.setDescription(createGroupRequestDto.getDescription());
+         group.setName(createGroupRequestDto.getGroupName());
+         group.setDescription(createGroupRequestDto.getGroupDescription());
          group.setIsSelf(false);
-         if(createGroupRequestDto.getImageLink() != null){
-             group.setImageLink(createGroupRequestDto.getImageLink());
-         }
-         group.setCertificationCriteria(createGroupRequestDto.getCertificationCriteria());
+         group.setCertificationCriteria(createGroupRequestDto.getGroupCertificationCriteria());
          Group savedGroup = groupRepository.save(group);
 
          //이 그룹에 자기가 속했고, 리더임을 나타내는 Belong객체 생성
          Belong belong = new Belong();
          belong.setRunner(runner.get());
          belong.setGroup(savedGroup);
-         belong.setNickname(createGroupRequestDto.getNickname());
+         belong.setNickname(createGroupRequestDto.getGroupNickname());
          belong.setLeader(true);
          belongRepository.save(belong);
 
          return new CreateGroupResponseDto(
-                 savedGroup.getId(),
+                 savedGroup.getId().toString(),
                  savedGroup.getName(),
                  savedGroup.getDescription(),
                  savedGroup.getImageLink(),
@@ -76,7 +74,7 @@ public class Version1GroupService implements GroupService {
         List<Group> groups = groupRepository.findAll();
 
         return groups.stream()
-                .map(group -> new GetGroupResponseDto(group.getId(), group.getName(), group.getDescription(), group.getImageLink()))
+                .map(group -> new GetGroupResponseDto(group.getId().toString(), group.getName(), group.getDescription(), group.getImageLink()))
                 .collect(Collectors.toList());
     }
 
@@ -84,28 +82,28 @@ public class Version1GroupService implements GroupService {
     public List<GetGroupResponseDto> getGroupsBySimilarName(String name) {
         List<Group> groups = groupRepository.findBySimilarName(name);
         return groups.stream()
-                .map(group -> new GetGroupResponseDto(group.getId(), group.getName(), group.getDescription(), group.getImageLink()))
+                .map(group -> new GetGroupResponseDto(group.getId().toString(), group.getName(), group.getDescription(), group.getImageLink()))
                 .collect(Collectors.toList());
     }
 
     @Override
     public void delete(DeleteGroupRequestDto deleteGroupRequestDto) {
-        Long groupId = deleteGroupRequestDto.getGroupId();
-        Long runnerId = deleteGroupRequestDto.getRunnerId();
+        String groupId = deleteGroupRequestDto.getGroupId();
+        String runnerId = deleteGroupRequestDto.getRunnerId();
 
-        Optional<Group> group = groupRepository.findById(groupId);
+        Optional<Group> group = groupRepository.findById(UUID.fromString(groupId));
         //group이 없으면 에러
         if(group.isEmpty()){
             throw new IllegalAccessError("존재하지 않는 그룹입니다.");
         }
 
-        Optional<Runner> runner = runnerRepository.findById(runnerId);
+        Optional<Runner> runner = runnerRepository.findById(UUID.fromString(runnerId));
 
         //runner가 없으면 에러
         if(runner.isEmpty()){
             throw new IllegalAccessError("존재하지 않는 러너입니다.");
         }
-        List<Belong> belongs = belongRepository.findByGroupId(groupId);
+        List<Belong> belongs = belongRepository.findByGroupId(UUID.fromString(groupId));
 
         //그룹애 속해있는 인원이 1명이 아님.
         if(belongs.size() > 1){
@@ -113,33 +111,33 @@ public class Version1GroupService implements GroupService {
         }
 
         //그룹의 리더가 삭재하는 것이 아님
-        if(!belongs.get(0).isLeader() || belongs.get(0).getRunner() != runner.get()){
+        if(!belongs.getFirst().isLeader() || belongs.getFirst().getRunner() != runner.get()){
             throw new IllegalAccessError("리더만 삭제할 수 있습니다.");
         }
 
-        belongRepository.deleteByRunnerIdAndGroupId(runnerId, groupId);
+        belongRepository.deleteByRunnerIdAndGroupId(UUID.fromString(runnerId), UUID.fromString(groupId));
         groupRepository.delete(group.get());
     }
 
     //그룹 정보 수정
     @Override
     public ReviseGroupResponseDto reviseGroup(ReviseGroupRequestDto reviseGroupRequestDto) throws IllegalAccessError{
-        Long groupId = reviseGroupRequestDto.getId();
-        Long runnerId = reviseGroupRequestDto.getRunnerId();
+        String groupId = reviseGroupRequestDto.getGroupId();
+        String runnerId = reviseGroupRequestDto.getRunnerId();
 
-        Optional<Group> group = groupRepository.findById(groupId);
+        Optional<Group> group = groupRepository.findById(UUID.fromString(groupId));
         //그룹이 없으면 에러
         if(group.isEmpty()){
             throw new IllegalAccessError("존재하지 않는 그룹입니다.");
         }
 
         //러너가 없으면 에러
-        Optional<Runner> runner = runnerRepository.findById(runnerId);
+        Optional<Runner> runner = runnerRepository.findById(UUID.fromString(runnerId));
         if(runner.isEmpty()){
             throw new IllegalAccessError("존재하지 않는 러너입니다.");
         }
 
-        Optional<Belong> belong = belongRepository.findByRunnerIdAndGroupId(runnerId, groupId);
+        Optional<Belong> belong = belongRepository.findByRunnerIdAndGroupId(UUID.fromString(runnerId), UUID.fromString(groupId));
 
         //그룹에 속하지 않으면 에러
         if(belong.isEmpty()){
@@ -150,17 +148,18 @@ public class Version1GroupService implements GroupService {
             throw new IllegalAccessError("해당 러너는 이 그룹의 리더가 아닙니다.");
         }
 
-        if(reviseGroupRequestDto.getCertificationCriteria() != 0){
-            group.get().setCertificationCriteria(reviseGroupRequestDto.getCertificationCriteria());
+        if(reviseGroupRequestDto.getGroupCertificationCriteria() != 0){
+            group.get().setCertificationCriteria(reviseGroupRequestDto.getGroupCertificationCriteria());
         }
-        if(reviseGroupRequestDto.getDescription() != null){
-            group.get().setDescription(reviseGroupRequestDto.getDescription());
+        if(reviseGroupRequestDto.getGroupDescription() != null){
+            group.get().setDescription(reviseGroupRequestDto.getGroupDescription());
         }
-        if(reviseGroupRequestDto.getImageLink() != null){
-            group.get().setImageLink(reviseGroupRequestDto.getImageLink());
+        if(reviseGroupRequestDto.getGroupImageLink() != null){
+            group.get().setImageLink(reviseGroupRequestDto.getGroupImageLink());
         }
+
         return new ReviseGroupResponseDto(
-                group.get().getId(),
+                group.get().getId().toString(),
                 group.get().getName(),
                 group.get().getDescription(),
                 group.get().getImageLink(),

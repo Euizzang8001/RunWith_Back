@@ -1,6 +1,6 @@
 package park.brothers.runwith_back.domain.Group.dto.Request;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -8,9 +8,9 @@ import lombok.Data;
 @AllArgsConstructor
 public class DeleteGroupRequestDto {
 
-    @NotNull
-    private Long groupId;
+    @NotEmpty
+    private String groupId;
 
-    @NotNull
-    private Long runnerId;
+    @NotEmpty
+    private String runnerId;
 }

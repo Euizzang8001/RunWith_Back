@@ -11,11 +11,11 @@ import java.util.List;
 public interface ActionService {
     void createAction(@Valid CreateActionRequestDto createActionRequestDto);
 
-    List<GetActionsResponseDto> getActionsByScheduleId(@Valid Long scheduleId);
+    List<GetActionsResponseDto> getActionsByScheduleId(@Valid String scheduleId);
 
-    void deleteAction(@Valid Long id);
+    void deleteAction(@Valid String id);
 
     void reviseAction(@Valid ReviseActionRequestDto reviseActionRequestDto);
 
-    GetOneActionResponseDto getActionById(@Valid Long id);
+    GetOneActionResponseDto getActionById(@Valid String id);
 }

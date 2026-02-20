@@ -10,11 +10,11 @@ import lombok.Getter;
 @AllArgsConstructor
 public class CreateRunnerRequestDto {
     @NotEmpty
-    private String name;
+    private String runnerName;
 
     @NotEmpty
-    private String email;
+    private String runnerEmail;
 
     @NotEmpty
-    private String password;
+    private String runnerPassword;
 }

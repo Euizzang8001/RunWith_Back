@@ -1,17 +1,17 @@
 package park.brothers.runwith_back.domain.Belong.dto.Request;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 @Data
 public class ChangeLeaderRequestDto {
 
-    @NotNull
-    Long beforeLeaderId;
+    @NotEmpty
+    String beforeLeaderRunnerId;
 
-    @NotNull
-    Long afterLeaderId;
+    @NotEmpty
+    String afterLeaderRunnerId;
 
-    @NotNull
-    Long groupId;
+    @NotEmpty
+    String groupId;
 }

@@ -10,6 +10,7 @@ import park.brothers.runwith_back.domain.Group.entity.Group;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @Slf4j
@@ -42,7 +43,7 @@ public class JPAGroupRepository implements GroupRepository {
         List<Group> groups = em.createQuery("select g from Group g where g.name = :name", Group.class)
                 .setParameter("name", name)
                 .getResultList();
-        return groups.isEmpty() ? Optional.empty() : Optional.of(groups.get(0));
+        return groups.isEmpty() ? Optional.empty() : Optional.of(groups.getFirst());
     }
 
     public List<Group> findBySimilarName(String name) {
@@ -52,7 +53,7 @@ public class JPAGroupRepository implements GroupRepository {
     }
 
     @Override
-    public Optional<Group> findById(Long id) {
+    public Optional<Group> findById(UUID id) {
         return Optional.ofNullable(em.createQuery("select g from Group g where g.id = :id", Group.class)
                 .setParameter("id", id)
                 .getSingleResult());

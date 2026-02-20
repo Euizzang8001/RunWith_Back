@@ -9,24 +9,24 @@ import lombok.Getter;
 @Getter
 public class ReviseActionRequestDto {
 
-    @NotNull
-    Long id;
+    @NotEmpty
+    String actionId;
 
     @NotEmpty
-    String name;
+    String actionName;
 
     @NotEmpty
-    String description;
+    String actionDescription;
 
     @NotNull
-    int startHour;
+    int actionStartHour;
 
     @NotNull
-    int startMinute;
+    int actionStartMinute;
 
     @NotNull
-    int endHour;
+    int actionEndHour;
 
     @NotNull
-    int endMinute;
+    int actionEndMinute;
 }

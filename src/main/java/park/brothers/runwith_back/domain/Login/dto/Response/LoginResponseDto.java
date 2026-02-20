@@ -1,6 +1,6 @@
 package park.brothers.runwith_back.domain.Login.dto.Response;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -8,6 +8,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class LoginResponseDto {
 
-    @NotNull
-    private Long id;
+    @NotEmpty
+    private String runnerId;
 }

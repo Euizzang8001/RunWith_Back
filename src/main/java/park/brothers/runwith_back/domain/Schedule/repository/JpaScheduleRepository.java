@@ -10,6 +10,8 @@ import park.brothers.runwith_back.domain.Schedule.entity.Schedule;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @Slf4j
@@ -27,7 +29,7 @@ public class JpaScheduleRepository implements ScheduleRepository{
 
     // 스케줄 객체 삭제
     @Override
-    public void delete(Long id) {
+    public void delete(UUID id) {
         Schedule schedule = em.createQuery("select s from Schedule s where id = :id", Schedule.class)
                 .setParameter("id", id)
                 .getSingleResult();
@@ -36,14 +38,14 @@ public class JpaScheduleRepository implements ScheduleRepository{
 
     //전체 스케줄 조회
     @Override
-    public List<Schedule> getAllSchedule() {
+    public List<Schedule> fintAllSchedule() {
         return em.createQuery("select s from Schedule s", Schedule.class)
                 .getResultList();
     }
 
     //LocalDateTime에 따라 조회
     @Override
-    public List<Schedule> getByLocalDate(LocalDate localDate) {
+    public List<Schedule> findByLocalDate(LocalDate localDate) {
         return em.createQuery("select s from Schedule s where s.scheduleYear = :year and s.scheduleMonth = :month", Schedule.class)
                 .setParameter("year", localDate.getYear())
                 .setParameter("month", localDate.getMonthValue())
@@ -52,7 +54,7 @@ public class JpaScheduleRepository implements ScheduleRepository{
 
     //Belong Id에 따라 조회
     @Override
-    public List<Schedule> getByBelongId(Long belongId) {
+    public List<Schedule> findByBelongId(UUID belongId) {
         return em.createQuery("select s from Schedule s where s.belong.id = :belongId", Schedule.class)
                 .setParameter("belongId", belongId)
                 .getResultList();
@@ -60,7 +62,7 @@ public class JpaScheduleRepository implements ScheduleRepository{
 
     //BelongId와 LocalDateTime에 따라 조회
     @Override
-    public List<Schedule> getByBelongIdAndLocalDate(Long belongId, LocalDate localDateTime) {
+    public List<Schedule> findByBelongIdAndLocalDate(UUID belongId, LocalDate localDateTime) {
         return em.createQuery("select s from Schedule s where s.scheduleYear = :year and s.scheduleMonth = :month and s.belong.id = :belongId", Schedule.class)
                 .setParameter("year", localDateTime.getYear())
                 .setParameter("month", localDateTime.getMonthValue())
@@ -70,7 +72,7 @@ public class JpaScheduleRepository implements ScheduleRepository{
 
     //스케줄 수정하기
     @Override
-    public void reviseSchedule(Long id, String description) {
+    public void reviseSchedule(UUID id, String description) {
         Schedule schedule = em.createQuery("select s from Schedule s where s.id = :id", Schedule.class)
                 .setParameter("id", id)
                 .getSingleResult();
@@ -79,9 +81,9 @@ public class JpaScheduleRepository implements ScheduleRepository{
 
     //id로 스케줄 객체 하나 찾기
     @Override
-    public Schedule getScheduleById(Long id) {
-        return em.createQuery("select s from Schedule s where s.id = :id", Schedule.class)
+    public Optional<Schedule> findScheduleById(UUID id) {
+        return Optional.ofNullable(em.createQuery("select s from Schedule s where s.id = :id", Schedule.class)
                 .setParameter("id", id)
-                .getSingleResult();
+                .getSingleResult());
     }
 }

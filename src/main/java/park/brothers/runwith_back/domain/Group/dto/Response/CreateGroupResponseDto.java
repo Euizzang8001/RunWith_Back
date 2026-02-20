@@ -1,7 +1,6 @@
 package park.brothers.runwith_back.domain.Group.dto.Response;
 
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -11,17 +10,17 @@ import lombok.Getter;
 @AllArgsConstructor
 public class CreateGroupResponseDto {
 
-    @NotNull
-    private Long id;
+    @NotEmpty
+    private String groupId;
 
     @NotEmpty
-    private String name;
+    private String groupName;
 
     @NotEmpty
-    private String description;
+    private String groupDescription;
 
-    private String imageLink;
+    private String groupImageLink;
 
     @NotEmpty
-    private int certificationCriteria;
+    private int groupCertificationCriteria;
 }

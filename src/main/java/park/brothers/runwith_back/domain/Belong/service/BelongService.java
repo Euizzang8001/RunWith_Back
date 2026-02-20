@@ -14,9 +14,9 @@ public interface BelongService {
 
     void leaveGroup(@Valid LeaveGroupRequestDto leaveGroupRequestDto);
 
-    List<GetGroupResponseDto> getAllGroupsRunnerJoin(@Valid Long runnerId);
+    List<GetGroupResponseDto> getAllGroupsRunnerJoin(@Valid String runnerId);
 
-    List<GetRunnerResponseDto> getAllRunnersInGroup(@Valid Long groupId);
+    List<GetRunnerResponseDto> getAllRunnersInGroup(@Valid String groupId);
 
     void changeLeader(@Valid ChangeLeaderRequestDto changeLeaderRequestDto);
 }

@@ -1,16 +1,16 @@
 package park.brothers.runwith_back.domain.Belong.dto.Request;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 @Data
 public class LeaveGroupRequestDto {
 
-    @NotNull
-    Long runnerId;
+    @NotEmpty
+    private String runnerId;
 
-    @NotNull
-    Long groupId;
+    @NotEmpty
+    private String groupId;
 
 }
 

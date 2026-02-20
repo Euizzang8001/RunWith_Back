@@ -4,13 +4,14 @@ import jakarta.validation.constraints.NotEmpty;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public interface RunnerRepository {
     Runner save(Runner runner);
 
     Optional<Runner> findByEmail(String email);
 
-    Optional<Runner> findById(Long runnerId);
+    Optional<Runner> findById(UUID id);
 
     Optional<Runner> findByName(@NotEmpty String name);
 

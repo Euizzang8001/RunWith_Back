@@ -9,18 +9,18 @@ import lombok.Data;
 @AllArgsConstructor
 public class GetSchedulesResponseDto {
 
-    @NotNull
-    Long id;
+    @NotEmpty
+    private String scheduleId;
 
     @NotNull
-    int scheduleYear;
+    private int scheduleYear;
 
     @NotNull
-    int scheduleMonth;
+    private int scheduleMonth;
 
     @NotNull
-    int scheduleDate;
+    private int scheduleDate;
 
     @NotEmpty
-    String description;
+    private String scheduleDescription;
 }
