@@ -34,8 +34,4 @@ public class Group {
 
     @Column(nullable = false, updatable = false)
     private Boolean isSelf;
-
-    @Column
-    private String imageLink;
-
 }
