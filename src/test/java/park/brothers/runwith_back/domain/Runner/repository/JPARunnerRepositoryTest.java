@@ -7,6 +7,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,6 +28,7 @@ class JPARunnerRepositoryTest {
         runner.setName("test_name");
         runner.setEmail("test_email");
         runner.setPassword("test_password");
+        runner.setCreatedAt(LocalDateTime.now());
 
         //when
         Runner savedRunner = runnerRepository.save(runner);
