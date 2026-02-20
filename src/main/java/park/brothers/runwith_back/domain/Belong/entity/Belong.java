@@ -17,11 +17,8 @@ import java.util.UUID;
 public class Belong {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long pk;
-
-    @Column
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(updatable = false, nullable = false)
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY) //Belong을 조회할 때 Belog만 조회하고, Runner는 나중에 조회(지연 로딩)

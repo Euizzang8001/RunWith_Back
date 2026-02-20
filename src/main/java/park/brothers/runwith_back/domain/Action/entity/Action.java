@@ -14,11 +14,8 @@ import java.util.UUID;
 public class Action {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long pk;
-
-    @Column
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(updatable = false, nullable = false)
     private UUID id;
 
     @JoinColumn(name = "schedules")
