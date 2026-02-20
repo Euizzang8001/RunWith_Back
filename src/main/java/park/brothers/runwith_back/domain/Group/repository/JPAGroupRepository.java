@@ -43,7 +43,7 @@ public class JPAGroupRepository implements GroupRepository {
         List<Group> groups = em.createQuery("select g from Group g where g.name = :name", Group.class)
                 .setParameter("name", name)
                 .getResultList();
-        return groups.isEmpty() ? Optional.empty() : Optional.of(groups.get(0));
+        return groups.isEmpty() ? Optional.empty() : Optional.of(groups.getFirst());
     }
 
     public List<Group> findBySimilarName(String name) {
