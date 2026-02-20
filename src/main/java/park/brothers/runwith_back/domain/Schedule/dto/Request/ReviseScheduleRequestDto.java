@@ -9,9 +9,9 @@ import lombok.Getter;
 @Getter
 public class ReviseScheduleRequestDto {
 
-    @NotNull
-    Long scheduleId;
+    @NotEmpty
+    private String scheduleId;
 
     @NotEmpty
-    String description;
+    private String scheduleDescription;
 }

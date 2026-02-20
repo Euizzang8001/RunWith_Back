@@ -11,9 +11,9 @@ import java.util.List;
 public interface ScheduleService {
     void create(@Valid CreateScheduleRequestDto createScheduleRequestDto);
 
-    void delete(@Valid Long id);
+    void delete(@Valid String id);
 
-    List<GetSchedulesResponseDto> getSchedules(@Valid Long belongId, @Valid LocalDate localDate);
+    List<GetSchedulesResponseDto> getSchedules(@Valid String belongId, @Valid LocalDate localDate);
 
     void revise(@Valid ReviseScheduleRequestDto reviseScheduleRequestDto);
 }

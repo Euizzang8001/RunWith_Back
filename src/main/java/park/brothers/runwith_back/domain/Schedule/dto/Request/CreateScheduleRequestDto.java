@@ -10,18 +10,18 @@ import lombok.Getter;
 @Getter
 public class CreateScheduleRequestDto {
 
-    @NotNull
-    Long belongId;
+    @NotEmpty
+    private String belongId;
 
     @NotNull
-    int scheduleYear;
+    private int scheduleYear;
 
     @NotNull
-    int scheduleMonth;
+    private int scheduleMonth;
 
     @NotNull
-    int scheduleDate;
+    private int scheduleDate;
 
     @NotEmpty
-    String description;
+    private String scheduleDescription;
 }

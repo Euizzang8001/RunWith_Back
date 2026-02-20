@@ -38,7 +38,7 @@ public class ScheduleController {
 
     //스케줄 삭제
     @DeleteMapping
-    public ResponseEntity<Object> delete(@RequestParam @Valid Long id){
+    public ResponseEntity<Object> delete(@RequestParam @Valid String id){
         scheduleService.delete(id);
         return ResponseEntity.status(HttpStatus.OK).body(id);
     }
@@ -46,7 +46,7 @@ public class ScheduleController {
     //스케줄 조회
     @GetMapping
     public ResponseEntity<Object> getSchedules(
-            @RequestParam(required = false) @Valid Long belongId,
+            @RequestParam(required = false) @Valid String belongId,
             @RequestParam(required = false) @Valid @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate localDate
     ) {
       List<GetSchedulesResponseDto> schedules = scheduleService.getSchedules(belongId, localDate);
