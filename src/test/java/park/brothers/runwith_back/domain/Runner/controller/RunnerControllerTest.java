@@ -55,7 +55,7 @@ class RunnerControllerTest {
         );
         //api response 생성
         CreateRunnerResponseDto createRunnerResponseDto = new CreateRunnerResponseDto(
-                1L,
+                "1",
                 "test_runner_name",
                 "test_runner_email",
                 "test_runner_imageLink"
@@ -89,10 +89,10 @@ class RunnerControllerTest {
                         .contentType(MediaType.MULTIPART_FORM_DATA) // 전체 Content-Type
                         .accept(MediaType.APPLICATION_JSON)) // JSON 응답을 기대함
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.runnerId").value(1L)) // runnerId 확인
-                .andExpect(jsonPath("$.name").value("test_runner_name")) // 이름 확인
-                .andExpect(jsonPath("$.email").value("test_runner_email"))
-                .andExpect(jsonPath("$.imageLink").value("test_runner_imageLink"));
+                .andExpect(jsonPath("$.runnerId").value("1")) // runnerId 확인
+                .andExpect(jsonPath("$.runnerName").value("test_runner_name")) // 이름 확인
+                .andExpect(jsonPath("$.runnerEmail").value("test_runner_email"))
+                .andExpect(jsonPath("$.runnerImageLink").value("test_runner_imageLink"));
 
     }
 

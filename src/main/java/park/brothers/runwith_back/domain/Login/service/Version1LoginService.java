@@ -14,11 +14,18 @@ public class Version1LoginService implements LoginService {
 
     private final RunnerRepository runnerRepository;
 
-    public Long login(LoginRequestDto loginRequestDto) {
+    public String login(LoginRequestDto loginRequestDto) {
         Optional<Runner> runner = runnerRepository.findByEmail(loginRequestDto.getEmail())
                 .filter(r -> r.getPassword().equals(loginRequestDto.getPassword()));
 
-        return runner.map(Runner::getId).orElse(null);
+        //runner가 있으면 로그인 성공
+        if(runner.isPresent()){
+            return runner.get().getId().toString();
+        }
+        //없으면 실패
+        else{
+            return "";
+        }
     }
 
 }

@@ -11,6 +11,7 @@ import park.brothers.runwith_back.domain.Runner.entity.Runner;
 import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -38,7 +39,8 @@ class Version1LoginServiceTest {
 
         //레퍼지토리 메서드 수행 시 반환할 값 선언
         Runner runner = new Runner();
-        runner.setId(1L);
+        UUID fakeRunnerUUID = UUID.randomUUID();
+        runner.setId(fakeRunnerUUID);
         runner.setEmail("test_email");
         runner.setPassword("test_password");
         runner.setName("test_name");
@@ -47,7 +49,7 @@ class Version1LoginServiceTest {
         given(runnerRepository.findByEmail(anyString())).willReturn(Optional.of(runner));
 
         //then
-        assertThat(loginService.login(loginRequestDto)).isEqualTo(1L); //Id가 잘 반환되는지 확인
+        assertThat(loginService.login(loginRequestDto)).isEqualTo(fakeRunnerUUID.toString()); //Id가 잘 반환되는지 확인
     }
 
     @Test
@@ -64,6 +66,6 @@ class Version1LoginServiceTest {
         given(runnerRepository.findByEmail(anyString())).willReturn(Optional.empty());
 
         //then
-        assertThat(loginService.login(loginRequestDto)).isNull(); //null값이 반환되는지 확인
+        assertThat(loginService.login(loginRequestDto)).isEmpty(); //null값이 반환되는지 확인
     }
 }

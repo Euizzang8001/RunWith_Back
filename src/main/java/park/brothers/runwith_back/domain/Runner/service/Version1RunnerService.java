@@ -29,12 +29,13 @@ public class Version1RunnerService implements RunnerService {
     public CreateRunnerResponseDto save(CreateRunnerRequestDto createRunnerRequestDto, MultipartFile image) throws IllegalAccessError, IOException {
         //러너 생성
         Runner runner = new Runner();
-        if(runnerRepository.findByName(createRunnerRequestDto.getName()).isPresent()){
+        //중복 확인
+        if(runnerRepository.findByName(createRunnerRequestDto.getRunnerEmail()).isPresent()){
             throw new IllegalAccessError("이미 존재하는 이름입니다.");
         }
-        runner.setName(createRunnerRequestDto.getName());
-        runner.setPassword(createRunnerRequestDto.getPassword());
-        runner.setEmail(createRunnerRequestDto.getEmail());
+        runner.setName(createRunnerRequestDto.getRunnerName());
+        runner.setPassword(createRunnerRequestDto.getRunnerPassword());
+        runner.setEmail(createRunnerRequestDto.getRunnerEmail());
 
         Runner savedRunner = runnerRepository.save(runner);
 
@@ -61,7 +62,7 @@ public class Version1RunnerService implements RunnerService {
 
         //리턴해줄 값
         return new CreateRunnerResponseDto(
-                savedRunner.getId(),
+                savedRunner.getId().toString(),
                 savedRunner.getName(),
                 savedRunner.getEmail(),
                 presignedImageUrl
@@ -70,6 +71,6 @@ public class Version1RunnerService implements RunnerService {
 
     @Override
     public Boolean checkDuplication(CreateRunnerRequestDto createRunnerRequestDto) {
-        return runnerRepository.checkDuplication(createRunnerRequestDto.getName(), createRunnerRequestDto.getEmail());
+        return runnerRepository.checkDuplication(createRunnerRequestDto.getRunnerName(), createRunnerRequestDto.getRunnerEmail());
     }
 }
