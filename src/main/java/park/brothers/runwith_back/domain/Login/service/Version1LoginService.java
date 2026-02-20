@@ -15,15 +15,15 @@ public class Version1LoginService implements LoginService {
     private final RunnerRepository runnerRepository;
 
     public String login(LoginRequestDto loginRequestDto) {
-        Optional<Runner> runner = runnerRepository.findByEmail(loginRequestDto.getEmail())
-                .filter(r -> r.getPassword().equals(loginRequestDto.getPassword()));
+        Optional<Runner> runner = runnerRepository.findByEmail(loginRequestDto.getLoginEmail())
+                .filter(r -> r.getPassword().equals(loginRequestDto.getLoginPassword()));
 
         //runner가 있으면 로그인 성공
         if(runner.isPresent()){
             return runner.get().getId().toString();
         }
         //없으면 실패
-        else{
+        else {
             return "";
         }
     }
