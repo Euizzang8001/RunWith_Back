@@ -63,7 +63,7 @@ public class Version1GroupService implements GroupService {
                  savedGroup.getId().toString(),
                  savedGroup.getName(),
                  savedGroup.getDescription(),
-                 savedGroup.getImageLink(),
+                 "test_image_link",
                  savedGroup.getCertificationCriteria()
          );
 
@@ -74,7 +74,7 @@ public class Version1GroupService implements GroupService {
         List<Group> groups = groupRepository.findAll();
 
         return groups.stream()
-                .map(group -> new GetGroupResponseDto(group.getId().toString(), group.getName(), group.getDescription(), group.getImageLink()))
+                .map(group -> new GetGroupResponseDto(group.getId().toString(), group.getName(), group.getDescription(), "test_image_link"))
                 .collect(Collectors.toList());
     }
 
@@ -82,7 +82,7 @@ public class Version1GroupService implements GroupService {
     public List<GetGroupResponseDto> getGroupsBySimilarName(String name) {
         List<Group> groups = groupRepository.findBySimilarName(name);
         return groups.stream()
-                .map(group -> new GetGroupResponseDto(group.getId().toString(), group.getName(), group.getDescription(), group.getImageLink()))
+                .map(group -> new GetGroupResponseDto(group.getId().toString(), group.getName(), group.getDescription(), "test_image_link"))
                 .collect(Collectors.toList());
     }
 
@@ -154,15 +154,12 @@ public class Version1GroupService implements GroupService {
         if(reviseGroupRequestDto.getGroupDescription() != null){
             group.get().setDescription(reviseGroupRequestDto.getGroupDescription());
         }
-        if(reviseGroupRequestDto.getGroupImageLink() != null){
-            group.get().setImageLink(reviseGroupRequestDto.getGroupImageLink());
-        }
 
         return new ReviseGroupResponseDto(
                 group.get().getId().toString(),
                 group.get().getName(),
                 group.get().getDescription(),
-                group.get().getImageLink(),
+                "test_image_link",
                 group.get().getCertificationCriteria()
         );
     }
