@@ -38,7 +38,7 @@ public class ActionController {
     //조건에 맞는 Actions 조회
     @GetMapping
     public ResponseEntity<Object>  getActionsByScheduleId(
-            @RequestParam(required = false) @Valid Long scheduleId
+            @RequestParam(required = false) @Valid String scheduleId
     ){
            List<GetActionsResponseDto> getActionsResponseDto = actionService.getActionsByScheduleId(scheduleId);
 
@@ -48,7 +48,7 @@ public class ActionController {
     //id로 하나의 Action조회
     @GetMapping("/detail")
     public ResponseEntity<Object> getOneActionById(
-        @RequestParam(required = false) @Valid Long id
+        @RequestParam(required = false) @Valid String id
     ){
         GetOneActionResponseDto getOneActionResponseDto = actionService.getActionById(id);
         return ResponseEntity.status(HttpStatus.OK).body((getOneActionResponseDto));
@@ -58,7 +58,7 @@ public class ActionController {
 
     //Action 삭제
     @DeleteMapping
-    public ResponseEntity<Object> deleteAction(@RequestParam @Valid Long id){
+    public ResponseEntity<Object> deleteAction(@RequestParam @Valid String id){
         actionService.deleteAction(id);
 
         return ResponseEntity.status(HttpStatus.OK).body(id);

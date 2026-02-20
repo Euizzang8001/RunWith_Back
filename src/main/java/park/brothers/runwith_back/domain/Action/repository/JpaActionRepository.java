@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 import park.brothers.runwith_back.domain.Action.entity.Action;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -31,15 +33,15 @@ public class JpaActionRepository implements ActionRepository{
 
     //id로 action 하나 얻기
     @Override
-    public Action getById(Long id) {
-        return em.createQuery("select a from Action a where a.id = :id", Action.class)
+    public Optional<Action> findById(UUID id) {
+        return Optional.ofNullable(em.createQuery("select a from Action a where a.id = :id", Action.class)
                 .setParameter("id", id)
-                .getSingleResult();
+                .getSingleResult());
     }
 
     //같은 스케줄에서 중복된 actions들 모두 반환
     @Override
-    public List<Action> getOverlappedActions(Long scheduleId, int startHour, int startMinute, int endHour, int endMinute) {
+    public List<Action> findOverlappedActions(UUID scheduleId, int startHour, int startMinute, int endHour, int endMinute) {
         int carStartMinute = startHour * 60 + startMinute;
         int carEndMinute = endHour * 60 + endMinute;
         return em.createQuery("select a from Action a where a.schedule.id = :scheduleId and a.startHour * 60 + a.startMinute < :carEndMinute and a.endHour * 60 + a.endMinute > :carStartMinute", Action.class)
@@ -50,7 +52,7 @@ public class JpaActionRepository implements ActionRepository{
 
     //Action 수정
     @Override
-    public void reviseAction(Long id, String name, String description, int startHour, int startMinute, int endHour, int endMinute) {
+    public void reviseAction(UUID id, String name, String description, int startHour, int startMinute, int endHour, int endMinute) {
         Action action = em.createQuery("select a from Action a where a.id = :id", Action.class)
                 .setParameter("id", id)
                 .getSingleResult();
@@ -64,7 +66,7 @@ public class JpaActionRepository implements ActionRepository{
 
     //ScheduleId로 찾고, 시간에 따라 정렬
     @Override
-    public List<Action> getActionsByScheduleId(Long scheduleId) {
+    public List<Action> findActionsByScheduleId(UUID scheduleId) {
         return em.createQuery("select a from Action a where a.schedule.id = :scheduleId order by a.startHour * 60 + a.startMinute", Action.class)
                 .setParameter("scheduleId", scheduleId)
                 .getResultList();

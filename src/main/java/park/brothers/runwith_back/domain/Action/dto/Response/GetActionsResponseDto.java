@@ -8,8 +8,8 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class GetActionsResponseDto {
-    @NotNull
-    Long actionId;
+    @NotEmpty
+    String actionId;
 
     @NotEmpty
     String actionName;

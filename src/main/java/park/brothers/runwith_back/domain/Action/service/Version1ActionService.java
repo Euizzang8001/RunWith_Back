@@ -15,6 +15,8 @@ import park.brothers.runwith_back.domain.Schedule.entity.Schedule;
 import park.brothers.runwith_back.domain.Schedule.repository.ScheduleRepository;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,13 +31,13 @@ public class Version1ActionService implements ActionService{
     //action 생성
     @Override
     public void createAction(CreateActionRequestDto createActionRequestDto) {
-        Long scheduleId = createActionRequestDto.getScheduleId();
+        String scheduleId = createActionRequestDto.getScheduleId();
         int startHour = createActionRequestDto.getActionStartHour();
         int startMinute = createActionRequestDto.getActionStartMinute();
         int endHour = createActionRequestDto.getActionEndHour();
         int endMinute = createActionRequestDto.getActionEndMinute();
 
-        List<Action> overlappedActions = actionRepository.getOverlappedActions(scheduleId, startHour, startMinute, endHour, endMinute);
+        List<Action> overlappedActions = actionRepository.findOverlappedActions(UUID.fromString(scheduleId), startHour, startMinute, endHour, endMinute);
         if (!overlappedActions.isEmpty()) {
             throw new IllegalArgumentException("이미 일정이 존재하는 시간대입니다.");
         }
@@ -48,21 +50,24 @@ public class Version1ActionService implements ActionService{
         action.setEndHour(endHour);
         action.setEndMinute(endMinute);
 
-        Schedule schedule = scheduleRepository.getScheduleById(scheduleId);
-        action.setSchedule(schedule);
+        Optional<Schedule> schedule = scheduleRepository.findScheduleById(UUID.fromString(scheduleId));
+        if(schedule.isEmpty()){
+            throw new IllegalAccessError("존재하지 않는 스케줄입니다.");
+        }
+        action.setSchedule(schedule.get());
 
         actionRepository.save(action);
     }
 
     //Actions 조회하기
     @Override
-    public List<GetActionsResponseDto> getActionsByScheduleId(Long scheduleId) {
+    public List<GetActionsResponseDto> getActionsByScheduleId(String scheduleId) {
         List<Action> actions;
-        actions = actionRepository.getActionsByScheduleId(scheduleId);
+        actions = actionRepository.findActionsByScheduleId(UUID.fromString(scheduleId));
 
         return actions.stream()
                 .map(action -> new GetActionsResponseDto(
-                        action.getId(),
+                        action.getId().toString(),
                         action.getName(),
                         action.getStartHour(),
                         action.getStartMinute(),
@@ -74,9 +79,9 @@ public class Version1ActionService implements ActionService{
 
     //Action 삭제
     @Override
-    public void deleteAction(Long id) {
-        Action action = actionRepository.getById(id);
-        actionRepository.delete(action);
+    public void deleteAction(String id) {
+        Optional<Action> action = actionRepository.findById(UUID.fromString(id));
+        action.ifPresent(actionRepository::delete);
     }
 
     //Action 수정
@@ -88,22 +93,25 @@ public class Version1ActionService implements ActionService{
         int startMinute = reviseActionRequestDto.getActionStartMinute();
         int endHour = reviseActionRequestDto.getActionEndHour();
         int endMinute = reviseActionRequestDto.getActionEndMinute();
-        Long id = reviseActionRequestDto.getActionId();
+        String id = reviseActionRequestDto.getActionId();
 
-        actionRepository.reviseAction(id, name, description, startHour, startMinute, endHour, endMinute);
+        actionRepository.reviseAction(UUID.fromString(id), name, description, startHour, startMinute, endHour, endMinute);
     }
 
     @Override
-    public GetOneActionResponseDto getActionById(Long id) {
-        Action action = actionRepository.getById(id);
+    public GetOneActionResponseDto getActionById(String id) {
+        Optional<Action> action = actionRepository.findById(UUID.fromString(id));
+        if(action.isEmpty()){
+            throw new IllegalAccessError("존재하지 않는 액션입니다.");
+        }
         return new GetOneActionResponseDto(
-                action.getId(),
-                action.getName(),
-                action.getDescription(),
-                action.getStartHour(),
-                action.getStartMinute(),
-                action.getEndHour(),
-                action.getEndMinute()
+                action.get().getId().toString(),
+                action.get().getName(),
+                action.get().getDescription(),
+                action.get().getStartHour(),
+                action.get().getStartMinute(),
+                action.get().getEndHour(),
+                action.get().getEndMinute()
         );
     }
 }

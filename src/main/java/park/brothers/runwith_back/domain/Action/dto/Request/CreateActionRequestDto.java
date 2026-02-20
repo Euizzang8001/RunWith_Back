@@ -10,8 +10,8 @@ import lombok.Getter;
 @Getter
 public class CreateActionRequestDto {
 
-    @NotNull
-    Long scheduleId;
+    @NotEmpty
+    String scheduleId;
 
     @NotEmpty
     String actionName;

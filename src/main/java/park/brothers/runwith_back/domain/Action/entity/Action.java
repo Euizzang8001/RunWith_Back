@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import park.brothers.runwith_back.domain.Schedule.entity.Schedule;
 
+import java.util.UUID;
+
 @Entity
 @Getter
 @Setter
@@ -13,7 +15,11 @@ public class Action {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long pk;
+
+    @Column
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @JoinColumn(name = "schedules")
     @ManyToOne(fetch = FetchType.LAZY)
