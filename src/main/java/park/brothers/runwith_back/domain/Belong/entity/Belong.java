@@ -8,6 +8,7 @@ import park.brothers.runwith_back.domain.Group.entity.Group;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Setter
@@ -17,7 +18,11 @@ public class Belong {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long pk;
+
+    @Column
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY) //Belong을 조회할 때 Belog만 조회하고, Runner는 나중에 조회(지연 로딩)
     @JoinColumn(name = "runners")

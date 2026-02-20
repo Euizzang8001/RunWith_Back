@@ -10,6 +10,7 @@ import park.brothers.runwith_back.domain.Belong.entity.Belong;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @Slf4j
@@ -22,7 +23,7 @@ public class JPABelongRepository implements BelongRepository{
 
     //러너 id와 group id로 belong객체 찾기
     @Override
-    public Optional<Belong> findByRunnerIdAndGroupId(Long runnerId, Long groupId) {
+    public Optional<Belong> findByRunnerIdAndGroupId(UUID runnerId, UUID groupId) {
          return Optional.ofNullable(em.createQuery("select b from Belong b where b.runner.id = :runnerId and b.group.id = :groupId", Belong.class)
                  .setParameter("runnerId", runnerId)
                  .setParameter("groupId", groupId)
@@ -31,7 +32,7 @@ public class JPABelongRepository implements BelongRepository{
 
     //그룹id와 닉네임으로 객체 찾기
     @Override
-    public Optional<Object> findByGroupIdAndNickname(Long groupId, String nickname) {
+    public Optional<Object> findByGroupIdAndNickname(UUID groupId, String nickname) {
         return Optional.ofNullable(
                 em.createQuery("select b from Belong b where b.group.id = :groupId and b.nickname = :nickname")
                         .setParameter("groupId", groupId)
@@ -47,7 +48,7 @@ public class JPABelongRepository implements BelongRepository{
     }
 
     @Override
-    public void deleteByRunnerIdAndGroupId(Long runnerId, Long groupId) {
+    public void deleteByRunnerIdAndGroupId(UUID runnerId, UUID groupId) {
         Optional<Belong> belong = Optional.ofNullable(em.createQuery("select b from Belong b where b.runner.id = :runnerId and b.group.id = :groupId", Belong.class)
                 .setParameter("runnerId", runnerId)
                 .setParameter("groupId", groupId)
@@ -58,21 +59,21 @@ public class JPABelongRepository implements BelongRepository{
     }
 
     @Override
-    public List<Belong> findByRunnerId(Long runnerId) {
+    public List<Belong> findByRunnerId(UUID runnerId) {
         return em.createQuery("select b from Belong b where b.runner.id = :runnerId", Belong.class)
                         .setParameter("runnerId", runnerId)
                         .getResultList();
     }
 
     @Override
-    public List<Belong> findByGroupId(Long groupId) {
+    public List<Belong> findByGroupId(UUID groupId) {
         return em.createQuery("select b from Belong b where b.group.id = :groupId", Belong.class)
                 .setParameter("groupId", groupId)
                 .getResultList();
     }
 
     @Override
-    public void changeIsLeader(Long runnerId, Long groupId, boolean isLeader) {
+    public void changeIsLeader(UUID runnerId, UUID groupId, boolean isLeader) {
         Belong belong = em.createQuery("select b from Belong b where b.runner.id = :runnerId and b.group.id = :groupId", Belong.class)
                 .setParameter("runnerId", runnerId)
                 .setParameter("groupId", groupId)
@@ -82,9 +83,9 @@ public class JPABelongRepository implements BelongRepository{
     }
 
     @Override
-    public Belong getById(Long id) {
-        return em.createQuery("select b from Belong b where b.id = :id", Belong.class)
+    public Optional<Belong> findById(UUID id) {
+        return Optional.ofNullable(em.createQuery("select b from Belong b where b.id = :id", Belong.class)
                 .setParameter("id", id)
-                .getSingleResult();
+                .getSingleResult());
     }
 }

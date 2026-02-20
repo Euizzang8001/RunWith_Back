@@ -10,7 +10,7 @@ import java.util.UUID;
 public interface BelongRepository {
     Optional<Belong> findByRunnerIdAndGroupId(UUID runnerId, UUID groupId);
 
-    Optional<Object> findByGroupIdAndNickname(Long groupId, String nickname);
+    Optional<Object> findByGroupIdAndNickname(UUID groupId, String nickname);
 
     Belong save(Belong belong);
 
@@ -22,5 +22,5 @@ public interface BelongRepository {
 
     void changeIsLeader(UUID runnerId, UUID groupId, boolean isLeader);
 
-    Belong getById(@NotNull UUID id);
+    Optional<Belong> findById(@NotNull UUID id);
 }
