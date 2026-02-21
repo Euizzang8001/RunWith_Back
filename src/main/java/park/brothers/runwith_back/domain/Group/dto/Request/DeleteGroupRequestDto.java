@@ -9,5 +9,5 @@ import lombok.Data;
 public class DeleteGroupRequestDto {
 
     @NotEmpty
-    private String runnerId;
+    private String runnerId; //삭제하려는 러너 id : 리더 아니면 안됨
 }

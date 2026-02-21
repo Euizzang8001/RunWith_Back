@@ -11,11 +11,9 @@ import lombok.Getter;
 public class ReviseGroupRequestDto {
 
     @NotEmpty
-    private String runnerId;
+    private String runnerId; //수정하려는 러너 id(리더만 수정 가능)
 
-    private int groupCertificationCriteria;
+    private int groupCertificationCriteria; //수정하려는 그룹 인정 기준
 
-    private String groupDescription;
-
-    private String groupImageLink;
+    private String groupDescription; //수정하려는 그룹 설명
 }

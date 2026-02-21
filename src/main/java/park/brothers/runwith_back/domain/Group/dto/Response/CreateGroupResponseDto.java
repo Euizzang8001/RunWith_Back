@@ -11,16 +11,16 @@ import lombok.Getter;
 public class CreateGroupResponseDto {
 
     @NotEmpty
-    private String groupId;
+    private String groupId; //생성된 그룹 id
 
     @NotEmpty
-    private String groupName;
+    private String groupName; //생성된 그룹 name
 
     @NotEmpty
-    private String groupDescription;
+    private String groupDescription; //생성된 그룹 설명
 
-    private String groupImageLink;
+    private String groupImageLink; //이미지가 있었다면, 이미지 링크 보내기
 
     @NotEmpty
-    private int groupCertificationCriteria;
+    private int groupCertificationCriteria; //생성된 그룹의 인증 조건
 }
