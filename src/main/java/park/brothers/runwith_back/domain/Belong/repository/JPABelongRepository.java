@@ -53,9 +53,7 @@ public class JPABelongRepository implements BelongRepository{
                 .setParameter("runnerId", runnerId)
                 .setParameter("groupId", groupId)
                 .getSingleResult());
-        if(belong.isPresent()){
-            em.remove(belong);
-        }
+        belong.ifPresent(em::remove);
     }
 
     @Override
