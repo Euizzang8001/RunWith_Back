@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
 import park.brothers.runwith_back.domain.Belong.repository.BelongRepository;
 import park.brothers.runwith_back.domain.Group.dto.Request.CreateGroupRequestDto;
@@ -18,7 +19,9 @@ import park.brothers.runwith_back.domain.Group.entity.Group;
 import park.brothers.runwith_back.domain.Group.repository.GroupRepository;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
+import park.brothers.runwith_back.external.AWS_S3.AWSS3Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -42,12 +45,15 @@ class Version1GroupServiceTest {
     @Mock
     private BelongRepository belongRepository;
 
+    @Mock
+    private AWSS3Service awss3Service;
+
     @InjectMocks
     private Version1GroupService groupService;
 
     @Test
     @DisplayName("그룹 저장 성공 서비스 테스트")
-    void saveSuccess() {
+    void saveSuccess() throws IOException {
         //given
         CreateGroupRequestDto createGroupRequestDto = new CreateGroupRequestDto(
                 "test_name",
@@ -68,24 +74,31 @@ class Version1GroupServiceTest {
         //레퍼지토리에서 반환할 그룹
         Group group = new Group();
         group.setId(UUID.randomUUID());
-        group.setName("test_group_name");
-        group.setDescription("test_group_description");
-        group.setImageLink("test_group_imageLink");
+        group.setName("test_name");
+        group.setDescription("test_description");
         group.setCertificationCriteria(0);
+
+        //가짜 이미지 선언
+        MockMultipartFile dummyImage = new MockMultipartFile(
+                "image", "test.jpg", "image/jpg", "dummy_data".getBytes()
+        );
 
         //레퍼지토리 부분 가정
         given(runnerRepository.findById(any(UUID.class))).willReturn(Optional.of(runner));
         given(groupRepository.findByName(anyString())).willReturn(Optional.empty());
         given(groupRepository.save(any(Group.class))).willReturn(group);
 
+        // 이미지 저장 시, 가짜 링크 return
+        given(awss3Service.putImageToAWSS3(any(), anyString(), any(), anyInt())).willReturn("test_imageLink");
+
         //when
-        CreateGroupResponseDto fakeResponse = groupService.save(createGroupRequestDto);
+        CreateGroupResponseDto fakeResponse = groupService.save(createGroupRequestDto, dummyImage);
         //then
         assertThat(fakeResponse).isNotNull(); //응답값은 null이면 안됨
         //응답값은 아래 값들을 가져야만 한다.
-        assertThat(fakeResponse.getGroupName()).isEqualTo("test_group_name");
-        assertThat(fakeResponse.getGroupDescription()).isEqualTo("test_group_description");
-        assertThat(fakeResponse.getGroupImageLink()).isEqualTo("test_group_imageLink");
+        assertThat(fakeResponse.getGroupName()).isEqualTo("test_name");
+        assertThat(fakeResponse.getGroupDescription()).isEqualTo("test_description");
+        assertThat(fakeResponse.getGroupImageLink()).isEqualTo("test_imageLink");
         assertThat(fakeResponse.getGroupCertificationCriteria()).isEqualTo(0);
         //repository.save() 코드들은 1번식만 실행되어야 한다.
         verify(runnerRepository, times(1)).findById(any(UUID.class));
@@ -97,7 +110,7 @@ class Version1GroupServiceTest {
 
     @Test
     @DisplayName("그룹 생성 실패 서비스 테스트 - 존재하는 그룹 이름")
-    void saveFailByDuplicationGroupName(){
+    void saveFailByDuplicationGroupName() {
         //given
         CreateGroupRequestDto createGroupRequestDto = new CreateGroupRequestDto(
                 "test_name",
@@ -112,13 +125,16 @@ class Version1GroupServiceTest {
         group.setId(UUID.randomUUID());
         group.setName("test_group_name");
         group.setDescription("test_group_description");
-        group.setImageLink("test_group_imageLink");
         group.setCertificationCriteria(0);
 
         given(groupRepository.findByName(anyString())).willReturn(Optional.of(group));
 
+        //가짜 이미지 선언
+        MockMultipartFile dummyImage = new MockMultipartFile(
+                "image", "test.jpg", "image/jpeg", "dummy_data".getBytes()
+        );
         //when & then
-        assertThrows(IllegalAccessError.class, () -> groupService.save(createGroupRequestDto));
+        assertThrows(IllegalAccessError.class, () -> groupService.save(createGroupRequestDto, dummyImage));
 
         //repository.save() 코드들은 1번식만 실행되어야 한다.
         verify(groupRepository, times(1)).findByName(anyString());
@@ -140,13 +156,18 @@ class Version1GroupServiceTest {
                 0,
                 "test_description"
         );
-
         given(groupRepository.findByName(anyString())).willReturn(Optional.empty());
+
+        //가짜 이미지 선언
+        MockMultipartFile dummyImage = new MockMultipartFile(
+                "image", "test.jpg", "image/jpeg", "dummy_data".getBytes()
+        );
         //없는 러너라고 나타나야 한다.
         given(runnerRepository.findById(any(UUID.class))).willReturn(Optional.empty());
 
+
         //when & then
-        assertThrows(IllegalAccessError.class, () -> groupService.save(createGroupRequestDto));
+        assertThrows(IllegalAccessError.class, () -> groupService.save(createGroupRequestDto, dummyImage));
 
         //repository.save() 코드들은 1번식만 실행되어야 한다.
         verify(groupRepository, times(1)).findByName(anyString());
@@ -383,12 +404,11 @@ class Version1GroupServiceTest {
 
     @Test
     @DisplayName("그룹 수정 성공 서비스 테스트")
-    void ReviseSuccess() {
+    void ReviseSuccess() throws IOException {
         //given
         String groupId = UUID.randomUUID().toString();
         String runnerId = UUID.randomUUID().toString();
         ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
-                groupId,
                 runnerId,
                 1,
                 "test_revised_description",
@@ -398,10 +418,15 @@ class Version1GroupServiceTest {
         Group group = new Group();
         group.setId(UUID.fromString(groupId));
         group.setName("test_group");
-        group.setDescription("test_description");
+        group.setDescription("test_revised_description");
         group.setCertificationCriteria(0);
-        group.setImageLink("test_imageLink");
         given(groupRepository.findById(any(UUID.class))).willReturn(Optional.of(group));
+
+        //가짜 이미지 선언
+        MockMultipartFile dummyImage = new MockMultipartFile(
+                "image", "test.jpg", "image/jpeg", "dummy_data".getBytes()
+        );
+        given(awss3Service.putImageToAWSS3(any(), anyString(), any(), anyInt())).willReturn("test_revised_imageLink");
 
         Runner runner = new Runner();
         runner.setId(UUID.fromString(runnerId));
@@ -414,7 +439,7 @@ class Version1GroupServiceTest {
         given(belongRepository.findByRunnerIdAndGroupId(any(UUID.class), any(UUID.class))).willReturn(Optional.of(belong));
 
         //when
-        ReviseGroupResponseDto reviseGroupResponseDto = groupService.reviseGroup(reviseGroupRequestDto);
+        ReviseGroupResponseDto reviseGroupResponseDto = groupService.reviseGroup(groupId, reviseGroupRequestDto, dummyImage);
 
         //then
         assertThat(reviseGroupResponseDto.getGroupCertificationCriteria()).isEqualTo(1);
@@ -425,22 +450,25 @@ class Version1GroupServiceTest {
 
     @Test
     @DisplayName("그룹 수정 실패 서비스 테스트 - 존재하지 않는 그룹")
-    void ReviseFailByNotExistGroup() {
+    void ReviseFailByNotExistGroup(){
         //given
         String groupId = UUID.randomUUID().toString();
         String runnerId = UUID.randomUUID().toString();
         ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
-                groupId,
                 runnerId,
                 1,
                 "test_revised_description",
                 "test_revised_imageLink"
         );
-
         given(groupRepository.findById(any(UUID.class))).willReturn(Optional.empty());
 
+        //가짜 이미지 선언
+        MockMultipartFile dummyImage = new MockMultipartFile(
+                "image", "test.jpg", "image/jpeg", "dummy_data".getBytes()
+        );
+
         //when & then
-        assertThrows(IllegalAccessError.class, () -> groupService.reviseGroup(reviseGroupRequestDto));
+        assertThrows(IllegalAccessError.class, () -> groupService.reviseGroup(groupId, reviseGroupRequestDto, dummyImage));
 
         verify(groupRepository, times(1)).findById(any(UUID.class));
         verify(runnerRepository, times(0)).findById(any(UUID.class));
@@ -454,7 +482,6 @@ class Version1GroupServiceTest {
         String groupId = UUID.randomUUID().toString();
         String runnerId = UUID.randomUUID().toString();
         ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
-                groupId,
                 runnerId,
                 1,
                 "test_revised_description",
@@ -466,13 +493,17 @@ class Version1GroupServiceTest {
         group.setName("test_group");
         group.setDescription("test_description");
         group.setCertificationCriteria(0);
-        group.setImageLink("test_imageLink");
         given(groupRepository.findById(any(UUID.class))).willReturn(Optional.of(group));
+
+        //가짜 이미지 선언
+        MockMultipartFile dummyImage = new MockMultipartFile(
+                "image", "test.jpg", "image/jpeg", "dummy_data".getBytes()
+        );
 
         given(runnerRepository.findById(any(UUID.class))).willReturn(Optional.empty());
 
         //when & then
-        assertThrows(IllegalAccessError.class, () -> groupService.reviseGroup(reviseGroupRequestDto));
+        assertThrows(IllegalAccessError.class, () -> groupService.reviseGroup(groupId, reviseGroupRequestDto, dummyImage));
 
         verify(groupRepository, times(1)).findById(any(UUID.class));
         verify(runnerRepository, times(1)).findById(any(UUID.class));
@@ -486,7 +517,6 @@ class Version1GroupServiceTest {
         String groupId = UUID.randomUUID().toString();
         String runnerId = UUID.randomUUID().toString();
         ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
-                groupId,
                 runnerId,
                 1,
                 "test_revised_description",
@@ -498,18 +528,24 @@ class Version1GroupServiceTest {
         group.setName("test_group");
         group.setDescription("test_description");
         group.setCertificationCriteria(0);
-        group.setImageLink("test_imageLink");
         given(groupRepository.findById(any(UUID.class))).willReturn(Optional.of(group));
+
+        //가짜 이미지 선언
+        MockMultipartFile dummyImage = new MockMultipartFile(
+                "image", "test.jpg", "image/jpeg", "dummy_data".getBytes()
+        );
 
         Runner runner = new Runner();
         runner.setId(UUID.fromString(runnerId));
+
         given(runnerRepository.findById(any(UUID.class))).willReturn(Optional.of(runner));
+
 
         given(belongRepository.findByRunnerIdAndGroupId(any(UUID.class), any(UUID.class))).willReturn(Optional.empty());
 
 
         //when & then
-        assertThrows(IllegalAccessError.class, () -> groupService.reviseGroup(reviseGroupRequestDto));
+        assertThrows(IllegalAccessError.class, () -> groupService.reviseGroup(groupId, reviseGroupRequestDto, dummyImage));
 
         verify(groupRepository, times(1)).findById(any(UUID.class));
         verify(runnerRepository, times(1)).findById(any(UUID.class));
@@ -523,7 +559,6 @@ class Version1GroupServiceTest {
         String groupId = UUID.randomUUID().toString();
         String runnerId = UUID.randomUUID().toString();
         ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
-                groupId,
                 runnerId,
                 1,
                 "test_revised_description",
@@ -535,8 +570,13 @@ class Version1GroupServiceTest {
         group.setName("test_group");
         group.setDescription("test_description");
         group.setCertificationCriteria(0);
-        group.setImageLink("test_imageLink");
         given(groupRepository.findById(any(UUID.class))).willReturn(Optional.of(group));
+
+        //가짜 이미지 선언
+        MockMultipartFile dummyImage = new MockMultipartFile(
+                "image", "test.jpg", "image/jpeg", "dummy_data".getBytes()
+        );
+
 
         Runner runner = new Runner();
         runner.setId(UUID.fromString(runnerId));
@@ -549,7 +589,7 @@ class Version1GroupServiceTest {
         given(belongRepository.findByRunnerIdAndGroupId(any(UUID.class), any(UUID.class))).willReturn(Optional.of(belong));
 
         //when & then
-        assertThrows(IllegalAccessError.class, () -> groupService.reviseGroup(reviseGroupRequestDto));
+        assertThrows(IllegalAccessError.class, () -> groupService.reviseGroup(groupId, reviseGroupRequestDto, dummyImage));
 
         verify(groupRepository, times(1)).findById(any(UUID.class));
         verify(runnerRepository, times(1)).findById(any(UUID.class));
