@@ -110,21 +110,23 @@ public class Version1GroupService implements GroupService {
 
     @Override
     public void delete(String groupId, DeleteGroupRequestDto deleteGroupRequestDto) {
+        UUID groupUUID = UUID.fromString(groupId);
         String runnerId = deleteGroupRequestDto.getRunnerId();
+        UUID runnerUUID = UUID.fromString(runnerId);
 
-        Optional<Group> group = groupRepository.findById(UUID.fromString(groupId));
+        Optional<Group> group = groupRepository.findById(groupUUID);
         //group이 없으면 에러
         if(group.isEmpty()){
             throw new IllegalAccessError("존재하지 않는 그룹입니다.");
         }
 
-        Optional<Runner> runner = runnerRepository.findById(UUID.fromString(runnerId));
+        Optional<Runner> runner = runnerRepository.findById(runnerUUID);
 
         //runner가 없으면 에러
         if(runner.isEmpty()){
             throw new IllegalAccessError("존재하지 않는 러너입니다.");
         }
-        List<Belong> belongs = belongRepository.findByGroupId(UUID.fromString(groupId));
+        List<Belong> belongs = belongRepository.findByGroupId(groupUUID);
 
         //그룹애 속해있는 인원이 1명이 아님.
         if(belongs.size() > 1){
@@ -132,8 +134,9 @@ public class Version1GroupService implements GroupService {
         }
 
         //그룹의 리더가 삭재하는 것이 아님
-        if(!belongs.getFirst().isLeader() || belongs.getFirst().getRunner() != runner.get()){
-            throw new IllegalAccessError("리더만 삭제할 수 있습니다.");
+        Belong firstBelong = belongs.getFirst();
+        if(!firstBelong.isLeader() || !firstBelong.getRunner().getId().equals(runner.get().getId())){
+            throw new IllegalArgumentException("리더만 삭제할 수 있습니다.");
         }
 
         belongRepository.deleteByRunnerIdAndGroupId(UUID.fromString(runnerId), UUID.fromString(groupId));
