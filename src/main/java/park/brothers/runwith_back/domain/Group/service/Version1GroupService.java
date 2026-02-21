@@ -2,6 +2,7 @@ package park.brothers.runwith_back.domain.Group.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
 import park.brothers.runwith_back.domain.Belong.repository.BelongRepository;
 import park.brothers.runwith_back.domain.Group.dto.Request.CreateGroupRequestDto;
@@ -14,7 +15,9 @@ import park.brothers.runwith_back.domain.Group.entity.Group;
 import park.brothers.runwith_back.domain.Group.repository.GroupRepository;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
+import park.brothers.runwith_back.external.AWS_S3.AWSS3Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,9 +30,10 @@ public class Version1GroupService implements GroupService {
     private final GroupRepository groupRepository;
     private final RunnerRepository runnerRepository;
     private final BelongRepository belongRepository;
+    private final AWSS3Service awss3Service;
 
     @Override
-    public CreateGroupResponseDto save(CreateGroupRequestDto createGroupRequestDto) throws IllegalAccessError {
+    public CreateGroupResponseDto save(CreateGroupRequestDto createGroupRequestDto, MultipartFile image) throws IllegalAccessError, IOException {
         //이미 존재하는 그룹 이름인지 확인하기
         Optional<Group> existGroup = groupRepository.findByName(createGroupRequestDto.getGroupName());
         if(existGroup.isPresent()){
@@ -59,32 +63,50 @@ public class Version1GroupService implements GroupService {
          belong.setLeader(true);
          belongRepository.save(belong);
 
+         //이미지가 존재하면 저장하고 presignedurl 받기, 없으면 null return
+         String presignedImageUrl = (image != null && !image.isEmpty())
+                 ? awss3Service.putImageToAWSS3(image, "groups", group.getId(), 0)
+                 : null;
+
          return new CreateGroupResponseDto(
                  savedGroup.getId().toString(),
                  savedGroup.getName(),
                  savedGroup.getDescription(),
-                 "test_image_link",
+                 presignedImageUrl,
                  savedGroup.getCertificationCriteria()
          );
 
     }
 
+    //모든 그룹 얻기
     @Override
     public List<GetGroupResponseDto> getAllGroups() {
         List<Group> groups = groupRepository.findAll();
 
         return groups.stream()
-                .map(group -> new GetGroupResponseDto(group.getId().toString(), group.getName(), group.getDescription(), "test_image_link"))
+                .map(group -> new GetGroupResponseDto(
+                        group.getId().toString(),
+                        group.getName(),
+                        group.getDescription(),
+                        awss3Service.getImagePresignedUrl("groups", group.getId().toString(), 0))
+                )
                 .collect(Collectors.toList());
     }
 
+    //유사 이름을 가진 그룹 정보 얻기
     @Override
     public List<GetGroupResponseDto> getGroupsBySimilarName(String name) {
         List<Group> groups = groupRepository.findBySimilarName(name);
         return groups.stream()
-                .map(group -> new GetGroupResponseDto(group.getId().toString(), group.getName(), group.getDescription(), "test_image_link"))
+                .map(group -> new GetGroupResponseDto(
+                        group.getId().toString(),
+                        group.getName(),
+                        group.getDescription(),
+                        awss3Service.getImagePresignedUrl("groups", group.getId().toString(), 0))
+                )
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public void delete(DeleteGroupRequestDto deleteGroupRequestDto) {
@@ -121,8 +143,7 @@ public class Version1GroupService implements GroupService {
 
     //그룹 정보 수정
     @Override
-    public ReviseGroupResponseDto reviseGroup(ReviseGroupRequestDto reviseGroupRequestDto) throws IllegalAccessError{
-        String groupId = reviseGroupRequestDto.getGroupId();
+    public ReviseGroupResponseDto reviseGroup(String groupId, ReviseGroupRequestDto reviseGroupRequestDto, MultipartFile image) throws IllegalAccessError, IOException {
         String runnerId = reviseGroupRequestDto.getRunnerId();
 
         Optional<Group> group = groupRepository.findById(UUID.fromString(groupId));
@@ -155,11 +176,15 @@ public class Version1GroupService implements GroupService {
             group.get().setDescription(reviseGroupRequestDto.getGroupDescription());
         }
 
+        String presignedImageUrl = (image != null && !image.isEmpty())
+                ? awss3Service.putImageToAWSS3(image, "groups", UUID.fromString(groupId), 0)
+                : awss3Service.getImagePresignedUrl("groups", groupId, 0);
+
         return new ReviseGroupResponseDto(
                 group.get().getId().toString(),
                 group.get().getName(),
                 group.get().getDescription(),
-                "test_image_link",
+                presignedImageUrl,
                 group.get().getCertificationCriteria()
         );
     }

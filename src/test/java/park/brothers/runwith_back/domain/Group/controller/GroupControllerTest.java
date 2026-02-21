@@ -9,8 +9,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.multipart.MultipartFile;
 import park.brothers.runwith_back.domain.Group.dto.Request.CreateGroupRequestDto;
 import park.brothers.runwith_back.domain.Group.dto.Request.DeleteGroupRequestDto;
 import park.brothers.runwith_back.domain.Group.dto.Request.ReviseGroupRequestDto;
@@ -20,18 +22,16 @@ import park.brothers.runwith_back.domain.Group.dto.Response.ReviseGroupResponseD
 import park.brothers.runwith_back.domain.Group.service.GroupService;
 import tools.jackson.databind.ObjectMapper;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -76,14 +76,29 @@ class GroupControllerTest {
         );
 
         //가정 설정
-        given(groupService.save(any(CreateGroupRequestDto.class))).willReturn(createGroupResponseDto);
+        given(groupService.save(any(CreateGroupRequestDto.class), any(MultipartFile.class))).willReturn(createGroupResponseDto);
 
         //when & then
         String content = new ObjectMapper().writeValueAsString(createGroupRequestDto);
-
-        mockMvc.perform(post("/api/v1/groups") // POST 요청 URL
-                        .contentType(MediaType.APPLICATION_JSON) // 요청 타입 확인
-                        .content(content)) // Body에 JSON 문자열 담기
+        //가짜 request dto
+        MockMultipartFile requestPart = new MockMultipartFile(
+                "request",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                content.getBytes(StandardCharsets.UTF_8)
+        );
+        //가짜 이미지
+        MockMultipartFile imagePart = new MockMultipartFile(
+                "image",
+                "profile.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                "dummy_image_data".getBytes()
+        );
+        mockMvc.perform(multipart("/api/v1/groups") // POST 요청 URL
+                        .file(requestPart) //JSON데이터 추가
+                        .file(imagePart)   //image데이터 추가
+                        .contentType(MediaType.MULTIPART_FORM_DATA) // 전체 Content-Type
+                        .accept(MediaType.APPLICATION_JSON)) // JSON 응답을 기대함
                 .andExpect(status().isCreated()) //
                 .andExpect(jsonPath("$.groupId").value(groupId)) // groupId 확인
                 .andExpect(jsonPath("$.groupName").value("test_name")) // 이름 확인
@@ -164,7 +179,6 @@ class GroupControllerTest {
         String groupId = UUID.randomUUID().toString();
         String runnerId = UUID.randomUUID().toString();
         ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
-                groupId,
                 runnerId,
                 0,
                 "test_description",
@@ -178,15 +192,32 @@ class GroupControllerTest {
                 0
         );
 
-        given(groupService.reviseGroup(any(ReviseGroupRequestDto.class))).willReturn(reviseGroupResponseDto);
+        given(groupService.reviseGroup(anyString(), any(ReviseGroupRequestDto.class), any(MultipartFile.class))).willReturn(reviseGroupResponseDto);
 
         //when & then
         //JSON형식의 문자열로 반환
-        String content = new ObjectMapper().writeValueAsString(reviseGroupRequestDto);
 
-        mockMvc.perform(patch("/api/v1/groups") // DELETE 요청 URL
-                        .contentType(MediaType.APPLICATION_JSON) // 요청 타입 확인
-                        .content(content)) // Body에 JSON 문자열 담기
+        String content = new ObjectMapper().writeValueAsString(reviseGroupRequestDto);
+        //가짜 request dto
+        MockMultipartFile requestPart = new MockMultipartFile(
+                "request",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                content.getBytes(StandardCharsets.UTF_8)
+        );
+        //가짜 이미지
+        MockMultipartFile imagePart = new MockMultipartFile(
+                "image",
+                "profile.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                "dummy_image_data".getBytes()
+        );
+
+        mockMvc.perform(multipart("/api/v1/groups/{groupId}", groupId)
+                        .file(requestPart) //JSON데이터 추가
+                        .file(imagePart)   //image데이터 추가
+                        .contentType(MediaType.MULTIPART_FORM_DATA) // 전체 Content-Type
+                        .accept(MediaType.APPLICATION_JSON)) // JSON 응답을 기대함
                 .andExpect(status().isOk()) //
                 .andExpect(jsonPath("$.groupId").value(groupId))
                 .andExpect(jsonPath("$.groupName").value("test_revised_name"))

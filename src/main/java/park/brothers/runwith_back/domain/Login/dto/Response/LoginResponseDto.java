@@ -9,5 +9,5 @@ import lombok.Data;
 public class LoginResponseDto {
 
     @NotEmpty
-    private String runnerId;
+    private String runnerId; //러너ID
 }

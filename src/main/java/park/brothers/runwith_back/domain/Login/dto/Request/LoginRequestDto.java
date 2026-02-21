@@ -9,8 +9,8 @@ import lombok.Data;
 public class LoginRequestDto {
 
     @NotEmpty
-    private String loginEmail;
+    private String loginEmail; //로그인 이메일
 
     @NotEmpty
-    private String loginPassword;
+    private String loginPassword; //로그인 비밀번호
 }
