@@ -71,53 +71,68 @@ jobs:
 
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@master
+        env:
+          TARGET_TAG: ${{ env.TARGET_TAG }}
+          CONTAINER_NAME: ${{ env.CONTAINER_NAME }}
+          INNER_PORT: ${{ env.INNER_PORT }}
+          OUTER_PORT: ${{ env.OUTER_PORT }}
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_DRIVER: ${{ secrets.DB_DRIVER }}
+          DB_PLATFORM: ${{ secrets.DB_PLATFORM }}
+          DDL_AUTO: ${{ secrets.DDL_AUTO }}
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_IMAGE: ${{ secrets.DOCKER_IMAGE }}
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_SSH_KEY }}
           port: 22
+          # 정의한 env값들 ec2로 전달
+          envs: TARGET_TAG,CONTAINER_NAME,INNER_PORT,OUTER_PORT,DB_URL,DB_USERNAME,DB_PASSWORD,DB_DRIVER,DB_PLATFORM,DDL_AUTO,AWS_ACCESS_KEY,AWS_SECRET_KEY,AWS_REGION,AWS_S3_BUCKET_NAME,DOCKER_USERNAME,DOCKER_PASSWORD,DOCKER_IMAGE
           script: |
-            # 환경변수를 스크립트 내 변수로 저장
-            IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}"
-            TAG="${{ env.TARGET_TAG }}"
-            CONTAINER_NAME="${{ env.CONTAINER_NAME }}"
-            INNER_PORT="${{ env.INNER_PORT }}"
-            OUTER_PORT="${{ env.OUTER_PORT }}"
+            IMAGE_NAME="$DOCKER_USERNAME/$DOCKER_IMAGE"
             
-            echo "Deploying $IMAGE_NAME:$TAG to Port $OUTER_PORT:$INNER_PORT"
+            echo "Deploying $IMAGE_NAME:$TARGET_TAG to Port $OUTER_PORT:$INNER_PORT"
             
-            #도커 로그인
-            echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+            # 도커 로그인
+            echo "$DOCKER_PASSWORD" | sudo docker login -u "$DOCKER_USERNAME" --password-stdin
             
             # 도커 허브로부터 도커 이미지 받기
-            sudo docker pull $IMAGE_NAME:$TAG
+            sudo docker pull $IMAGE_NAME:$TARGET_TAG
             
             echo "container name: $CONTAINER_NAME"
-            # 기존 컨테이너 중지 및 삭제
+            #기존 컨테이너 중지 및 삭제
             sudo docker stop $CONTAINER_NAME || true
             sudo docker rm $CONTAINER_NAME || true
             
-            #환경변수 파일 설정
-            echo "DB_URL=${{ secrets.DB_URL }}" > .env
-            echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
-            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-            echo "DB_DRIVER=${{ secrets.DB_DRIVER }}" >> .env
-            echo "DB_PLATFORM=${{ secrets.DB_PLATFORM }}" >> .env
-            echo "DDL_AUTO=${{ secrets.DDL_AUTO }}" >> .env
-            echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}" >> .env
-            echo "AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}" >> .env
-            echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
-            echo "AWS_S3_BUCKET_NAME=${{ secrets.AWS_S3_BUCKET_NAME }}" >> .env
+            #환경변수 파일 세팅
+            echo "DB_URL=$DB_URL" > .env
+            echo "DB_USERNAME=$DB_USERNAME" >> .env
+            echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+            echo "DB_DRIVER=$DB_DRIVER" >> .env
+            echo "DB_PLATFORM=$DB_PLATFORM" >> .env
+            echo "DDL_AUTO=$DDL_AUTO" >> .env
+            echo "AWS_ACCESS_KEY=$AWS_ACCESS_KEY" >> .env
+            echo "AWS_SECRET_KEY=$AWS_SECRET_KEY" >> .env
+            echo "AWS_REGION=$AWS_REGION" >> .env
+            echo "AWS_S3_BUCKET_NAME=$AWS_S3_BUCKET_NAME" >> .env
             
-            #새 컨테이너 실행
+            # 새 컨테이너 실행
             sudo docker run -d \
-            -p ${OUTER_PORT}:${INNER_PORT} \
-            --name $CONTAINER_NAME \
-            --env-file .env \
-            $IMAGE_NAME:$TAG
+              -p ${OUTER_PORT}:${INNER_PORT} \
+              --name $CONTAINER_NAME \
+              --env-file .env \
+              $IMAGE_NAME:$TARGET_TAG
             
             #실행 후 환경변수 파일 삭제
             sudo rm .env
             
-            # 미사용 이미지 정리
+            #미사용 이미지 정리
             sudo docker image prune -f
