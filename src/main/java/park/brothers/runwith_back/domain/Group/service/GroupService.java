@@ -20,7 +20,7 @@ public interface GroupService {
 
     List<GetGroupResponseDto> getGroupsBySimilarName(String name);
 
-    void delete(DeleteGroupRequestDto deleteGroupRequestDto);
+    void delete(String groupId, DeleteGroupRequestDto deleteGroupRequestDto);
 
     ReviseGroupResponseDto reviseGroup(String groupId, @Valid ReviseGroupRequestDto reviseGroupRequestDto, MultipartFile image) throws IllegalAccessException, IOException;
 }

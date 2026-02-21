@@ -109,8 +109,7 @@ public class Version1GroupService implements GroupService {
 
 
     @Override
-    public void delete(DeleteGroupRequestDto deleteGroupRequestDto) {
-        String groupId = deleteGroupRequestDto.getGroupId();
+    public void delete(String groupId, DeleteGroupRequestDto deleteGroupRequestDto) {
         String runnerId = deleteGroupRequestDto.getRunnerId();
 
         Optional<Group> group = groupRepository.findById(UUID.fromString(groupId));

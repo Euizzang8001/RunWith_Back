@@ -61,12 +61,16 @@ public class GroupController {
     }
 
     //그룹 삭제하기
-    @DeleteMapping()
-    public ResponseEntity<Object> deleteGroup(@RequestBody @Valid DeleteGroupRequestDto deleteGroupRequestDto, BindingResult bindingResult) {
+    @DeleteMapping("/{groupId}")
+    public ResponseEntity<Object> deleteGroup(
+            @PathVariable @Valid String groupId,
+            @RequestBody @Valid DeleteGroupRequestDto deleteGroupRequestDto,
+            BindingResult bindingResult
+    ) {
         if(bindingResult.hasErrors()){
             return ValidationErrorUtils.handleValidationErrors(bindingResult);
         }
-        groupService.delete(deleteGroupRequestDto);
+        groupService.delete(groupId, deleteGroupRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonMessage("그룹이 성공적으로 삭제되었습니다."));
     }
 
