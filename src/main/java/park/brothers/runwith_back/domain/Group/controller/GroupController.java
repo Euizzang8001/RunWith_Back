@@ -47,9 +47,9 @@ public class GroupController {
     }
 
     //유사 이름의 그룹 얻기
-    @GetMapping("/{name}")
-    public ResponseEntity<Object> findGroupsBySimilarName(@PathVariable @Valid String name){
-        List<GetGroupResponseDto> groups = groupService.getGroupsBySimilarName(name);
+    @GetMapping("/groupName={groupName}")
+    public ResponseEntity<Object> findGroupsBySimilarName(@PathVariable @Valid String groupName){
+        List<GetGroupResponseDto> groups = groupService.getGroupsBySimilarName(groupName);
         return ResponseEntity.status(HttpStatus.OK).body(groups);
     }
 
@@ -61,7 +61,7 @@ public class GroupController {
     }
 
     //그룹 삭제하기
-    @DeleteMapping("/{groupId}")
+    @DeleteMapping("/groupId={groupId}")
     public ResponseEntity<Object> deleteGroup(
             @PathVariable @Valid String groupId,
             @RequestBody @Valid DeleteGroupRequestDto deleteGroupRequestDto,
@@ -75,7 +75,7 @@ public class GroupController {
     }
 
     //그룹 수정하기
-    @PostMapping(value = {"/{groupId}"}, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(value = {"/groupId={groupId}"}, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Object> reviseGroupInfo(
             @PathVariable @Valid String groupId,
             @RequestPart(value = "request") @Valid ReviseGroupRequestDto reviseGroupRequestDto,
