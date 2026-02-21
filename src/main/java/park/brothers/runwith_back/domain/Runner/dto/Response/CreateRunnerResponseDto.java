@@ -11,13 +11,13 @@ import lombok.Getter;
 public class CreateRunnerResponseDto {
 
     @NotEmpty
-    private String runnerId;
+    private String runnerId; //생성된 러너 ID
 
     @NotEmpty
-    private String runnerName;
+    private String runnerName; //생성된 러너 이름
 
     @NotEmpty
-    private String runnerEmail;
+    private String runnerEmail; //생성된 러너
 
-    private String runnerImageLink;
+    private String runnerImageLink; //저장된 러너 이미지
 }

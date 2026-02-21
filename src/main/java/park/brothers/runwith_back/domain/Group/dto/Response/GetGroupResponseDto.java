@@ -11,13 +11,13 @@ import lombok.Getter;
 public class GetGroupResponseDto {
 
     @NotEmpty
-    private String groupId;
+    private String groupId; //그룹 id
 
     @NotEmpty
-    private String groupName;
+    private String groupName; //그룹 이름
 
     @NotEmpty
-    private String groupDescription;
+    private String groupDescription; //그룹 설명
 
-    private String groupImageLink;
+    private String groupImageLink; //그룹의 이미지 링크
 }
