@@ -3,14 +3,18 @@ package park.brothers.runwith_back.domain.Belong.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.sql.Delete;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import park.brothers.runwith_back.common.CommonMessage;
 import park.brothers.runwith_back.common.Response.ValidationErrorUtils;
 import park.brothers.runwith_back.domain.Belong.dto.Request.ChangeLeaderRequestDto;
-import park.brothers.runwith_back.domain.Belong.dto.Request.JoinGroupRequestDto;
-import park.brothers.runwith_back.domain.Belong.dto.Request.LeaveGroupRequestDto;
+import park.brothers.runwith_back.domain.Belong.dto.Request.CreateBelongRequestDto;
+import park.brothers.runwith_back.domain.Belong.dto.Request.DeleteBelongRequestDto;
+import park.brothers.runwith_back.domain.Belong.dto.Response.ChangeLeaderResponseDto;
+import park.brothers.runwith_back.domain.Belong.dto.Response.CreateBelongResponseDto;
 import park.brothers.runwith_back.domain.Belong.service.BelongService;
 import park.brothers.runwith_back.domain.Group.dto.Response.GetGroupResponseDto;
 import park.brothers.runwith_back.domain.Runner.dto.Response.GetRunnerResponseDto;
@@ -26,29 +30,32 @@ public class BelongController {
 
     private final BelongService belongService;
 
-    //그룹 참여 api
+    //그룹 참여 api(belong 생성)
     @PostMapping
-    public ResponseEntity<Object> save(@RequestBody @Valid JoinGroupRequestDto joinGroupRequestDto, BindingResult bindingResult){
+    public ResponseEntity<Object> save(@RequestBody @Valid CreateBelongRequestDto createBelongRequestDto, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
             return ValidationErrorUtils.handleValidationErrors(bindingResult);
         }
 
-        belongService.joinGroup(joinGroupRequestDto);
+        CreateBelongResponseDto createBelongResponseDto = belongService.joinGroup(createBelongRequestDto);
 
-        return ResponseEntity.status(HttpStatus.OK).body(joinGroupRequestDto);
-
+        return ResponseEntity.status(HttpStatus.CREATED).body(createBelongResponseDto);
     }
 
     //그룹 탈퇴 api
-    @DeleteMapping
-    public ResponseEntity<Object> leave(@RequestBody @Valid LeaveGroupRequestDto leaveGroupRequestDto, BindingResult bindingResult){
+    @DeleteMapping("/belongId={belongId}")
+    public ResponseEntity<Object> leave(
+            @PathVariable @Valid String belongId,
+            @RequestBody @Valid DeleteBelongRequestDto deleteBelongRequestDto,
+            BindingResult bindingResult
+    ){
         if(bindingResult.hasErrors()){
             return ValidationErrorUtils.handleValidationErrors(bindingResult);
         }
 
-        belongService.leaveGroup(leaveGroupRequestDto);
+        belongService.leaveGroup(belongId, deleteBelongRequestDto);
 
-        return ResponseEntity.status(HttpStatus.OK).body(leaveGroupRequestDto);
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonMessage("그룹에서 성공적으로 탈퇴되었습니다."));
     }
 
     //특정 runner가 속한 모든 그룹들을 응답 받는 api
@@ -66,15 +73,18 @@ public class BelongController {
     }
 
     //그룹의 리더 변경 api
-    @PatchMapping("/leader")
-    public ResponseEntity<Object> changeLeader(@RequestBody @Valid ChangeLeaderRequestDto changeLeaderRequestDto, BindingResult bindingResult){
+    @PatchMapping("/oldLeaderRunnerId={oldLeaderRunnerId}")
+    public ResponseEntity<Object> changeLeader(
+            @PathVariable @Valid String oldLeaderRunnerId,
+            @RequestBody @Valid ChangeLeaderRequestDto changeLeaderRequestDto,
+            BindingResult bindingResult){
         if(bindingResult.hasErrors()){
             return ValidationErrorUtils.handleValidationErrors(bindingResult);
         }
 
-        belongService.changeLeader(changeLeaderRequestDto);
+        ChangeLeaderResponseDto changeLeaderResponseDto = belongService.changeLeader(oldLeaderRunnerId, changeLeaderRequestDto);
 
-        return ResponseEntity.status(HttpStatus.OK).body(changeLeaderRequestDto);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(changeLeaderResponseDto);
     }
 
 

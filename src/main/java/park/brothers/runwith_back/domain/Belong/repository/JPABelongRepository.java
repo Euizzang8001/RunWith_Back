@@ -41,6 +41,7 @@ public class JPABelongRepository implements BelongRepository{
         );
     }
 
+    //belong 저장
     @Override
     public Belong save(Belong belong) {
         em.persist(belong);

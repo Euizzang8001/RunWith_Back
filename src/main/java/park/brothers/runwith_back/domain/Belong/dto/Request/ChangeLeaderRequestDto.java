@@ -5,13 +5,9 @@ import lombok.Data;
 
 @Data
 public class ChangeLeaderRequestDto {
+    @NotEmpty
+    private String newLeaderRunnerId;
 
     @NotEmpty
-    String beforeLeaderRunnerId;
-
-    @NotEmpty
-    String afterLeaderRunnerId;
-
-    @NotEmpty
-    String groupId;
+    private String groupId;
 }
