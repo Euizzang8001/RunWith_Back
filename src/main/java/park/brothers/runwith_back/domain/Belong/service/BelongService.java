@@ -1,7 +1,6 @@
 package park.brothers.runwith_back.domain.Belong.service;
 
 import jakarta.validation.Valid;
-import org.hibernate.sql.Delete;
 import park.brothers.runwith_back.domain.Belong.dto.Request.ChangeLeaderRequestDto;
 import park.brothers.runwith_back.domain.Belong.dto.Request.CreateBelongRequestDto;
 import park.brothers.runwith_back.domain.Belong.dto.Request.DeleteBelongRequestDto;
