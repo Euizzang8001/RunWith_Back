@@ -10,7 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import park.brothers.runwith_back.common.CommonMessage;
 import park.brothers.runwith_back.domain.Belong.dto.Request.ChangeLeaderRequestDto;
 import park.brothers.runwith_back.domain.Belong.dto.Request.CreateBelongRequestDto;
 import park.brothers.runwith_back.domain.Belong.dto.Request.DeleteBelongRequestDto;
