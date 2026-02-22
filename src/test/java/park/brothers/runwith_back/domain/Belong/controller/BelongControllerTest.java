@@ -112,7 +112,6 @@ class BelongControllerTest {
                 groupStrId
         );
 
-        CommonMessage response = new CommonMessage("그룹에서 성공적으로 탈퇴되었습니다.");
         //when & then
         String content = new ObjectMapper().writeValueAsString(deleteBelongRequestDto);
 
