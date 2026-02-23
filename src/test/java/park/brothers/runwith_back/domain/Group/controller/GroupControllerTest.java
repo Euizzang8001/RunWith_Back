@@ -115,7 +115,7 @@ class GroupControllerTest {
         given(groupService.getGroupsBySimilarName(anyString())).willReturn(resultGroups);
 
         //when & then
-        mockMvc.perform(get("/api/v1/groups/test")) // get요청
+        mockMvc.perform(get("/api/v1/groups/groupName={groupName}", "test")) // get요청
                 .andExpect(status().isOk()) //
                 .andExpect(jsonPath("$", hasSize(2))) //전체 길이가 2인지 확인
                 .andExpect(jsonPath("$[0].groupId").value(resultGroups.getFirst().getGroupId())) // runnerId 확인
