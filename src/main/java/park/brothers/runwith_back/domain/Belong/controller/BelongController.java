@@ -72,7 +72,7 @@ public class BelongController {
     }
 
     //그룹의 리더 변경 api
-    @PatchMapping("/leader/oldLeaderRunnerId={oldLeaderRunnerId}")
+    @PatchMapping("/leader/{oldLeaderRunnerId}")
     public ResponseEntity<Object> changeLeader(
             @PathVariable @Valid String oldLeaderRunnerId,
             @RequestBody @Valid ChangeLeaderRequestDto changeLeaderRequestDto,
