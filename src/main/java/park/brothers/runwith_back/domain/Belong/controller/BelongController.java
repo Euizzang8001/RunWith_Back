@@ -42,7 +42,7 @@ public class BelongController {
     }
 
     //그룹 탈퇴 api
-    @DeleteMapping("/belongId={belongId}")
+    @DeleteMapping("/{belongId}")
     public ResponseEntity<Object> leave(
             @PathVariable @Valid String belongId,
             @RequestBody @Valid DeleteBelongRequestDto deleteBelongRequestDto,
