@@ -20,6 +20,5 @@ public class CreateBelongResponseDto {
     @NotEmpty
     private String belongNickname; //러너가 이 그룹에서 사용하는 닉네임
 
-    @NotEmpty
     private Boolean belongIsLeader; //리더 여부
 }
