@@ -6,13 +6,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import park.brothers.runwith_back.common.Exceptions.ResourceNotFoundException;
 import park.brothers.runwith_back.domain.Login.dto.Request.LoginRequestDto;
+import park.brothers.runwith_back.domain.Login.dto.Response.LoginResponseDto;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
 
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 
@@ -45,11 +48,16 @@ class Version1LoginServiceTest {
         runner.setPassword("test_password");
         runner.setName("test_name");
 
+        LoginResponseDto loginResponseDto =  new LoginResponseDto(
+                fakeRunnerUUID.toString(),
+                "test_name"
+        );
+
         //이메일로 찾을 시, 잘 찾아지는지 확인
         given(runnerRepository.findByEmail(anyString())).willReturn(Optional.of(runner));
 
         //then
-        assertThat(loginService.login(loginRequestDto)).isEqualTo(fakeRunnerUUID.toString()); //Id가 잘 반환되는지 확인
+        assertThat(loginService.login(loginRequestDto)).isEqualTo(loginResponseDto); //response가 잘 반환되는지 확인
     }
 
     @Test
@@ -66,6 +74,6 @@ class Version1LoginServiceTest {
         given(runnerRepository.findByEmail(anyString())).willReturn(Optional.empty());
 
         //then
-        assertThat(loginService.login(loginRequestDto)).isEmpty(); //null값이 반환되는지 확인
+        assertThrows(ResourceNotFoundException.class, () -> loginService.login(loginRequestDto)); //null값이 반환되는지 확인
     }
 }

@@ -10,4 +10,7 @@ public class LoginResponseDto {
 
     @NotEmpty
     private String runnerId; //러너ID
+
+    @NotEmpty
+    private String runnerName; //러너 이름
 }

@@ -35,20 +35,15 @@ public class LoginController {
         }
 
         //로그인
-        String loginRunnerId = loginService.login(loginRequestDto);
-        log.info("loginRunnerId = {}", loginRunnerId);
-        //로그인 성공 여부 파악
-        if(loginRunnerId.isEmpty()){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new CommonMessage("아이디 또는 비밀번호가 일치하지 않습니다."));
-        }
+        LoginResponseDto loginResponseDto = loginService.login(loginRequestDto);
 
         //Http 쿠키 설정
-        Cookie idCookie = new Cookie("runnerId", loginRunnerId);
+        Cookie idCookie = new Cookie("runnerId", loginResponseDto.getRunnerId());
         idCookie.setPath("/");
         idCookie.setHttpOnly(true);
         response.addCookie(idCookie);
 
-        return ResponseEntity.status(HttpStatus.OK).body(new LoginResponseDto(loginRunnerId));
+        return ResponseEntity.status(HttpStatus.OK).body(loginResponseDto);
     }
 
 
