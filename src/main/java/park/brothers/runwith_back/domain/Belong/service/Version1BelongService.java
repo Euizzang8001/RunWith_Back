@@ -107,7 +107,7 @@ public class Version1BelongService implements BelongService{
     public List<GetGroupResponseDto> getAllGroupsRunnerJoin(String runnerId) {
         List<Belong> belongs = belongRepository.findByRunnerId(UUID.fromString(runnerId));
         return belongs.stream()
-                .map(belong -> new GetGroupResponseDto(belong.getGroup().getId().toString(), belong.getGroup().getName(), belong.getGroup().getDescription(), aWSS3Service.getImagePresignedUrl("groups",belong.getRunner().getId().toString(), 0 )))
+                .map(belong -> new GetGroupResponseDto(belong.getGroup().getId().toString(), belong.getGroup().getName(), belong.getGroup().getDescription(), aWSS3Service.getImagePresignedUrl("groups", belong.getGroup().getId().toString(), 0)))
                 .collect(Collectors.toList());
     }
 
