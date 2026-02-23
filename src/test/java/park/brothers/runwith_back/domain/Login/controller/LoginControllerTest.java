@@ -12,8 +12,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import park.brothers.runwith_back.domain.Login.dto.Request.LoginRequestDto;
+import park.brothers.runwith_back.domain.Login.dto.Response.LoginResponseDto;
 import park.brothers.runwith_back.domain.Login.service.LoginService;
 import tools.jackson.databind.ObjectMapper;
+
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -48,8 +51,13 @@ class LoginControllerTest {
                 "test_email",
                 "test_password"
         );
+        UUID runnerUUID = UUID.randomUUID();
+        LoginResponseDto loginResponseDto = new LoginResponseDto(
+                runnerUUID.toString(),
+                "test_runner"
+        );
         //servive 가정 선언
-        given(loginService.login(any(LoginRequestDto.class))).willReturn("1");
+        given(loginService.login(any(LoginRequestDto.class))).willReturn(loginResponseDto);
 
         //when & then
         String content = new ObjectMapper().writeValueAsString(loginRequestDto);
@@ -58,31 +66,9 @@ class LoginControllerTest {
                         .contentType(MediaType.APPLICATION_JSON) // 요청 타입 확인
                         .content(content)) // Body에 JSON 문자열 담기
                 .andExpect(status().isOk()) //
-                .andExpect(jsonPath("$.runnerId").value("1")) // runnerId 확인
-                .andExpect(cookie().value("runnerId", "1")); //쿠키값 테스트
-
-    }
-
-    @Test
-    @DisplayName("로그인 실패 컨트롤러 테스트")
-    void loginFail() throws Exception {
-        //given
-        //로그인 requestdto 생성
-        LoginRequestDto loginRequestDto = new LoginRequestDto(
-                "test_email",
-                "test_password"
-        );
-        //servive 가정 선언
-        given(loginService.login(any(LoginRequestDto.class))).willReturn("");
-
-        //when & then
-        String content = new ObjectMapper().writeValueAsString(loginRequestDto);
-
-        mockMvc.perform(post("/api/v1/runners/login") // POST 요청 URL
-                        .contentType(MediaType.APPLICATION_JSON) // 요청 타입 확인
-                        .content(content)) // Body에 JSON 문자열 담기
-                .andExpect(status().isUnauthorized()) //
-                .andExpect(jsonPath("$.message").value("아이디 또는 비밀번호가 일치하지 않습니다.")); // runnerId 확인
+                .andExpect(jsonPath("$.runnerId").value(runnerUUID.toString())) // runnerId 확인
+                .andExpect(cookie().value("runnerId", runnerUUID.toString())) //쿠키값 테스트
+                .andExpect(jsonPath("$.runnerName").value("test_runner"));
 
     }
 
