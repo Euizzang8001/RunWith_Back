@@ -40,10 +40,10 @@ public class JPAGroupRepository implements GroupRepository {
 
     @Override
     public Optional<Group> findByName(String name) {
-        List<Group> groups = em.createQuery("select g from Group g where g.name = :name", Group.class)
+        return em.createQuery("select g from Group g where g.name = :name", Group.class)
                 .setParameter("name", name)
-                .getResultList();
-        return groups.isEmpty() ? Optional.empty() : Optional.of(groups.getFirst());
+                .getResultStream()
+                .findFirst();
     }
 
     public List<Group> findBySimilarName(String name) {
@@ -54,8 +54,9 @@ public class JPAGroupRepository implements GroupRepository {
 
     @Override
     public Optional<Group> findById(UUID id) {
-        return Optional.ofNullable(em.createQuery("select g from Group g where g.id = :id", Group.class)
+        return em.createQuery("select g from Group g where g.id = :id", Group.class)
                 .setParameter("id", id)
-                .getSingleResult());
+                .getResultStream()
+                .findFirst();
     }
 }
