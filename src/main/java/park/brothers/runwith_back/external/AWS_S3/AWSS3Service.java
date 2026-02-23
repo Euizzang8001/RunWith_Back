@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
@@ -84,26 +85,30 @@ public class AWSS3Service {
 
     //이미지의 presigned url 추출하기
     private String getPresignedImageUrl(String imageName) {
-        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                .bucket(bucketName)
-                .key(imageName)
-                .build();
+        try {
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(imageName)
+                    .build();
+            //PreSigned URL 요청
+            GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                    .signatureDuration(Duration.ofMinutes(10)) //만료 시간 설정
+                    .getObjectRequest(getObjectRequest)
+                    .build();
 
-        //PreSigned URL 요청
-        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(10)) //만료 시간 설정
-                .getObjectRequest(getObjectRequest)
-                .build();
+            //발급된 URL
+            PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(presignRequest);
+            String stringPresignedRequestUrl = presignedRequest.url().toString();
 
-        //발급된 URL
-        PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(presignRequest);
-        String stringPresignedRequestUrl = presignedRequest.url().toString();
+            //캐시 저장
+            urlCacheMap.put(imageName, new CachedUrlInfo(stringPresignedRequestUrl, Instant.now()));
 
-        //캐시 저장
-        urlCacheMap.put(imageName, new CachedUrlInfo(stringPresignedRequestUrl, Instant.now()));
+            //리턴하기
+            return stringPresignedRequestUrl;
 
-        //리턴하기
-        return stringPresignedRequestUrl;
+        } catch (NoSuchKeyException e){
+            return null;
+        }
     }
 
     //캐시에 저장할 객체

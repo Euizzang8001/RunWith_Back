@@ -19,6 +19,7 @@ import park.brothers.runwith_back.domain.Group.repository.GroupRepository;
 import park.brothers.runwith_back.domain.Runner.dto.Response.GetRunnerResponseDto;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
+import park.brothers.runwith_back.external.AWS_S3.AWSS3Service;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +33,7 @@ public class Version1BelongService implements BelongService{
     private final BelongRepository belongRepository;
     private final RunnerRepository runnerRepository;
     private final GroupRepository groupRepository;
+    private final AWSS3Service aWSS3Service;
 
     // 그룹 참여
     @Override
@@ -94,7 +96,7 @@ public class Version1BelongService implements BelongService{
         }
 
         //찾은 빌롱이 삭제하려는 빌롱이 아닐 때
-        if(foundBelong.get().getId() != belongUUID){
+        if(!foundBelong.get().getId().equals(belongUUID)){
             throw new NotAcceptableException("삭제하려는 belong이 그룹과 러너에 일치하지 않습니다.");
         }
         belongRepository.deleteByRunnerIdAndGroupId(groupUUID, runnerUUID);
@@ -105,7 +107,7 @@ public class Version1BelongService implements BelongService{
     public List<GetGroupResponseDto> getAllGroupsRunnerJoin(String runnerId) {
         List<Belong> belongs = belongRepository.findByRunnerId(UUID.fromString(runnerId));
         return belongs.stream()
-                .map(belong -> new GetGroupResponseDto(belong.getGroup().getId().toString(), belong.getGroup().getName(), belong.getGroup().getDescription(), "test_image_link"))
+                .map(belong -> new GetGroupResponseDto(belong.getGroup().getId().toString(), belong.getGroup().getName(), belong.getGroup().getDescription(), aWSS3Service.getImagePresignedUrl("groups",belong.getRunner().getId().toString(), 0 )))
                 .collect(Collectors.toList());
     }
 
@@ -114,7 +116,7 @@ public class Version1BelongService implements BelongService{
     public List<GetRunnerResponseDto> getAllRunnersInGroup(String groupId) {
         List<Belong> belongs = belongRepository.findByGroupId(UUID.fromString(groupId));
         return belongs.stream()
-                .map(belong -> new GetRunnerResponseDto(belong.getRunner().getId().toString(), belong.getRunner().getName(), "test_image_link"))
+                .map(belong -> new GetRunnerResponseDto(belong.getRunner().getId().toString(), belong.getRunner().getName(), aWSS3Service.getImagePresignedUrl("runners",belong.getRunner().getId().toString(), 0 )))
                 .collect(Collectors.toList());
     }
 
