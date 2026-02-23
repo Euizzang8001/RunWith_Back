@@ -138,7 +138,6 @@ class Version1BelongServiceTest {
         //given
         UUID runnerUUID = UUID.randomUUID();
         UUID groupUUID = UUID.randomUUID();
-        UUID belongUUID = UUID.randomUUID();
 
         CreateBelongRequestDto createBelongRequestDto = new CreateBelongRequestDto(
                 runnerUUID.toString(),
