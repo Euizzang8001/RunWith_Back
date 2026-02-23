@@ -88,7 +88,7 @@ public class Version1BelongService implements BelongService{
         UUID belongUUID = UUID.fromString(belongId);
 
         //러너 id와 그룹id로 belong 찾기
-        Optional<Belong> foundBelong = belongRepository.findByRunnerIdAndGroupId(UUID.fromString(runnerId), UUID.fromString(groupId));
+        Optional<Belong> foundBelong = belongRepository.findByRunnerIdAndGroupId(runnerUUID, groupUUID);
         
         //러너가 그룹에 속하지 않을 때
         if(foundBelong.isEmpty()){
