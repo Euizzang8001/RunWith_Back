@@ -17,5 +17,5 @@ public class CreateBelongRequestDto {
     private String groupId; // 가입하려는 그룹 id
 
     @NotEmpty
-    String belongNickname; // 그룹에서 사용할 닉네임
+    private String belongNickname; // 그룹에서 사용할 닉네임
 }
