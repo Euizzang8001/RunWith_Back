@@ -133,7 +133,10 @@ public class Version1BelongService implements BelongService{
 
         //이전 리더가 리더인지 확인
         Optional<Belong> belong = belongRepository.findByRunnerIdAndGroupId(oldLeaderRunnerUUID, groupUUID);
-        if(belong.isEmpty() || !belong.get().isLeader()){
+        if (belong.isEmpty()) {
+            throw new UnauthorizedException("그룹에 속해있지 않습니다.");
+        }
+        if (!belong.get().isLeader()) {
             throw new UnauthorizedException("리더가 아닙니다.");
         }
 
