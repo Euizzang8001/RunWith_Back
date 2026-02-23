@@ -242,7 +242,6 @@ class Version1GroupServiceTest {
         String groupId = UUID.randomUUID().toString();
         String runnerId = UUID.randomUUID().toString();
         DeleteGroupRequestDto deleteGroupRequestDto = new DeleteGroupRequestDto(
-                groupId,
                 runnerId
         );
         Group group = new Group();
@@ -261,7 +260,7 @@ class Version1GroupServiceTest {
         given(belongRepository.findByGroupId(any(UUID.class))).willReturn(List.of(belong));
 
         //when
-        groupService.delete(deleteGroupRequestDto);
+        groupService.delete(groupId, deleteGroupRequestDto);
 
         //then
         verify(groupRepository, times(1)).findById(any(UUID.class));
@@ -278,13 +277,12 @@ class Version1GroupServiceTest {
         String groupId = UUID.randomUUID().toString();
         String runnerId = UUID.randomUUID().toString();
         DeleteGroupRequestDto deleteGroupRequestDto = new DeleteGroupRequestDto(
-                groupId,
                 runnerId
         );
         given(groupRepository.findById(any(UUID.class))).willReturn(Optional.empty());
 
         //when & then
-        assertThrows(IllegalAccessError.class, () -> groupService.delete(deleteGroupRequestDto));
+        assertThrows(IllegalAccessError.class, () -> groupService.delete(groupId, deleteGroupRequestDto));
 
         verify(groupRepository, times(1)).findById(any(UUID.class));
         verify(runnerRepository, times(0)).findById(any(UUID.class));
@@ -300,7 +298,6 @@ class Version1GroupServiceTest {
         String groupId = UUID.randomUUID().toString();
         String runnerId = UUID.randomUUID().toString();
         DeleteGroupRequestDto deleteGroupRequestDto = new DeleteGroupRequestDto(
-                groupId,
                 runnerId
         );
         Group group = new Group();
@@ -310,7 +307,7 @@ class Version1GroupServiceTest {
         given(runnerRepository.findById(any(UUID.class))).willReturn(Optional.empty());
 
         //when & then
-        assertThrows(IllegalAccessError.class, () -> groupService.delete(deleteGroupRequestDto));
+        assertThrows(IllegalAccessError.class, () -> groupService.delete(groupId, deleteGroupRequestDto));
 
         //then
         verify(groupRepository, times(1)).findById(any(UUID.class));
@@ -328,7 +325,6 @@ class Version1GroupServiceTest {
         String runner1Id = UUID.randomUUID().toString();
         String runner2Id = UUID.randomUUID().toString();
         DeleteGroupRequestDto deleteGroupRequestDto = new DeleteGroupRequestDto(
-                groupId,
                 runner1Id
         );
         Group group = new Group();
@@ -355,7 +351,7 @@ class Version1GroupServiceTest {
         given(belongRepository.findByGroupId(any(UUID.class))).willReturn(List.of(belong1, belong2));
 
         //when & then
-        assertThrows(IllegalAccessError.class, () -> groupService.delete(deleteGroupRequestDto));
+        assertThrows(IllegalAccessError.class, () -> groupService.delete(groupId, deleteGroupRequestDto));
 
         //then
         verify(groupRepository, times(1)).findById(any(UUID.class));
@@ -373,7 +369,6 @@ class Version1GroupServiceTest {
         String groupId = UUID.randomUUID().toString();
         String runnerId = UUID.randomUUID().toString();
         DeleteGroupRequestDto deleteGroupRequestDto = new DeleteGroupRequestDto(
-                groupId,
                 runnerId
         );
         Group group = new Group();
@@ -392,7 +387,7 @@ class Version1GroupServiceTest {
         given(belongRepository.findByGroupId(any(UUID.class))).willReturn(List.of(belong));
 
         //when
-        assertThrows(IllegalAccessError.class, () -> groupService.delete(deleteGroupRequestDto));
+        assertThrows(IllegalAccessError.class, () -> groupService.delete(groupId, deleteGroupRequestDto));
 
         //then
         verify(groupRepository, times(1)).findById(any(UUID.class));
@@ -411,8 +406,7 @@ class Version1GroupServiceTest {
         ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
                 runnerId,
                 1,
-                "test_revised_description",
-                "test_revised_imageLink"
+                "test_revised_description"
         );
 
         Group group = new Group();
@@ -457,8 +451,7 @@ class Version1GroupServiceTest {
         ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
                 runnerId,
                 1,
-                "test_revised_description",
-                "test_revised_imageLink"
+                "test_revised_description"
         );
         given(groupRepository.findById(any(UUID.class))).willReturn(Optional.empty());
 
@@ -484,8 +477,7 @@ class Version1GroupServiceTest {
         ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
                 runnerId,
                 1,
-                "test_revised_description",
-                "test_revised_imageLink"
+                "test_revised_description"
         );
 
         Group group = new Group();
@@ -519,8 +511,7 @@ class Version1GroupServiceTest {
         ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
                 runnerId,
                 1,
-                "test_revised_description",
-                "test_revised_imageLink"
+                "test_revised_description"
         );
 
         Group group = new Group();
@@ -561,8 +552,7 @@ class Version1GroupServiceTest {
         ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
                 runnerId,
                 1,
-                "test_revised_description",
-                "test_revised_imageLink"
+                "test_revised_description"
         );
 
         Group group = new Group();

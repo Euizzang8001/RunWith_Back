@@ -30,28 +30,28 @@ public class JPARunnerRepository implements RunnerRepository {
     //이메일로 runner 찾기
     @Override
     public Optional<Runner> findByEmail(String email) {
-        List<Runner> result = em.createQuery("select r from Runner r where r.email = :email", Runner.class)
+        return em.createQuery("select r from Runner r where r.email = :email", Runner.class)
                 .setParameter("email", email)
-                .getResultList();
-        return result.stream().findAny();
+                .getResultStream()
+                .findFirst();
     }
 
     //Id로 러너 찾기
     @Override
     public Optional<Runner> findById(UUID id) {
-        List<Runner> result =  em.createQuery("select r from Runner r where r.id = :id", Runner.class)
+        return em.createQuery("select r from Runner r where r.id = :id", Runner.class)
                 .setParameter("id", id)
-                .getResultList();
-        return result.stream().findAny();
+                .getResultStream()
+                .findFirst();
     }
 
     //이름으로 러너 찾기
     @Override
     public Optional<Runner> findByName(String name) {
-        List<Runner> result = em.createQuery("select r from Runner r where r.name = :name", Runner.class)
+        return em.createQuery("select r from Runner r where r.name = :name", Runner.class)
                 .setParameter("name", name)
-                .getResultList();
-        return result.stream().findAny();
+                .getResultStream()
+                .findFirst();
     }
 
     //DB에서 동일한 정보의 러너가 있는지 확인

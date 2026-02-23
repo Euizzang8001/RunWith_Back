@@ -115,7 +115,7 @@ class GroupControllerTest {
         given(groupService.getGroupsBySimilarName(anyString())).willReturn(resultGroups);
 
         //when & then
-        mockMvc.perform(get("/api/v1/groups/test")) // get요청
+        mockMvc.perform(get("/api/v1/groups/groupName={groupName}", "test")) // get요청
                 .andExpect(status().isOk()) //
                 .andExpect(jsonPath("$", hasSize(2))) //전체 길이가 2인지 확인
                 .andExpect(jsonPath("$[0].groupId").value(resultGroups.getFirst().getGroupId())) // runnerId 확인
@@ -156,17 +156,20 @@ class GroupControllerTest {
     @Test
     @DisplayName("그룹 삭제 성공 테스트")
     void deleteGroup() throws Exception {
+        UUID groupUUID = UUID.randomUUID();
+        UUID runnerUUID = UUID.randomUUID();
+        String groupStrId = groupUUID.toString();
+        String runnerStrId = runnerUUID.toString();
         //given
         DeleteGroupRequestDto deleteGroupRequestDto = new DeleteGroupRequestDto(
-          UUID.randomUUID().toString(),
-          UUID.randomUUID().toString()
+                runnerStrId
         );
 
         //when & then
         //JSON형식의 문자열로 반환
         String content = new ObjectMapper().writeValueAsString(deleteGroupRequestDto);
 
-        mockMvc.perform(delete("/api/v1/groups") // DELETE 요청 URL
+        mockMvc.perform(delete("/api/v1/groups/groupId={groupId}", groupStrId) // DELETE 요청 URL
                         .contentType(MediaType.APPLICATION_JSON) // 요청 타입 확인
                         .content(content)) // Body에 JSON 문자열 담기
                 .andExpect(status().isOk()) //
@@ -181,8 +184,7 @@ class GroupControllerTest {
         ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
                 runnerId,
                 0,
-                "test_description",
-                "test_imageLink"
+                "test_description"
         );
         ReviseGroupResponseDto reviseGroupResponseDto = new ReviseGroupResponseDto(
                 groupId,
@@ -213,7 +215,7 @@ class GroupControllerTest {
                 "dummy_image_data".getBytes()
         );
 
-        mockMvc.perform(multipart("/api/v1/groups/{groupId}", groupId)
+        mockMvc.perform(multipart("/api/v1/groups/groupId={groupId}", groupId)
                         .file(requestPart) //JSON데이터 추가
                         .file(imagePart)   //image데이터 추가
                         .contentType(MediaType.MULTIPART_FORM_DATA) // 전체 Content-Type

@@ -2,9 +2,15 @@ package park.brothers.runwith_back.domain.Belong.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import park.brothers.runwith_back.common.Exceptions.DuplicateResourceException;
+import park.brothers.runwith_back.common.Exceptions.NotAcceptableException;
+import park.brothers.runwith_back.common.Exceptions.ResourceNotFoundException;
+import park.brothers.runwith_back.common.Exceptions.UnauthorizedException;
 import park.brothers.runwith_back.domain.Belong.dto.Request.ChangeLeaderRequestDto;
-import park.brothers.runwith_back.domain.Belong.dto.Request.JoinGroupRequestDto;
-import park.brothers.runwith_back.domain.Belong.dto.Request.LeaveGroupRequestDto;
+import park.brothers.runwith_back.domain.Belong.dto.Request.CreateBelongRequestDto;
+import park.brothers.runwith_back.domain.Belong.dto.Request.DeleteBelongRequestDto;
+import park.brothers.runwith_back.domain.Belong.dto.Response.ChangeLeaderResponseDto;
+import park.brothers.runwith_back.domain.Belong.dto.Response.CreateBelongResponseDto;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
 import park.brothers.runwith_back.domain.Belong.repository.BelongRepository;
 import park.brothers.runwith_back.domain.Group.dto.Response.GetGroupResponseDto;
@@ -13,6 +19,7 @@ import park.brothers.runwith_back.domain.Group.repository.GroupRepository;
 import park.brothers.runwith_back.domain.Runner.dto.Response.GetRunnerResponseDto;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
+import park.brothers.runwith_back.external.AWS_S3.AWSS3Service;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,30 +33,31 @@ public class Version1BelongService implements BelongService{
     private final BelongRepository belongRepository;
     private final RunnerRepository runnerRepository;
     private final GroupRepository groupRepository;
+    private final AWSS3Service aWSS3Service;
 
     // 그룹 참여
     @Override
-    public void joinGroup(JoinGroupRequestDto joinGroupRequestDto) {
-        String runnerId = joinGroupRequestDto.getRunnerId();
-        String groupId = joinGroupRequestDto.getGroupId();
-        String nickname = joinGroupRequestDto.getBelongNickname();
+    public CreateBelongResponseDto joinGroup(CreateBelongRequestDto createBelongRequestDto) {
+        String runnerId = createBelongRequestDto.getRunnerId();
+        String groupId = createBelongRequestDto.getGroupId();
+        String nickname = createBelongRequestDto.getBelongNickname();
 
         //이미 가입한 그룹이 아니면 가입
         if (belongRepository.findByRunnerIdAndGroupId(UUID.fromString(runnerId), UUID.fromString(groupId)).isPresent()) {
-            throw new IllegalStateException("이미 그룹에 가입되어 있습니다.");
+            throw new DuplicateResourceException("이미 그룹에 가입되어 있습니다.");
         }
 
         // 닉네임 중복 확인
         if (belongRepository.findByGroupIdAndNickname(UUID.fromString(groupId), nickname).isPresent()) {
-            throw new IllegalStateException("이미 사용 중인 닉네임입니다.");
+            throw new DuplicateResourceException("이미 사용 중인 닉네임입니다.");
         }
 
         // 엔티티 조회
         Runner runner = runnerRepository.findById(UUID.fromString(runnerId))
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 러너입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 러너입니다."));
 
         Group group = groupRepository.findById(UUID.fromString(groupId))
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 그룹입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 그룹입니다."));
 
         // 가입 처리
         Belong belong = new Belong();
@@ -58,19 +66,40 @@ public class Version1BelongService implements BelongService{
         belong.setLeader(false);
         belong.setNickname(nickname);
 
-        belongRepository.save(belong);
+        Belong savedBelong = belongRepository.save(belong);
+
+        return new CreateBelongResponseDto(
+                savedBelong.getId().toString(),
+                savedBelong.getRunner().getId().toString(),
+                savedBelong.getGroup().getId().toString(),
+                savedBelong.getNickname(),
+                savedBelong.isLeader()
+        );
     }
     
     //그룹 탈퇴 기능
     @Override
-    public void leaveGroup(LeaveGroupRequestDto leaveGroupRequestDto) {
-        String groupId = leaveGroupRequestDto.getGroupId();
-        String runnerId = leaveGroupRequestDto.getRunnerId();
+    public void leaveGroup(String belongId, DeleteBelongRequestDto deleteBelongRequestDto) {
+        String groupId = deleteBelongRequestDto.getGroupId();
+        String runnerId = deleteBelongRequestDto.getRunnerId();
+
+        UUID groupUUID = UUID.fromString(groupId);
+        UUID runnerUUID = UUID.fromString(runnerId);
+        UUID belongUUID = UUID.fromString(belongId);
+
+        //러너 id와 그룹id로 belong 찾기
+        Optional<Belong> foundBelong = belongRepository.findByRunnerIdAndGroupId(runnerUUID, groupUUID);
         
-        //그룹에 속해있으면 탈퇴 가능
-        if(belongRepository.findByRunnerIdAndGroupId(UUID.fromString(runnerId), UUID.fromString(groupId)).isPresent()){
-            belongRepository.deleteByRunnerIdAndGroupId(UUID.fromString(runnerId), UUID.fromString(groupId));
+        //러너가 그룹에 속하지 않을 때
+        if(foundBelong.isEmpty()){
+            throw new ResourceNotFoundException("해당 러너는 이 그룹에 속하지 않습니다.");
         }
+
+        //찾은 빌롱이 삭제하려는 빌롱이 아닐 때
+        if(!foundBelong.get().getId().equals(belongUUID)){
+            throw new NotAcceptableException("삭제하려는 belong이 그룹과 러너에 일치하지 않습니다.");
+        }
+        belongRepository.deleteByRunnerIdAndGroupId(groupUUID, runnerUUID);
     }
 
     //특정 러너가 속한 모든 그룹 가져오기
@@ -78,7 +107,7 @@ public class Version1BelongService implements BelongService{
     public List<GetGroupResponseDto> getAllGroupsRunnerJoin(String runnerId) {
         List<Belong> belongs = belongRepository.findByRunnerId(UUID.fromString(runnerId));
         return belongs.stream()
-                .map(belong -> new GetGroupResponseDto(belong.getGroup().getId().toString(), belong.getGroup().getName(), belong.getGroup().getDescription(), "test_image_link"))
+                .map(belong -> new GetGroupResponseDto(belong.getGroup().getId().toString(), belong.getGroup().getName(), belong.getGroup().getDescription(), aWSS3Service.getImagePresignedUrl("groups", belong.getGroup().getId().toString(), 0)))
                 .collect(Collectors.toList());
     }
 
@@ -87,24 +116,37 @@ public class Version1BelongService implements BelongService{
     public List<GetRunnerResponseDto> getAllRunnersInGroup(String groupId) {
         List<Belong> belongs = belongRepository.findByGroupId(UUID.fromString(groupId));
         return belongs.stream()
-                .map(belong -> new GetRunnerResponseDto(belong.getRunner().getId().toString(), belong.getRunner().getName(), "test_image_link"))
+                .map(belong -> new GetRunnerResponseDto(belong.getRunner().getId().toString(), belong.getRunner().getName(), aWSS3Service.getImagePresignedUrl("runners",belong.getRunner().getId().toString(), 0 )))
                 .collect(Collectors.toList());
     }
 
     //특정 그룹의 리더 변경하기
     @Override
-    public void changeLeader(ChangeLeaderRequestDto changeLeaderRequestDto) {
-        String beforeLeaderId = changeLeaderRequestDto.getBeforeLeaderRunnerId();
-        String afterLeaderId = changeLeaderRequestDto.getAfterLeaderRunnerId();
+    public ChangeLeaderResponseDto changeLeader(String oldLeaderRunnerId, ChangeLeaderRequestDto changeLeaderRequestDto) {
+        String newLeaderRunnerId = changeLeaderRequestDto.getNewLeaderRunnerId();
         String groupId = changeLeaderRequestDto.getGroupId();
 
+        //UUID 변환
+        UUID oldLeaderRunnerUUID = UUID.fromString(oldLeaderRunnerId);
+        UUID newLeaderRunnerUUID = UUID.fromString(newLeaderRunnerId);
+        UUID groupUUID = UUID.fromString(groupId);
+
         //이전 리더가 리더인지 확인
-        Optional<Belong> belong = belongRepository.findByRunnerIdAndGroupId(UUID.fromString(beforeLeaderId), UUID.fromString(groupId));
-        if(belong.isPresent() && !belong.get().isLeader()){
-            throw new IllegalStateException("리더가 아닙니다.");
+        Optional<Belong> belong = belongRepository.findByRunnerIdAndGroupId(oldLeaderRunnerUUID, groupUUID);
+        if (belong.isEmpty()) {
+            throw new UnauthorizedException("그룹에 속해있지 않습니다.");
+        }
+        if (!belong.get().isLeader()) {
+            throw new UnauthorizedException("리더가 아닙니다.");
         }
 
-        belongRepository.changeIsLeader(UUID.fromString(beforeLeaderId), UUID.fromString(groupId), false);
-        belongRepository.changeIsLeader(UUID.fromString(afterLeaderId), UUID.fromString(groupId), true);
+        belongRepository.changeIsLeader(oldLeaderRunnerUUID, UUID.fromString(groupId), false);
+        belongRepository.changeIsLeader(newLeaderRunnerUUID, UUID.fromString(groupId), true);
+
+        return new ChangeLeaderResponseDto(
+                oldLeaderRunnerId,
+                newLeaderRunnerId,
+                groupId
+        );
     }
 }

@@ -10,7 +10,7 @@ import java.util.UUID;
 public interface BelongRepository {
     Optional<Belong> findByRunnerIdAndGroupId(UUID runnerId, UUID groupId);
 
-    Optional<Object> findByGroupIdAndNickname(UUID groupId, String nickname);
+    Optional<Belong> findByGroupIdAndNickname(UUID groupId, String nickname);
 
     Belong save(Belong belong);
 

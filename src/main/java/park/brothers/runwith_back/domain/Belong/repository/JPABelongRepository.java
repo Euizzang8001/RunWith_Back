@@ -24,23 +24,24 @@ public class JPABelongRepository implements BelongRepository{
     //러너 id와 group id로 belong객체 찾기
     @Override
     public Optional<Belong> findByRunnerIdAndGroupId(UUID runnerId, UUID groupId) {
-         return Optional.ofNullable(em.createQuery("select b from Belong b where b.runner.id = :runnerId and b.group.id = :groupId", Belong.class)
-                 .setParameter("runnerId", runnerId)
-                 .setParameter("groupId", groupId)
-                 .getSingleResult());
+        return em.createQuery("select b from Belong b where b.runner.id = :runnerId and b.group.id = :groupId", Belong.class)
+                .setParameter("runnerId", runnerId)
+                .setParameter("groupId", groupId)
+                .getResultStream()
+                .findFirst();
     }
 
     //그룹id와 닉네임으로 객체 찾기
     @Override
-    public Optional<Object> findByGroupIdAndNickname(UUID groupId, String nickname) {
-        return Optional.ofNullable(
-                em.createQuery("select b from Belong b where b.group.id = :groupId and b.nickname = :nickname")
-                        .setParameter("groupId", groupId)
-                        .setParameter("nickname", nickname)
-                        .getSingleResultOrNull()
-        );
+    public Optional<Belong> findByGroupIdAndNickname(UUID groupId, String nickname) {
+        return em.createQuery("select b from Belong b where b.group.id = :groupId and b.nickname = :nickname", Belong.class)
+                .setParameter("groupId", groupId)
+                .setParameter("nickname", nickname)
+                .getResultStream()
+                .findFirst();
     }
 
+    //belong 저장
     @Override
     public Belong save(Belong belong) {
         em.persist(belong);
@@ -82,8 +83,9 @@ public class JPABelongRepository implements BelongRepository{
 
     @Override
     public Optional<Belong> findById(UUID id) {
-        return Optional.ofNullable(em.createQuery("select b from Belong b where b.id = :id", Belong.class)
+        return em.createQuery("select b from Belong b where b.id = :id", Belong.class)
                 .setParameter("id", id)
-                .getSingleResult());
+                .getResultStream()
+                .findFirst();
     }
 }
