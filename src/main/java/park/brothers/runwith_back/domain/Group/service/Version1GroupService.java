@@ -136,7 +136,7 @@ public class Version1GroupService implements GroupService {
         //그룹의 리더가 삭재하는 것이 아님
         Belong firstBelong = belongs.getFirst();
         if(!firstBelong.isLeader() || !firstBelong.getRunner().getId().equals(runner.get().getId())){
-            throw new IllegalArgumentException("리더만 삭제할 수 있습니다.");
+            throw new IllegalAccessError("리더만 삭제할 수 있습니다.");
         }
 
         belongRepository.deleteByRunnerIdAndGroupId(UUID.fromString(runnerId), UUID.fromString(groupId));
