@@ -11,11 +11,13 @@ import park.brothers.runwith_back.domain.Login.dto.Request.LoginRequestDto;
 import park.brothers.runwith_back.domain.Login.dto.Response.LoginResponseDto;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
+import park.brothers.runwith_back.external.AWS_S3.AWSS3Service;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 
@@ -26,6 +28,9 @@ class Version1LoginServiceTest {
 
     @Mock
     private RunnerRepository runnerRepository;
+
+    @Mock
+    private AWSS3Service awss3Service;
 
     @InjectMocks
     private Version1LoginService loginService;
@@ -50,11 +55,13 @@ class Version1LoginServiceTest {
 
         LoginResponseDto loginResponseDto =  new LoginResponseDto(
                 fakeRunnerUUID.toString(),
-                "test_name"
+                "test_name",
+                "test_imageLink"
         );
 
         //이메일로 찾을 시, 잘 찾아지는지 확인
         given(runnerRepository.findByEmail(anyString())).willReturn(Optional.of(runner));
+        given(awss3Service.getImagePresignedUrl(anyString(), anyString(), anyInt())).willReturn("test_imageLink");
 
         //then
         assertThat(loginService.login(loginRequestDto)).isEqualTo(loginResponseDto); //response가 잘 반환되는지 확인

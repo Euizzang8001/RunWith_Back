@@ -7,6 +7,7 @@ import park.brothers.runwith_back.domain.Login.dto.Request.LoginRequestDto;
 import park.brothers.runwith_back.domain.Login.dto.Response.LoginResponseDto;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
+import park.brothers.runwith_back.external.AWS_S3.AWSS3Service;
 
 import java.util.Optional;
 
@@ -15,6 +16,8 @@ import java.util.Optional;
 public class Version1LoginService implements LoginService {
 
     private final RunnerRepository runnerRepository;
+
+    private final AWSS3Service awss3Service;
 
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
         Optional<Runner> runner = runnerRepository.findByEmail(loginRequestDto.getLoginEmail())
@@ -26,7 +29,8 @@ public class Version1LoginService implements LoginService {
         }
         return new LoginResponseDto(
                 runner.get().getId().toString(),
-                runner.get().getName()
+                runner.get().getName(),
+                awss3Service.getImagePresignedUrl("runners", runner.get().getId().toString(), 0)
         );
     }
 
