@@ -54,7 +54,8 @@ class LoginControllerTest {
         UUID runnerUUID = UUID.randomUUID();
         LoginResponseDto loginResponseDto = new LoginResponseDto(
                 runnerUUID.toString(),
-                "test_runner"
+                "test_runner",
+                "test_imageLink"
         );
         //servive 가정 선언
         given(loginService.login(any(LoginRequestDto.class))).willReturn(loginResponseDto);

@@ -13,4 +13,6 @@ public class LoginResponseDto {
 
     @NotEmpty
     private String runnerName; //러너 이름
+
+    private String runnerImageLink; //러너 이미지 링크
 }
