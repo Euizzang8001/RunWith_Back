@@ -14,7 +14,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.multipart.MultipartFile;
 import park.brothers.runwith_back.domain.Group.dto.Request.CreateGroupRequestDto;
-import park.brothers.runwith_back.domain.Group.dto.Request.DeleteGroupRequestDto;
 import park.brothers.runwith_back.domain.Group.dto.Request.ReviseGroupRequestDto;
 import park.brothers.runwith_back.domain.Group.dto.Response.CreateGroupResponseDto;
 import park.brothers.runwith_back.domain.Group.dto.Response.GetGroupResponseDto;
