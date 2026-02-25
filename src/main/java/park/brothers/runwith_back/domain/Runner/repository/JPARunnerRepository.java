@@ -38,7 +38,7 @@ public class JPARunnerRepository implements RunnerRepository {
 
     //Id로 러너 찾기
     @Override
-    public Optional<Runner> findById(UUID id) {
+    public Optional<Runner> findById(String id) {
         return em.createQuery("select r from Runner r where r.id = :id", Runner.class)
                 .setParameter("id", id)
                 .getResultStream()

@@ -11,7 +11,7 @@ public interface RunnerRepository {
 
     Optional<Runner> findByEmail(String email);
 
-    Optional<Runner> findById(UUID id);
+    Optional<Runner> findById(String id);
 
     Optional<Runner> findByName(@NotEmpty String name);
 
