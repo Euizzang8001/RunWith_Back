@@ -21,7 +21,7 @@ public class SecurityConfig {
     private final FirebaseAuthenticationFilter firebaseAuthenticationFilter;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) {
         http
                 //토큰 기반으로 인증할 것임으로 세션 기능은 끄기
                 .csrf(AbstractHttpConfigurer::disable) // REST API이므로 CSRF 보안 비활성화
