@@ -14,6 +14,7 @@ import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
 import park.brothers.runwith_back.external.AWS_S3.AWSS3Service;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,16 +27,13 @@ public class Version1RunnerService implements RunnerService {
     private final AWSS3Service awss3Service;
 
     @Override
-    public CreateRunnerResponseDto save(CreateRunnerRequestDto createRunnerRequestDto, MultipartFile image) throws IllegalAccessError, IOException {
+    public CreateRunnerResponseDto save(String runnerId, CreateRunnerRequestDto createRunnerRequestDto, MultipartFile image) throws IllegalAccessError, IOException {
         //러너 생성
         Runner runner = new Runner();
         //중복 확인
-        if(runnerRepository.findByName(createRunnerRequestDto.getRunnerEmail()).isPresent()){
-            throw new IllegalAccessError("이미 존재하는 이름입니다.");
-        }
+        runner.setId(runnerId);
         runner.setName(createRunnerRequestDto.getRunnerName());
-        runner.setPassword(createRunnerRequestDto.getRunnerPassword());
-        runner.setEmail(createRunnerRequestDto.getRunnerEmail());
+
 
         Runner savedRunner = runnerRepository.save(runner);
 
@@ -57,20 +55,13 @@ public class Version1RunnerService implements RunnerService {
 
         //이미지가 존재하면 저장하고 presignedurl받기 / 없으면 null return
         String presignedImageUrl = (image != null && !image.isEmpty())
-                ? awss3Service.putImageToAWSS3(image, "runners", runner.getId(), 0)
+                ? awss3Service.putImageToAWSS3(image, "runners", runnerId, 0)
                 : null;
 
         //리턴해줄 값
         return new CreateRunnerResponseDto(
-                savedRunner.getId().toString(),
                 savedRunner.getName(),
-                savedRunner.getEmail(),
                 presignedImageUrl
         );
-    }
-
-    @Override
-    public Boolean checkDuplication(CreateRunnerRequestDto createRunnerRequestDto) {
-        return runnerRepository.checkDuplication(createRunnerRequestDto.getRunnerName(), createRunnerRequestDto.getRunnerEmail());
     }
 }
