@@ -136,7 +136,7 @@ public class Version1GroupService implements GroupService {
             throw new IllegalAccessError("리더만 삭제할 수 있습니다.");
         }
 
-        belongRepository.deleteByRunnerIdAndGroupId(UUID.fromString(runnerId), UUID.fromString(groupId));
+        belongRepository.deleteByRunnerIdAndGroupId(runnerId, UUID.fromString(groupId));
         groupRepository.delete(group.get());
     }
 
@@ -155,7 +155,7 @@ public class Version1GroupService implements GroupService {
             throw new IllegalAccessError("존재하지 않는 러너입니다.");
         }
 
-        Optional<Belong> belong = belongRepository.findByRunnerIdAndGroupId(UUID.fromString(runnerId), UUID.fromString(groupId));
+        Optional<Belong> belong = belongRepository.findByRunnerIdAndGroupId(runnerId, UUID.fromString(groupId));
 
         //그룹에 속하지 않으면 에러
         if(belong.isEmpty()){
