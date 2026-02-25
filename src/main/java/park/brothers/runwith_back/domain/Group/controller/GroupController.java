@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,7 +15,6 @@ import park.brothers.runwith_back.domain.Group.dto.Request.CreateGroupRequestDto
 import park.brothers.runwith_back.domain.Group.dto.Request.ReviseGroupRequestDto;
 import park.brothers.runwith_back.domain.Group.dto.Response.CreateGroupResponseDto;
 import park.brothers.runwith_back.domain.Group.dto.Response.GetGroupResponseDto;
-import park.brothers.runwith_back.domain.Group.dto.Request.DeleteGroupRequestDto;
 import park.brothers.runwith_back.domain.Group.dto.Response.ReviseGroupResponseDto;
 import park.brothers.runwith_back.domain.Group.service.GroupService;
 import park.brothers.runwith_back.common.Response.ValidationErrorUtils;
@@ -33,6 +33,7 @@ public class GroupController {
     //그룹 생성 api
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Object> save(
+            @AuthenticationPrincipal String runnerId,
             @RequestPart(value = "request") @Valid CreateGroupRequestDto createGroupRequestDto,
             BindingResult bindingResult,
             @RequestPart(value = "image", required = false)MultipartFile image
@@ -41,7 +42,7 @@ public class GroupController {
             return ValidationErrorUtils.handleValidationErrors(bindingResult);
         }
 
-        CreateGroupResponseDto createGroupResponseDto = groupService.save(createGroupRequestDto, image);
+        CreateGroupResponseDto createGroupResponseDto = groupService.save(runnerId, createGroupRequestDto, image);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createGroupResponseDto);
     }
@@ -63,20 +64,17 @@ public class GroupController {
     //그룹 삭제하기
     @DeleteMapping("/groupId={groupId}")
     public ResponseEntity<Object> deleteGroup(
-            @PathVariable @Valid String groupId,
-            @RequestBody @Valid DeleteGroupRequestDto deleteGroupRequestDto,
-            BindingResult bindingResult
+            @AuthenticationPrincipal String runnerId,
+            @PathVariable @Valid String groupId
     ) {
-        if(bindingResult.hasErrors()){
-            return ValidationErrorUtils.handleValidationErrors(bindingResult);
-        }
-        groupService.delete(groupId, deleteGroupRequestDto);
+        groupService.delete(runnerId, groupId);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonMessage("그룹이 성공적으로 삭제되었습니다."));
     }
 
     //그룹 수정하기
     @PostMapping(value = {"/groupId={groupId}"}, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Object> reviseGroupInfo(
+            @AuthenticationPrincipal String runnerId,
             @PathVariable @Valid String groupId,
             @RequestPart(value = "request") @Valid ReviseGroupRequestDto reviseGroupRequestDto,
             BindingResult bindingResult,
@@ -85,7 +83,7 @@ public class GroupController {
         if(bindingResult.hasErrors()){
             return ValidationErrorUtils.handleValidationErrors(bindingResult);
         }
-        ReviseGroupResponseDto reviseGroupResponseDto = groupService.reviseGroup(groupId, reviseGroupRequestDto, image);
+        ReviseGroupResponseDto reviseGroupResponseDto = groupService.reviseGroup(runnerId, groupId, reviseGroupRequestDto, image);
 
         return ResponseEntity.status(HttpStatus.OK).body(reviseGroupResponseDto);
     }

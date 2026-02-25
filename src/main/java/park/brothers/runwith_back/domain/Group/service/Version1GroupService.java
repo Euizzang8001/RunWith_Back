@@ -9,7 +9,6 @@ import park.brothers.runwith_back.domain.Group.dto.Request.CreateGroupRequestDto
 import park.brothers.runwith_back.domain.Group.dto.Request.ReviseGroupRequestDto;
 import park.brothers.runwith_back.domain.Group.dto.Response.CreateGroupResponseDto;
 import park.brothers.runwith_back.domain.Group.dto.Response.GetGroupResponseDto;
-import park.brothers.runwith_back.domain.Group.dto.Request.DeleteGroupRequestDto;
 import park.brothers.runwith_back.domain.Group.dto.Response.ReviseGroupResponseDto;
 import park.brothers.runwith_back.domain.Group.entity.Group;
 import park.brothers.runwith_back.domain.Group.repository.GroupRepository;
@@ -33,7 +32,7 @@ public class Version1GroupService implements GroupService {
     private final AWSS3Service awss3Service;
 
     @Override
-    public CreateGroupResponseDto save(CreateGroupRequestDto createGroupRequestDto, MultipartFile image) throws IllegalAccessError, IOException {
+    public CreateGroupResponseDto save(String runnerId, CreateGroupRequestDto createGroupRequestDto, MultipartFile image) throws IllegalAccessError, IOException {
         //이미 존재하는 그룹 이름인지 확인하기
         Optional<Group> existGroup = groupRepository.findByName(createGroupRequestDto.getGroupName());
         if(existGroup.isPresent()){
@@ -41,7 +40,7 @@ public class Version1GroupService implements GroupService {
         }
 
         //저장하려는 러너가 존재하는지 확인
-        Optional<Runner> runner = runnerRepository.findById(UUID.fromString(createGroupRequestDto.getRunnerId()));
+        Optional<Runner> runner = runnerRepository.findById(runnerId);
 
         if(runner.isEmpty()){
             throw new IllegalAccessError("존재하지 않은 러너입니다.");
@@ -65,7 +64,7 @@ public class Version1GroupService implements GroupService {
 
          //이미지가 존재하면 저장하고 presignedurl 받기, 없으면 null return
          String presignedImageUrl = (image != null && !image.isEmpty())
-                 ? awss3Service.putImageToAWSS3(image, "groups", group.getId(), 0)
+                 ? awss3Service.putImageToAWSS3(image, "groups", group.getId().toString(), 0)
                  : null;
 
          return new CreateGroupResponseDto(
@@ -109,10 +108,8 @@ public class Version1GroupService implements GroupService {
 
 
     @Override
-    public void delete(String groupId, DeleteGroupRequestDto deleteGroupRequestDto) {
+    public void delete(String runnerId, String groupId) {
         UUID groupUUID = UUID.fromString(groupId);
-        String runnerId = deleteGroupRequestDto.getRunnerId();
-        UUID runnerUUID = UUID.fromString(runnerId);
 
         Optional<Group> group = groupRepository.findById(groupUUID);
         //group이 없으면 에러
@@ -120,7 +117,7 @@ public class Version1GroupService implements GroupService {
             throw new IllegalAccessError("존재하지 않는 그룹입니다.");
         }
 
-        Optional<Runner> runner = runnerRepository.findById(runnerUUID);
+        Optional<Runner> runner = runnerRepository.findById(runnerId);
 
         //runner가 없으면 에러
         if(runner.isEmpty()){
@@ -145,9 +142,7 @@ public class Version1GroupService implements GroupService {
 
     //그룹 정보 수정
     @Override
-    public ReviseGroupResponseDto reviseGroup(String groupId, ReviseGroupRequestDto reviseGroupRequestDto, MultipartFile image) throws IllegalAccessError, IOException {
-        String runnerId = reviseGroupRequestDto.getRunnerId();
-
+    public ReviseGroupResponseDto reviseGroup(String runnerId, String groupId, ReviseGroupRequestDto reviseGroupRequestDto, MultipartFile image) throws IllegalAccessError, IOException {
         Optional<Group> group = groupRepository.findById(UUID.fromString(groupId));
         //그룹이 없으면 에러
         if(group.isEmpty()){
@@ -155,7 +150,7 @@ public class Version1GroupService implements GroupService {
         }
 
         //러너가 없으면 에러
-        Optional<Runner> runner = runnerRepository.findById(UUID.fromString(runnerId));
+        Optional<Runner> runner = runnerRepository.findById(runnerId);
         if(runner.isEmpty()){
             throw new IllegalAccessError("존재하지 않는 러너입니다.");
         }
@@ -179,7 +174,7 @@ public class Version1GroupService implements GroupService {
         }
 
         String presignedImageUrl = (image != null && !image.isEmpty())
-                ? awss3Service.putImageToAWSS3(image, "groups", UUID.fromString(groupId), 0)
+                ? awss3Service.putImageToAWSS3(image, "groups", groupId, 0)
                 : awss3Service.getImagePresignedUrl("groups", groupId, 0);
 
         return new ReviseGroupResponseDto(
