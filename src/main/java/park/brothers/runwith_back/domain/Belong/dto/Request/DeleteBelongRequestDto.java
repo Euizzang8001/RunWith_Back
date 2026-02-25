@@ -9,9 +9,6 @@ import lombok.Data;
 public class DeleteBelongRequestDto {
 
     @NotEmpty
-    private String runnerId;
-
-    @NotEmpty
     private String groupId;
 }
 

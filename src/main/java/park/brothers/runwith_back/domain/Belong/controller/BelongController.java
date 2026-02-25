@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import park.brothers.runwith_back.common.CommonMessage;
@@ -31,28 +32,26 @@ public class BelongController {
 
     //그룹 참여 api(belong 생성)
     @PostMapping
-    public ResponseEntity<Object> save(@RequestBody @Valid CreateBelongRequestDto createBelongRequestDto, BindingResult bindingResult){
+    public ResponseEntity<Object> save(
+            @AuthenticationPrincipal String runnerId,
+            @RequestBody @Valid CreateBelongRequestDto createBelongRequestDto,
+            BindingResult bindingResult){
         if(bindingResult.hasErrors()){
             return ValidationErrorUtils.handleValidationErrors(bindingResult);
         }
 
-        CreateBelongResponseDto createBelongResponseDto = belongService.joinGroup(createBelongRequestDto);
+        CreateBelongResponseDto createBelongResponseDto = belongService.joinGroup(runnerId, createBelongRequestDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createBelongResponseDto);
     }
 
     //그룹 탈퇴 api
-    @DeleteMapping("/{belongId}")
+    @DeleteMapping("/{groupId}")
     public ResponseEntity<Object> leave(
-            @PathVariable @Valid String belongId,
-            @RequestBody @Valid DeleteBelongRequestDto deleteBelongRequestDto,
-            BindingResult bindingResult
+            @AuthenticationPrincipal String runnerId,
+            @PathVariable @Valid String groupId
     ){
-        if(bindingResult.hasErrors()){
-            return ValidationErrorUtils.handleValidationErrors(bindingResult);
-        }
-
-        belongService.leaveGroup(belongId, deleteBelongRequestDto);
+        belongService.leaveGroup(runnerId, groupId);
 
         return ResponseEntity.status(HttpStatus.OK).body(new CommonMessage("그룹에서 성공적으로 탈퇴되었습니다."));
     }
@@ -72,18 +71,18 @@ public class BelongController {
     }
 
     //그룹의 리더 변경 api
-    @PatchMapping("/leader/{oldLeaderRunnerId}")
+    @PatchMapping("/leader")
     public ResponseEntity<Object> changeLeader(
-            @PathVariable @Valid String oldLeaderRunnerId,
+            @AuthenticationPrincipal String oldLeaderRunnerId,
             @RequestBody @Valid ChangeLeaderRequestDto changeLeaderRequestDto,
             BindingResult bindingResult){
         if(bindingResult.hasErrors()){
             return ValidationErrorUtils.handleValidationErrors(bindingResult);
         }
 
-        ChangeLeaderResponseDto changeLeaderResponseDto = belongService.changeLeader(oldLeaderRunnerId, changeLeaderRequestDto);
+        belongService.changeLeader(oldLeaderRunnerId, changeLeaderRequestDto);
 
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(changeLeaderResponseDto);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new CommonMessage("해당 그룹의 리더가 성공적으로 변경되었습니다."));
     }
 
 
