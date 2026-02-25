@@ -38,3 +38,6 @@ out/
 
 ### env ###
 .env
+
+### Firebase Key ###
+src/main/resources/firebaseKey.json
