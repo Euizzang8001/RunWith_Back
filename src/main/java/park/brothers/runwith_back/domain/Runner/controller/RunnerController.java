@@ -41,4 +41,17 @@ public class RunnerController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createRunnerResponseDto);
     }
+
+    //토큰으로 이미 유저가 존재하는지 확인하는 api
+    @GetMapping
+    public ResponseEntity<Object> isSavedRunner(
+            @AuthenticationPrincipal @Valid String runnerId
+    ){
+        Boolean isSavedRunner = runnerService.isSavedRunner(runnerId);
+        if(isSavedRunner){
+            return ResponseEntity.status(HttpStatus.FOUND).body(new CommonMessage("존재하는 러너입니다."));
+        } else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new CommonMessage("존재하지 않는 러너입니다."));
+        }
+    }
 }

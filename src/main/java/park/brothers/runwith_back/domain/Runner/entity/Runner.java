@@ -3,10 +3,10 @@ package park.brothers.runwith_back.domain.Runner.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -18,7 +18,7 @@ public class Runner {
     @Column(updatable = false, nullable = false)
     private String id;
 
-    @Column(nullable = false)
+    @ColumnDefault("이름을 설정해주세요.")
     private String name;
 
     @CreationTimestamp //data insert 시 자동 현재 시간 대입
