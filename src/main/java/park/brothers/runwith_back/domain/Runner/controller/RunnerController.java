@@ -43,7 +43,7 @@ public class RunnerController {
     }
 
     //토큰으로 이미 유저가 존재하는지 확인하는 api
-    @GetMapping
+    @GetMapping("/exist")
     public ResponseEntity<Object> isSavedRunner(
             @AuthenticationPrincipal @Valid String runnerId
     ){
