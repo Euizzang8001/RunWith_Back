@@ -14,7 +14,6 @@ import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
 import park.brothers.runwith_back.external.AWS_S3.AWSS3Service;
 
 import java.io.IOException;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -63,5 +62,11 @@ public class Version1RunnerService implements RunnerService {
                 savedRunner.getName(),
                 presignedImageUrl
         );
+    }
+
+    //이미 저장된 러너인지 확인
+    @Override
+    public Boolean isSavedRunner(String runnerId){
+        return runnerRepository.findById(runnerId).isPresent();
     }
 }
