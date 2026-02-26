@@ -18,7 +18,7 @@ public class Runner {
     @Column(updatable = false, nullable = false)
     private String id;
 
-    @ColumnDefault("이름을 설정해주세요.")
+    @ColumnDefault("'이름을 설정해주세요.'")
     private String name;
 
     @CreationTimestamp //data insert 시 자동 현재 시간 대입
