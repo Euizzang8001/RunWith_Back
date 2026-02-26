@@ -25,9 +25,8 @@ class JPARunnerRepositoryTest {
         //given
         //러너 객체 생성
         Runner runner = new Runner();
+        runner.setId("test_runner");
         runner.setName("test_name");
-        runner.setEmail("test_email");
-        runner.setPassword("test_password");
         runner.setCreatedAt(LocalDateTime.now());
 
         //when
@@ -35,33 +34,10 @@ class JPARunnerRepositoryTest {
 
         //then
         // 저장된 러너는 id와 createdAt이 있어야 함.
-        assertThat(savedRunner.getId()).isNotNull();
+        assertThat(savedRunner.getId()).isEqualTo(runner.getId());
         assertThat(savedRunner.getCreatedAt()).isNotNull();
         // 입력한 Runner와 같은 값을 가져야 함.
         assertThat(savedRunner.getName()).isEqualTo(runner.getName());
-        assertThat(savedRunner.getEmail()).isEqualTo(runner.getEmail());
-        assertThat(savedRunner.getPassword()).isEqualTo(runner.getPassword());
-    }
-
-    @Test
-    @DisplayName("이메일로 러너 찾기 레퍼지토리 성공 테스트")
-    void findByEmail() {
-        //given
-        //러너 객체 저장
-        Runner runner = new Runner();
-        runner.setEmail("test_email");
-        runner.setPassword("test_password");
-        runner.setName("test_name");
-        runnerRepository.save(runner);
-
-        //when
-        //이메일로 러너 찾기
-        Optional<Runner> foundRunner = runnerRepository.findByEmail("test_email");
-
-        //then
-        //이메일로 찾았을 때, 러너는 반드시 존재해야 하고, 이메일이 저장하려는 러너와 동일해야 한다.
-        assertThat(foundRunner.isPresent()).isTrue();
-        assertThat(foundRunner.get().getEmail()).isEqualTo(runner.getEmail());
     }
 
     @Test
@@ -70,8 +46,7 @@ class JPARunnerRepositoryTest {
         //given
         //러너 객체 저장
         Runner runner = new Runner();
-        runner.setEmail("test_email");
-        runner.setPassword("test_password");
+        runner.setId("test_runner");
         runner.setName("test_name");
         Runner savedRunner = runnerRepository.save(runner);
 
@@ -91,8 +66,7 @@ class JPARunnerRepositoryTest {
         //given
         //러너 객체 저장
         Runner runner = new Runner();
-        runner.setEmail("test_email");
-        runner.setPassword("test_password");
+        runner.setId("test_runner");
         runner.setName("test_name");
         runnerRepository.save(runner);
 
@@ -104,22 +78,5 @@ class JPARunnerRepositoryTest {
         //이름으로 찾았을 때, 러너는 반드시 존재해야 하고, 이름이 저장하려는 러너와 동일해야 한다.
         assertThat(foundRunner.isPresent()).isTrue();
         assertThat(foundRunner.get().getName()).isEqualTo(runner.getName());
-    }
-
-    @Test
-    @DisplayName("러너 이름 중복 성공 레퍼지토리 성공 테스트")
-    void checkDuplication() {
-        //러너 객체 저장
-        Runner runner = new Runner();
-        runner.setEmail("test_email");
-        runner.setPassword("test_password");
-        runner.setName("test_name");
-        runnerRepository.save(runner);
-
-        //when & then
-        assertThat(runnerRepository.checkDuplication(runner.getName(), runner.getEmail())).isTrue();
-        assertThat(runnerRepository.checkDuplication(runner.getName(), "test_not_exist_email")).isTrue();
-        assertThat(runnerRepository.checkDuplication("test_not_exist_name", runner.getEmail())).isTrue();
-        assertThat(runnerRepository.checkDuplication("test_not_exist_name", "test_not_exist_email")).isFalse();
     }
 }

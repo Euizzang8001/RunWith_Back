@@ -8,10 +8,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.multipart.MultipartFile;
 import park.brothers.runwith_back.domain.Group.dto.Request.CreateGroupRequestDto;
 import park.brothers.runwith_back.domain.Group.dto.Request.ReviseGroupRequestDto;
@@ -27,6 +33,7 @@ import java.util.UUID;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,8 +55,19 @@ class GroupControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(groupController) //스프링 컨텍스트 없이 테스트 수행
-                .alwaysDo(print()) // 모든 요청에 대해 로그 출력
+        mockMvc = MockMvcBuilders.standaloneSetup(groupController)
+                .setCustomArgumentResolvers(new HandlerMethodArgumentResolver() {
+                    @Override
+                    public boolean supportsParameter(@NonNull MethodParameter parameter) {
+                        return parameter.hasParameterAnnotation(AuthenticationPrincipal.class);
+                    }
+
+                    @Override
+                    public Object resolveArgument(@NonNull MethodParameter parameter, ModelAndViewContainer mavContainer, @NonNull NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+                        return "test_runner_uid";
+                    }
+                })
+                .alwaysDo(print())
                 .build();
     }
 
@@ -61,7 +79,6 @@ class GroupControllerTest {
         String groupId = UUID.randomUUID().toString();
         CreateGroupRequestDto createGroupRequestDto = new CreateGroupRequestDto(
             "test_name",
-                groupId,
                 "test_nickname",
                 0,
                 "test_description"
@@ -75,7 +92,7 @@ class GroupControllerTest {
         );
 
         //가정 설정
-        given(groupService.save(any(CreateGroupRequestDto.class), any(MultipartFile.class))).willReturn(createGroupResponseDto);
+        given(groupService.save(anyString(), any(CreateGroupRequestDto.class), any(MultipartFile.class))).willReturn(createGroupResponseDto);
 
         //when & then
         String content = new ObjectMapper().writeValueAsString(createGroupRequestDto);
@@ -97,7 +114,8 @@ class GroupControllerTest {
                         .file(requestPart) //JSON데이터 추가
                         .file(imagePart)   //image데이터 추가
                         .contentType(MediaType.MULTIPART_FORM_DATA) // 전체 Content-Type
-                        .accept(MediaType.APPLICATION_JSON)) // JSON 응답을 기대함
+                        .accept(MediaType.APPLICATION_JSON) // JSON 응답을 기대함
+                        .with(csrf()))
                 .andExpect(status().isCreated()) //
                 .andExpect(jsonPath("$.groupId").value(groupId)) // groupId 확인
                 .andExpect(jsonPath("$.groupName").value("test_name")) // 이름 확인
@@ -156,21 +174,13 @@ class GroupControllerTest {
     @DisplayName("그룹 삭제 성공 테스트")
     void deleteGroup() throws Exception {
         UUID groupUUID = UUID.randomUUID();
-        UUID runnerUUID = UUID.randomUUID();
         String groupStrId = groupUUID.toString();
-        String runnerStrId = runnerUUID.toString();
-        //given
-        DeleteGroupRequestDto deleteGroupRequestDto = new DeleteGroupRequestDto(
-                runnerStrId
-        );
+
 
         //when & then
         //JSON형식의 문자열로 반환
-        String content = new ObjectMapper().writeValueAsString(deleteGroupRequestDto);
-
         mockMvc.perform(delete("/api/v1/groups/groupId={groupId}", groupStrId) // DELETE 요청 URL
-                        .contentType(MediaType.APPLICATION_JSON) // 요청 타입 확인
-                        .content(content)) // Body에 JSON 문자열 담기
+                        .contentType(MediaType.APPLICATION_JSON)) // Body에 JSON 문자열 담기
                 .andExpect(status().isOk()) //
                 .andExpect(jsonPath("$.message").value("그룹이 성공적으로 삭제되었습니다."));
     }
@@ -181,7 +191,6 @@ class GroupControllerTest {
         String groupId = UUID.randomUUID().toString();
         String runnerId = UUID.randomUUID().toString();
         ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
-                runnerId,
                 0,
                 "test_description"
         );
@@ -193,7 +202,7 @@ class GroupControllerTest {
                 0
         );
 
-        given(groupService.reviseGroup(anyString(), any(ReviseGroupRequestDto.class), any(MultipartFile.class))).willReturn(reviseGroupResponseDto);
+        given(groupService.reviseGroup(anyString(), anyString(), any(ReviseGroupRequestDto.class), any(MultipartFile.class))).willReturn(reviseGroupResponseDto);
 
         //when & then
         //JSON형식의 문자열로 반환
@@ -218,7 +227,8 @@ class GroupControllerTest {
                         .file(requestPart) //JSON데이터 추가
                         .file(imagePart)   //image데이터 추가
                         .contentType(MediaType.MULTIPART_FORM_DATA) // 전체 Content-Type
-                        .accept(MediaType.APPLICATION_JSON)) // JSON 응답을 기대함
+                        .accept(MediaType.APPLICATION_JSON) // JSON 응답을 기대함
+                        .with(csrf()))
                 .andExpect(status().isOk()) //
                 .andExpect(jsonPath("$.groupId").value(groupId))
                 .andExpect(jsonPath("$.groupName").value("test_revised_name"))

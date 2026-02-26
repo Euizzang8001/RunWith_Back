@@ -10,7 +10,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
 import park.brothers.runwith_back.domain.Belong.repository.BelongRepository;
 import park.brothers.runwith_back.domain.Group.dto.Request.CreateGroupRequestDto;
-import park.brothers.runwith_back.domain.Group.dto.Request.DeleteGroupRequestDto;
 import park.brothers.runwith_back.domain.Group.dto.Request.ReviseGroupRequestDto;
 import park.brothers.runwith_back.domain.Group.dto.Response.CreateGroupResponseDto;
 import park.brothers.runwith_back.domain.Group.dto.Response.GetGroupResponseDto;
@@ -57,7 +56,6 @@ class Version1GroupServiceTest {
         //given
         CreateGroupRequestDto createGroupRequestDto = new CreateGroupRequestDto(
                 "test_name",
-                UUID.randomUUID().toString(),
                 "test_nickname",
                 0,
                 "test_description"
@@ -65,15 +63,13 @@ class Version1GroupServiceTest {
 
         //레퍼지토리에서 반환할 러너
         Runner runner = new Runner();
-        runner.setId(UUID.randomUUID());
+        runner.setId("test_runner");
         runner.setName("test_runner_name");
-        runner.setPassword("test_runner_password");
-        runner.setEmail("test_runner_email");
-        runner.setImageLink("test_runner_imageLink");
 
         //레퍼지토리에서 반환할 그룹
         Group group = new Group();
-        group.setId(UUID.randomUUID());
+        UUID groupId = UUID.randomUUID();
+        group.setId(groupId);
         group.setName("test_name");
         group.setDescription("test_description");
         group.setCertificationCriteria(0);
@@ -84,7 +80,7 @@ class Version1GroupServiceTest {
         );
 
         //레퍼지토리 부분 가정
-        given(runnerRepository.findById(any(UUID.class))).willReturn(Optional.of(runner));
+        given(runnerRepository.findById(anyString())).willReturn(Optional.of(runner));
         given(groupRepository.findByName(anyString())).willReturn(Optional.empty());
         given(groupRepository.save(any(Group.class))).willReturn(group);
 
@@ -92,7 +88,7 @@ class Version1GroupServiceTest {
         given(awss3Service.putImageToAWSS3(any(), anyString(), any(), anyInt())).willReturn("test_imageLink");
 
         //when
-        CreateGroupResponseDto fakeResponse = groupService.save(createGroupRequestDto, dummyImage);
+        CreateGroupResponseDto fakeResponse = groupService.save("test_runner", createGroupRequestDto, dummyImage);
         //then
         assertThat(fakeResponse).isNotNull(); //응답값은 null이면 안됨
         //응답값은 아래 값들을 가져야만 한다.
@@ -101,7 +97,7 @@ class Version1GroupServiceTest {
         assertThat(fakeResponse.getGroupImageLink()).isEqualTo("test_imageLink");
         assertThat(fakeResponse.getGroupCertificationCriteria()).isEqualTo(0);
         //repository.save() 코드들은 1번식만 실행되어야 한다.
-        verify(runnerRepository, times(1)).findById(any(UUID.class));
+        verify(runnerRepository, times(1)).findById(anyString());
         verify(groupRepository, times(1)).findByName(anyString());
         verify(groupRepository, times(1)).save(any(Group.class));
         verify(belongRepository, times(1)).save(any(Belong.class));
@@ -114,7 +110,6 @@ class Version1GroupServiceTest {
         //given
         CreateGroupRequestDto createGroupRequestDto = new CreateGroupRequestDto(
                 "test_name",
-                UUID.randomUUID().toString(),
                 "test_nickname",
                 0,
                 "test_description"
@@ -134,11 +129,11 @@ class Version1GroupServiceTest {
                 "image", "test.jpg", "image/jpeg", "dummy_data".getBytes()
         );
         //when & then
-        assertThrows(IllegalAccessError.class, () -> groupService.save(createGroupRequestDto, dummyImage));
+        assertThrows(IllegalAccessError.class, () -> groupService.save(anyString(), createGroupRequestDto, dummyImage));
 
         //repository.save() 코드들은 1번식만 실행되어야 한다.
         verify(groupRepository, times(1)).findByName(anyString());
-        verify(runnerRepository, times(0)).findById(any(UUID.class));
+        verify(runnerRepository, times(0)).findById(anyString());
         verify(groupRepository, times(0)).save(any(Group.class));
         verify(belongRepository, times(0)).save(any(Belong.class));
 
@@ -151,7 +146,6 @@ class Version1GroupServiceTest {
         //given
         CreateGroupRequestDto createGroupRequestDto = new CreateGroupRequestDto(
                 "test_name",
-                UUID.randomUUID().toString(),
                 "test_nickname",
                 0,
                 "test_description"
@@ -163,15 +157,15 @@ class Version1GroupServiceTest {
                 "image", "test.jpg", "image/jpeg", "dummy_data".getBytes()
         );
         //없는 러너라고 나타나야 한다.
-        given(runnerRepository.findById(any(UUID.class))).willReturn(Optional.empty());
+        given(runnerRepository.findById(anyString())).willReturn(Optional.empty());
 
 
         //when & then
-        assertThrows(IllegalAccessError.class, () -> groupService.save(createGroupRequestDto, dummyImage));
+        assertThrows(IllegalAccessError.class, () -> groupService.save(anyString(), createGroupRequestDto, dummyImage));
 
         //repository.save() 코드들은 1번식만 실행되어야 한다.
         verify(groupRepository, times(1)).findByName(anyString());
-        verify(runnerRepository, times(1)).findById(any(UUID.class));
+        verify(runnerRepository, times(1)).findById(anyString());
         verify(groupRepository, times(0)).save(any(Group.class));
         verify(belongRepository, times(0)).save(any(Belong.class));
     }
@@ -240,17 +234,14 @@ class Version1GroupServiceTest {
         //given
         //request 설정
         String groupId = UUID.randomUUID().toString();
-        String runnerId = UUID.randomUUID().toString();
-        DeleteGroupRequestDto deleteGroupRequestDto = new DeleteGroupRequestDto(
-                runnerId
-        );
+        String runnerId = "test_runner";
         Group group = new Group();
         group.setId(UUID.fromString(groupId));
         given(groupRepository.findById(any(UUID.class))).willReturn(Optional.of(group));
 
         Runner runner = new Runner();
-        runner.setId(UUID.fromString(runnerId));
-        given(runnerRepository.findById(any(UUID.class))).willReturn(Optional.of(runner));
+        runner.setId(runnerId);
+        given(runnerRepository.findById(anyString())).willReturn(Optional.of(runner));
 
         Belong belong = new Belong();
         belong.setRunner(runner);
@@ -260,13 +251,13 @@ class Version1GroupServiceTest {
         given(belongRepository.findByGroupId(any(UUID.class))).willReturn(List.of(belong));
 
         //when
-        groupService.delete(groupId, deleteGroupRequestDto);
+        groupService.delete(runnerId, groupId);
 
         //then
         verify(groupRepository, times(1)).findById(any(UUID.class));
-        verify(runnerRepository, times(1)).findById(any(UUID.class));
+        verify(runnerRepository, times(1)).findById(anyString());
         verify(belongRepository, times(1)).findByGroupId(any(UUID.class));
-        verify(belongRepository, times(1)).deleteByRunnerIdAndGroupId(any(UUID.class), any(UUID.class));
+        verify(belongRepository, times(1)).deleteByRunnerIdAndGroupId(anyString(), any(UUID.class));
         verify(groupRepository, times(1)).delete(any(Group.class));
     }
 
@@ -275,19 +266,17 @@ class Version1GroupServiceTest {
     void deleteFailByNotExistGroup(){
         //given
         String groupId = UUID.randomUUID().toString();
-        String runnerId = UUID.randomUUID().toString();
-        DeleteGroupRequestDto deleteGroupRequestDto = new DeleteGroupRequestDto(
-                runnerId
-        );
+        String runnerId = "test_runner";
+
         given(groupRepository.findById(any(UUID.class))).willReturn(Optional.empty());
 
         //when & then
-        assertThrows(IllegalAccessError.class, () -> groupService.delete(groupId, deleteGroupRequestDto));
+        assertThrows(IllegalAccessError.class, () -> groupService.delete(runnerId, groupId));
 
         verify(groupRepository, times(1)).findById(any(UUID.class));
-        verify(runnerRepository, times(0)).findById(any(UUID.class));
+        verify(runnerRepository, times(0)).findById(anyString());
         verify(belongRepository, times(0)).findByGroupId(any(UUID.class));
-        verify(belongRepository, times(0)).deleteByRunnerIdAndGroupId(any(UUID.class), any(UUID.class));
+        verify(belongRepository, times(0)).deleteByRunnerIdAndGroupId(anyString(), any(UUID.class));
         verify(groupRepository, times(0)).delete(any(Group.class));
     }
 
@@ -296,24 +285,21 @@ class Version1GroupServiceTest {
     void deleteFailByNotExistRunner(){
         //given
         String groupId = UUID.randomUUID().toString();
-        String runnerId = UUID.randomUUID().toString();
-        DeleteGroupRequestDto deleteGroupRequestDto = new DeleteGroupRequestDto(
-                runnerId
-        );
+        String runnerId = "test_runner";
         Group group = new Group();
         group.setId(UUID.fromString(groupId));
         given(groupRepository.findById(any(UUID.class))).willReturn(Optional.of(group));
 
-        given(runnerRepository.findById(any(UUID.class))).willReturn(Optional.empty());
+        given(runnerRepository.findById(anyString())).willReturn(Optional.empty());
 
         //when & then
-        assertThrows(IllegalAccessError.class, () -> groupService.delete(groupId, deleteGroupRequestDto));
+        assertThrows(IllegalAccessError.class, () -> groupService.delete(runnerId, groupId));
 
         //then
         verify(groupRepository, times(1)).findById(any(UUID.class));
-        verify(runnerRepository, times(1)).findById(any(UUID.class));
+        verify(runnerRepository, times(1)).findById(anyString());
         verify(belongRepository, times(0)).findByGroupId(any(UUID.class));
-        verify(belongRepository, times(0)).deleteByRunnerIdAndGroupId(any(UUID.class), any(UUID.class));
+        verify(belongRepository, times(0)).deleteByRunnerIdAndGroupId(anyString(), any(UUID.class));
         verify(groupRepository, times(0)).delete(any(Group.class));
     }
 
@@ -322,21 +308,18 @@ class Version1GroupServiceTest {
     void deleteFailByExistRunnersInGroup(){
         //given
         String groupId = UUID.randomUUID().toString();
-        String runner1Id = UUID.randomUUID().toString();
-        String runner2Id = UUID.randomUUID().toString();
-        DeleteGroupRequestDto deleteGroupRequestDto = new DeleteGroupRequestDto(
-                runner1Id
-        );
+        String runner1Id = "test_runner1";
+        String runner2Id = "test_runner2";
         Group group = new Group();
         group.setId(UUID.fromString(groupId));
         given(groupRepository.findById(any(UUID.class))).willReturn(Optional.of(group));
 
         Runner runner1 = new Runner();
-        runner1.setId(UUID.fromString(runner1Id));
-        given(runnerRepository.findById(any(UUID.class))).willReturn(Optional.of(runner1));
+        runner1.setId(runner1Id);
+        given(runnerRepository.findById(anyString())).willReturn(Optional.of(runner1));
 
         Runner runner2 = new Runner();
-        runner2.setId(UUID.fromString(runner2Id));
+        runner2.setId(runner2Id);
 
         Belong belong1 = new Belong();
         belong1.setRunner(runner1);
@@ -351,13 +334,13 @@ class Version1GroupServiceTest {
         given(belongRepository.findByGroupId(any(UUID.class))).willReturn(List.of(belong1, belong2));
 
         //when & then
-        assertThrows(IllegalAccessError.class, () -> groupService.delete(groupId, deleteGroupRequestDto));
+        assertThrows(IllegalAccessError.class, () -> groupService.delete(runner1Id, groupId));
 
         //then
         verify(groupRepository, times(1)).findById(any(UUID.class));
-        verify(runnerRepository, times(1)).findById(any(UUID.class));
+        verify(runnerRepository, times(1)).findById(anyString());
         verify(belongRepository, times(1)).findByGroupId(any(UUID.class));
-        verify(belongRepository, times(0)).deleteByRunnerIdAndGroupId(any(UUID.class), any(UUID.class));
+        verify(belongRepository, times(0)).deleteByRunnerIdAndGroupId(anyString(), any(UUID.class));
         verify(groupRepository, times(0)).delete(any(Group.class));
     }
 
@@ -367,17 +350,15 @@ class Version1GroupServiceTest {
         //given
         //request 설정
         String groupId = UUID.randomUUID().toString();
-        String runnerId = UUID.randomUUID().toString();
-        DeleteGroupRequestDto deleteGroupRequestDto = new DeleteGroupRequestDto(
-                runnerId
-        );
+        String runnerId = "test_runner";
+
         Group group = new Group();
         group.setId(UUID.fromString(groupId));
         given(groupRepository.findById(any(UUID.class))).willReturn(Optional.of(group));
 
         Runner runner = new Runner();
-        runner.setId(UUID.fromString(runnerId));
-        given(runnerRepository.findById(any(UUID.class))).willReturn(Optional.of(runner));
+        runner.setId(runnerId);
+        given(runnerRepository.findById(anyString())).willReturn(Optional.of(runner));
 
         Belong belong = new Belong();
         belong.setRunner(runner);
@@ -387,13 +368,13 @@ class Version1GroupServiceTest {
         given(belongRepository.findByGroupId(any(UUID.class))).willReturn(List.of(belong));
 
         //when
-        assertThrows(IllegalAccessError.class, () -> groupService.delete(groupId, deleteGroupRequestDto));
+        assertThrows(IllegalAccessError.class, () -> groupService.delete(runnerId, groupId));
 
         //then
         verify(groupRepository, times(1)).findById(any(UUID.class));
-        verify(runnerRepository, times(1)).findById(any(UUID.class));
+        verify(runnerRepository, times(1)).findById(anyString());
         verify(belongRepository, times(1)).findByGroupId(any(UUID.class));
-        verify(belongRepository, times(0)).deleteByRunnerIdAndGroupId(any(UUID.class), any(UUID.class));
+        verify(belongRepository, times(0)).deleteByRunnerIdAndGroupId(anyString(), any(UUID.class));
         verify(groupRepository, times(0)).delete(any(Group.class));
     }
 
@@ -402,9 +383,8 @@ class Version1GroupServiceTest {
     void ReviseSuccess() throws IOException {
         //given
         String groupId = UUID.randomUUID().toString();
-        String runnerId = UUID.randomUUID().toString();
+        String runnerId = "test_runner";
         ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
-                runnerId,
                 1,
                 "test_revised_description"
         );
@@ -423,17 +403,17 @@ class Version1GroupServiceTest {
         given(awss3Service.putImageToAWSS3(any(), anyString(), any(), anyInt())).willReturn("test_revised_imageLink");
 
         Runner runner = new Runner();
-        runner.setId(UUID.fromString(runnerId));
-        given(runnerRepository.findById(any(UUID.class))).willReturn(Optional.of(runner));
+        runner.setId(runnerId);
+        given(runnerRepository.findById(anyString())).willReturn(Optional.of(runner));
 
         Belong belong = new Belong();
         belong.setGroup(group);
         belong.setRunner(runner);
         belong.setLeader(true);
-        given(belongRepository.findByRunnerIdAndGroupId(any(UUID.class), any(UUID.class))).willReturn(Optional.of(belong));
+        given(belongRepository.findByRunnerIdAndGroupId(anyString(), any(UUID.class))).willReturn(Optional.of(belong));
 
         //when
-        ReviseGroupResponseDto reviseGroupResponseDto = groupService.reviseGroup(groupId, reviseGroupRequestDto, dummyImage);
+        ReviseGroupResponseDto reviseGroupResponseDto = groupService.reviseGroup(runnerId, groupId, reviseGroupRequestDto, dummyImage);
 
         //then
         assertThat(reviseGroupResponseDto.getGroupCertificationCriteria()).isEqualTo(1);
@@ -447,9 +427,8 @@ class Version1GroupServiceTest {
     void ReviseFailByNotExistGroup(){
         //given
         String groupId = UUID.randomUUID().toString();
-        String runnerId = UUID.randomUUID().toString();
+        String runnerId = "test_runner";
         ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
-                runnerId,
                 1,
                 "test_revised_description"
         );
@@ -461,11 +440,11 @@ class Version1GroupServiceTest {
         );
 
         //when & then
-        assertThrows(IllegalAccessError.class, () -> groupService.reviseGroup(groupId, reviseGroupRequestDto, dummyImage));
+        assertThrows(IllegalAccessError.class, () -> groupService.reviseGroup(runnerId, groupId, reviseGroupRequestDto, dummyImage));
 
         verify(groupRepository, times(1)).findById(any(UUID.class));
-        verify(runnerRepository, times(0)).findById(any(UUID.class));
-        verify(belongRepository, times(0)).findByRunnerIdAndGroupId(any(UUID.class), any(UUID.class));
+        verify(runnerRepository, times(0)).findById(anyString());
+        verify(belongRepository, times(0)).findByRunnerIdAndGroupId(anyString(), any(UUID.class));
     }
 
     @Test
@@ -473,9 +452,8 @@ class Version1GroupServiceTest {
     void ReviseFailByNotExistRunner() {
         //given
         String groupId = UUID.randomUUID().toString();
-        String runnerId = UUID.randomUUID().toString();
+        String runnerId = "test_runner";
         ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
-                runnerId,
                 1,
                 "test_revised_description"
         );
@@ -492,14 +470,14 @@ class Version1GroupServiceTest {
                 "image", "test.jpg", "image/jpeg", "dummy_data".getBytes()
         );
 
-        given(runnerRepository.findById(any(UUID.class))).willReturn(Optional.empty());
+        given(runnerRepository.findById(anyString())).willReturn(Optional.empty());
 
         //when & then
-        assertThrows(IllegalAccessError.class, () -> groupService.reviseGroup(groupId, reviseGroupRequestDto, dummyImage));
+        assertThrows(IllegalAccessError.class, () -> groupService.reviseGroup(runnerId, groupId, reviseGroupRequestDto, dummyImage));
 
         verify(groupRepository, times(1)).findById(any(UUID.class));
-        verify(runnerRepository, times(1)).findById(any(UUID.class));
-        verify(belongRepository, times(0)).findByRunnerIdAndGroupId(any(UUID.class), any(UUID.class));
+        verify(runnerRepository, times(1)).findById(anyString());
+        verify(belongRepository, times(0)).findByRunnerIdAndGroupId(anyString(), any(UUID.class));
     }
 
     @Test
@@ -507,9 +485,8 @@ class Version1GroupServiceTest {
     void ReviseFailByBelongToGroup() {
         //given
         String groupId = UUID.randomUUID().toString();
-        String runnerId = UUID.randomUUID().toString();
+        String runnerId = "test_runner";
         ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
-                runnerId,
                 1,
                 "test_revised_description"
         );
@@ -527,20 +504,20 @@ class Version1GroupServiceTest {
         );
 
         Runner runner = new Runner();
-        runner.setId(UUID.fromString(runnerId));
+        runner.setId(runnerId);
 
-        given(runnerRepository.findById(any(UUID.class))).willReturn(Optional.of(runner));
+        given(runnerRepository.findById(anyString())).willReturn(Optional.of(runner));
 
 
-        given(belongRepository.findByRunnerIdAndGroupId(any(UUID.class), any(UUID.class))).willReturn(Optional.empty());
+        given(belongRepository.findByRunnerIdAndGroupId(anyString(), any(UUID.class))).willReturn(Optional.empty());
 
 
         //when & then
-        assertThrows(IllegalAccessError.class, () -> groupService.reviseGroup(groupId, reviseGroupRequestDto, dummyImage));
+        assertThrows(IllegalAccessError.class, () -> groupService.reviseGroup(runnerId, groupId, reviseGroupRequestDto, dummyImage));
 
         verify(groupRepository, times(1)).findById(any(UUID.class));
-        verify(runnerRepository, times(1)).findById(any(UUID.class));
-        verify(belongRepository, times(1)).findByRunnerIdAndGroupId(any(UUID.class), any(UUID.class));
+        verify(runnerRepository, times(1)).findById(anyString());
+        verify(belongRepository, times(1)).findByRunnerIdAndGroupId(anyString(), any(UUID.class));
     }
 
     @Test
@@ -548,9 +525,8 @@ class Version1GroupServiceTest {
     void ReviseFailByNotLeaderRunner() {
         //given
         String groupId = UUID.randomUUID().toString();
-        String runnerId = UUID.randomUUID().toString();
+        String runnerId = "test_runner";
         ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
-                runnerId,
                 1,
                 "test_revised_description"
         );
@@ -569,20 +545,20 @@ class Version1GroupServiceTest {
 
 
         Runner runner = new Runner();
-        runner.setId(UUID.fromString(runnerId));
-        given(runnerRepository.findById(any(UUID.class))).willReturn(Optional.of(runner));
+        runner.setId(runnerId);
+        given(runnerRepository.findById(anyString())).willReturn(Optional.of(runner));
 
         Belong belong = new Belong();
         belong.setGroup(group);
         belong.setRunner(runner);
         belong.setLeader(false);
-        given(belongRepository.findByRunnerIdAndGroupId(any(UUID.class), any(UUID.class))).willReturn(Optional.of(belong));
+        given(belongRepository.findByRunnerIdAndGroupId(anyString(), any(UUID.class))).willReturn(Optional.of(belong));
 
         //when & then
-        assertThrows(IllegalAccessError.class, () -> groupService.reviseGroup(groupId, reviseGroupRequestDto, dummyImage));
+        assertThrows(IllegalAccessError.class, () -> groupService.reviseGroup(runnerId, groupId, reviseGroupRequestDto, dummyImage));
 
         verify(groupRepository, times(1)).findById(any(UUID.class));
-        verify(runnerRepository, times(1)).findById(any(UUID.class));
-        verify(belongRepository, times(1)).findByRunnerIdAndGroupId(any(UUID.class), any(UUID.class));
+        verify(runnerRepository, times(1)).findById(anyString());
+        verify(belongRepository, times(1)).findByRunnerIdAndGroupId(anyString(), any(UUID.class));
     }
 }

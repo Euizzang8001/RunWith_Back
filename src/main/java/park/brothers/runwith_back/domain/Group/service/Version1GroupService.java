@@ -64,7 +64,7 @@ public class Version1GroupService implements GroupService {
 
          //이미지가 존재하면 저장하고 presignedurl 받기, 없으면 null return
          String presignedImageUrl = (image != null && !image.isEmpty())
-                 ? awss3Service.putImageToAWSS3(image, "groups", group.getId().toString(), 0)
+                 ? awss3Service.putImageToAWSS3(image, "groups", savedGroup.getId().toString(), 0)
                  : null;
 
          return new CreateGroupResponseDto(
