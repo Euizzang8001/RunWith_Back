@@ -89,6 +89,9 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOCKER_IMAGE: ${{ secrets.DOCKER_IMAGE }}
+          FIREBASE_WEB_API_KEY: ${{ secrets.FIREBASE_WEB_API_KEY }}
+          FIREBASE_BASE_KEY: ${{ secrets.FIREBASE_BASE_KEY}}
+
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
@@ -123,6 +126,8 @@ jobs:
             echo "AWS_SECRET_KEY=$AWS_SECRET_KEY" >> .env
             echo "AWS_REGION=$AWS_REGION" >> .env
             echo "AWS_S3_BUCKET_NAME=$AWS_S3_BUCKET_NAME" >> .env
+            echo "FIREBASE_WEB_API_KEY=$FIREBASE_WEB_API_KEY" >> .env
+            echo "FIREBASE_BASE_KEY=$FIREBASE_BASE_KEY" >> .env
             
             # 새 컨테이너 실행
             sudo docker run -d \
