@@ -27,18 +27,10 @@ public class JPARunnerRepository implements RunnerRepository {
         return runner;
     }
 
-    //이메일로 runner 찾기
-    @Override
-    public Optional<Runner> findByEmail(String email) {
-        return em.createQuery("select r from Runner r where r.email = :email", Runner.class)
-                .setParameter("email", email)
-                .getResultStream()
-                .findFirst();
-    }
 
     //Id로 러너 찾기
     @Override
-    public Optional<Runner> findById(UUID id) {
+    public Optional<Runner> findById(String id) {
         return em.createQuery("select r from Runner r where r.id = :id", Runner.class)
                 .setParameter("id", id)
                 .getResultStream()
@@ -54,13 +46,4 @@ public class JPARunnerRepository implements RunnerRepository {
                 .findFirst();
     }
 
-    //DB에서 동일한 정보의 러너가 있는지 확인
-    @Override
-    public Boolean checkDuplication(String name, String email) {
-         List<Runner> result = em.createQuery("select r from Runner r where r.name = :name or r.email = :email", Runner.class)
-                 .setParameter("name", name)
-                 .setParameter("email", email)
-                 .getResultList();
-        return !result.isEmpty();
-    }
 }

@@ -12,13 +12,13 @@ import park.brothers.runwith_back.domain.Runner.dto.Response.GetRunnerResponseDt
 import java.util.List;
 
 public interface BelongService {
-    CreateBelongResponseDto joinGroup(@Valid CreateBelongRequestDto createBelongRequestDto);
+    CreateBelongResponseDto joinGroup(String runnerId, @Valid CreateBelongRequestDto createBelongRequestDto);
 
-    void leaveGroup(String belongId, DeleteBelongRequestDto deleteBelongRequestDto);
+    void leaveGroup(String runnerId, String groupId);
 
     List<GetGroupResponseDto> getAllGroupsRunnerJoin(@Valid String runnerId);
 
     List<GetRunnerResponseDto> getAllRunnersInGroup(@Valid String groupId);
 
-    ChangeLeaderResponseDto changeLeader(String oldLeaderRunnerId, @Valid ChangeLeaderRequestDto changeLeaderRequestDto);
+    void changeLeader(String oldLeaderRunnerId, @Valid ChangeLeaderRequestDto changeLeaderRequestDto);
 }

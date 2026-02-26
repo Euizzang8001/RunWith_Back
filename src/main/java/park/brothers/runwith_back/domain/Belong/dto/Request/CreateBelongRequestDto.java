@@ -9,9 +9,6 @@ import lombok.Data;
 public class CreateBelongRequestDto {
 
     @NotEmpty
-    private String runnerId; // 그룹에 가입하려는 러너 id
-
-    @NotEmpty
     private String groupId; // 가입하려는 그룹 id
 
     @NotEmpty

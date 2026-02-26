@@ -8,19 +8,19 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface BelongRepository {
-    Optional<Belong> findByRunnerIdAndGroupId(UUID runnerId, UUID groupId);
+    Optional<Belong> findByRunnerIdAndGroupId(String runnerId, UUID groupId);
 
     Optional<Belong> findByGroupIdAndNickname(UUID groupId, String nickname);
 
     Belong save(Belong belong);
 
-    void deleteByRunnerIdAndGroupId(UUID runnerId, UUID groupId);
+    void deleteByRunnerIdAndGroupId(String runnerId, UUID groupId);
 
-    List<Belong> findByRunnerId(UUID runnerId);
+    List<Belong> findByRunnerId(String runnerId);
 
     List<Belong> findByGroupId(UUID groupId);
 
-    void changeIsLeader(UUID runnerId, UUID groupId, boolean isLeader);
+    void changeIsLeader(String runnerId, UUID groupId, boolean isLeader);
 
     Optional<Belong> findById(@NotNull UUID id);
 }

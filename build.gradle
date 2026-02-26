@@ -28,6 +28,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
 
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    testImplementation 'org.springframework.security:spring-security-test'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     runtimeOnly 'org.postgresql:postgresql'
     runtimeOnly 'com.h2database:h2'
@@ -44,6 +47,9 @@ dependencies {
 
     //image
     implementation 'net.coobird:thumbnailator:0.4.19'
+
+    //Firebase
+    implementation 'com.google.firebase:firebase-admin:9.7.1'
 }
 
 tasks.named('test') {

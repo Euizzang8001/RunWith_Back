@@ -9,9 +9,6 @@ import lombok.Data;
 public class ChangeLeaderResponseDto {
 
     @NotEmpty
-    private String oldLeaderRunnerId;
-
-    @NotEmpty
     private String newLeaderRunnerId;
 
     @NotEmpty

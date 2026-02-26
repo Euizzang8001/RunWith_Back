@@ -23,7 +23,7 @@ public class JPABelongRepository implements BelongRepository{
 
     //러너 id와 group id로 belong객체 찾기
     @Override
-    public Optional<Belong> findByRunnerIdAndGroupId(UUID runnerId, UUID groupId) {
+    public Optional<Belong> findByRunnerIdAndGroupId(String runnerId, UUID groupId) {
         return em.createQuery("select b from Belong b where b.runner.id = :runnerId and b.group.id = :groupId", Belong.class)
                 .setParameter("runnerId", runnerId)
                 .setParameter("groupId", groupId)
@@ -49,7 +49,7 @@ public class JPABelongRepository implements BelongRepository{
     }
 
     @Override
-    public void deleteByRunnerIdAndGroupId(UUID runnerId, UUID groupId) {
+    public void deleteByRunnerIdAndGroupId(String runnerId, UUID groupId) {
         Optional<Belong> belong = Optional.ofNullable(em.createQuery("select b from Belong b where b.runner.id = :runnerId and b.group.id = :groupId", Belong.class)
                 .setParameter("runnerId", runnerId)
                 .setParameter("groupId", groupId)
@@ -58,7 +58,7 @@ public class JPABelongRepository implements BelongRepository{
     }
 
     @Override
-    public List<Belong> findByRunnerId(UUID runnerId) {
+    public List<Belong> findByRunnerId(String runnerId) {
         return em.createQuery("select b from Belong b where b.runner.id = :runnerId", Belong.class)
                         .setParameter("runnerId", runnerId)
                         .getResultList();
@@ -72,7 +72,7 @@ public class JPABelongRepository implements BelongRepository{
     }
 
     @Override
-    public void changeIsLeader(UUID runnerId, UUID groupId, boolean isLeader) {
+    public void changeIsLeader(String runnerId, UUID groupId, boolean isLeader) {
         Belong belong = em.createQuery("select b from Belong b where b.runner.id = :runnerId and b.group.id = :groupId", Belong.class)
                 .setParameter("runnerId", runnerId)
                 .setParameter("groupId", groupId)

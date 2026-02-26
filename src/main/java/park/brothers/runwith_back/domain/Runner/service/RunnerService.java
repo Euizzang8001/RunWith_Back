@@ -8,7 +8,5 @@ import park.brothers.runwith_back.domain.Runner.dto.Response.CreateRunnerRespons
 import java.io.IOException;
 
 public interface RunnerService {
-    CreateRunnerResponseDto save(CreateRunnerRequestDto createRunnerRequestDto, MultipartFile image) throws IllegalAccessError, IOException;
-
-    Boolean checkDuplication(@Valid CreateRunnerRequestDto createRunnerRequestDto);
+    CreateRunnerResponseDto save(String runnerId, CreateRunnerRequestDto createRunnerRequestDto, MultipartFile image) throws IllegalAccessError, IOException;
 }

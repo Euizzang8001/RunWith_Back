@@ -41,13 +41,13 @@ public class AWSS3Service {
     public String putImageToAWSS3(
             MultipartFile image,
             String imageType,
-            UUID id,
+            String id,
             int sequence
     ) throws IOException {
         //파일을 png로 통일
         byte[] imageByte = convertToPNG(image);
 
-        String imageName = "%s/id=%ssequence=%d.png".formatted(imageType, id.toString(), sequence);
+        String imageName = "%s/id=%ssequence=%d.png".formatted(imageType, id, sequence);
 
         s3Client.putObject(PutObjectRequest.builder()
                         .bucket(bucketName)

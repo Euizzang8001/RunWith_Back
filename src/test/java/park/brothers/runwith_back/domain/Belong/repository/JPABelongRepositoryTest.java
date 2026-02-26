@@ -34,10 +34,8 @@ class JPABelongRepositoryTest {
     @DisplayName("러너id와 그룹id로 빌롱 찾기 성공 레퍼지토리 테스트")
     void findByRunnerIdAndGroupId() {
         Runner runner = new Runner();
+        runner.setId("test_runner");
         runner.setName("test_runner");
-        runner.setEmail("test_email");
-        runner.setPassword("test_password");
-        runner.setImageLink("test_imageLink");
         Runner savedRunner = runnerRepository.save(runner); //러너여도 반드시 저장해주어야 한다.
 
         Group group = new Group();
@@ -70,10 +68,8 @@ class JPABelongRepositoryTest {
     void findByGroupIdAndNickname() {
         //given
         Runner runner = new Runner();
+        runner.setId("test_runner");
         runner.setName("test_runner");
-        runner.setEmail("test_email");
-        runner.setPassword("test_password");
-        runner.setImageLink("test_imageLink");
         Runner savedRunner = runnerRepository.save(runner); //러너여도 반드시 저장해주어야 한다.
 
         Group group = new Group();
@@ -111,8 +107,8 @@ class JPABelongRepositoryTest {
         group.setId(groupUUID);
 
         Runner runner = new Runner();
-        UUID runnerUUID = UUID.randomUUID();
-        runner.setId(runnerUUID);
+        String runnerId = "test_runner";
+        runner.setId(runnerId);
 
         belong.setGroup(group);
         belong.setRunner(runner);
@@ -134,10 +130,8 @@ class JPABelongRepositoryTest {
     @DisplayName("러너 id와 그룹 id로 빌롱 삭제하기 성공 레퍼지토리 테스트")
     void deleteByRunnerIdAndGroupId() {
         Runner runner = new Runner();
+        runner.setId("test_runner");
         runner.setName("test_runner");
-        runner.setEmail("test_email");
-        runner.setPassword("test_password");
-        runner.setImageLink("test_imageLink");
         Runner savedRunner = runnerRepository.save(runner); //러너여도 반드시 저장해주어야 한다.
 
         Group group = new Group();
@@ -167,17 +161,13 @@ class JPABelongRepositoryTest {
     @DisplayName("러너id가 동일한 모든 빌롱 찾기")
     void findByRunnerId() {
         Runner runner1 = new Runner();
+        runner1.setId("test_runner1");
         runner1.setName("test_runner1");
-        runner1.setPassword("test_runner1");
-        runner1.setEmail("test_runner1_email");
-        runner1.setImageLink("test_runner1_imageLink");
         Runner savedRunner1 = runnerRepository.save(runner1);
 
         Runner runner2 = new Runner();
+        runner2.setId("test_runner2");
         runner2.setName("test_runner2");
-        runner2.setPassword("test_runner2");
-        runner2.setEmail("test_runner2_email");
-        runner2.setImageLink("test_runner2_imageLink");
         Runner savedRunner2 = runnerRepository.save(runner2);
 
         Group group1 = new Group();
@@ -227,17 +217,13 @@ class JPABelongRepositoryTest {
     @DisplayName("그룹id가 동일한 모든 빌롱 찾기")
     void findByGroupId() {
         Runner runner1 = new Runner();
+        runner1.setId("test_runner1");
         runner1.setName("test_runner1");
-        runner1.setPassword("test_runner1");
-        runner1.setEmail("test_runner1_email");
-        runner1.setImageLink("test_runner1_imageLink");
         Runner savedRunner1 = runnerRepository.save(runner1);
 
         Runner runner2 = new Runner();
+        runner2.setId("test_runner2");
         runner2.setName("test_runner2");
-        runner2.setPassword("test_runner2");
-        runner2.setEmail("test_runner2_email");
-        runner2.setImageLink("test_runner2_imageLink");
         Runner savedRunner2 = runnerRepository.save(runner2);
 
         Group group1 = new Group();
@@ -288,10 +274,8 @@ class JPABelongRepositoryTest {
     void changeIsLeader() {
         //given
         Runner runner= new Runner();
+        runner.setId("test_runner");
         runner.setName("test_runner");
-        runner.setPassword("test_runner");
-        runner.setEmail("test_runner_email");
-        runner.setImageLink("test_runner1_imageLink");
         Runner savedRunner = runnerRepository.save(runner);
 
         Group group = new Group();
@@ -321,10 +305,8 @@ class JPABelongRepositoryTest {
     void findById() {
         //given
         Runner runner= new Runner();
+        runner.setId("test_runner");
         runner.setName("test_runner");
-        runner.setPassword("test_runner");
-        runner.setEmail("test_runner_email");
-        runner.setImageLink("test_runner1_imageLink");
         Runner savedRunner = runnerRepository.save(runner);
 
         Group group = new Group();

@@ -1,5 +1,6 @@
 package park.brothers.runwith_back.domain.Belong.controller;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -7,13 +8,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
 import park.brothers.runwith_back.domain.Belong.dto.Request.ChangeLeaderRequestDto;
 import park.brothers.runwith_back.domain.Belong.dto.Request.CreateBelongRequestDto;
-import park.brothers.runwith_back.domain.Belong.dto.Request.DeleteBelongRequestDto;
-import park.brothers.runwith_back.domain.Belong.dto.Response.ChangeLeaderResponseDto;
 import park.brothers.runwith_back.domain.Belong.dto.Response.CreateBelongResponseDto;
 import park.brothers.runwith_back.domain.Belong.service.BelongService;
 import park.brothers.runwith_back.domain.Group.dto.Response.GetGroupResponseDto;
@@ -26,6 +31,7 @@ import java.util.UUID;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
@@ -48,8 +54,19 @@ class BelongControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(belongController) //스프링 컨텍스트 없이 테스트 수행
-                .alwaysDo(print()) // 모든 요청에 대해 로그 출력
+        mockMvc = MockMvcBuilders.standaloneSetup(belongController)
+                .setCustomArgumentResolvers(new HandlerMethodArgumentResolver() {
+                    @Override
+                    public boolean supportsParameter(@NonNull MethodParameter parameter) {
+                        return parameter.hasParameterAnnotation(AuthenticationPrincipal.class);
+                    }
+
+                    @Override
+                    public Object resolveArgument(@NonNull MethodParameter parameter, ModelAndViewContainer mavContainer, @NonNull NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+                        return "test_runner_uid";
+                    }
+                })
+                .alwaysDo(print())
                 .build();
     }
 
@@ -57,14 +74,11 @@ class BelongControllerTest {
     @DisplayName("belong 저장 컨트롤러 성공 테스트")
     void save() throws Exception {
         //given
-        UUID runnerUUID = UUID.randomUUID();
         UUID groupUUID = UUID.randomUUID();
-        String runnerStrId = runnerUUID.toString();
         String groupStrId = groupUUID.toString();
         String belongNickname = "test_nickname";
 
         CreateBelongRequestDto createBelongRequestDto = new CreateBelongRequestDto(
-                runnerStrId,
                 groupStrId,
                 belongNickname
         );
@@ -73,23 +87,22 @@ class BelongControllerTest {
         String belongStrId = belongUUID.toString();
         CreateBelongResponseDto createBelongResponseDto = new CreateBelongResponseDto(
                 belongStrId,
-                runnerStrId,
                 groupStrId,
                 belongNickname,
                 false
         );
 
-        given(belongService.joinGroup(any(CreateBelongRequestDto.class))).willReturn(createBelongResponseDto);
+        given(belongService.joinGroup(anyString(), any(CreateBelongRequestDto.class))).willReturn(createBelongResponseDto);
 
         //when & then
         String content = new ObjectMapper().writeValueAsString(createBelongRequestDto);
 
         mockMvc.perform(post("/api/v1/belongs") // POST 요청 URL
                         .contentType(MediaType.APPLICATION_JSON) // 요청 타입 확인
-                        .content(content)) // Body에 JSON 문자열 담기
+                        .content(content) // Body에 JSON 문자열 담기
+                        .with(csrf()))
                 .andExpect(status().isCreated()) //
                 .andExpect(jsonPath("$.belongId").value(belongStrId)) // id 확인
-                .andExpect(jsonPath("$.runnerId").value(runnerStrId)) // 이름 확인
                 .andExpect(jsonPath("$.belongNickname").value(belongNickname))
                 .andExpect(jsonPath("$.belongIsLeader").value(false));
     }
@@ -98,25 +111,13 @@ class BelongControllerTest {
     @DisplayName("그룹 탈퇴 성공 컨트롤러 테스트")
     void leave() throws Exception {
         //given
-        UUID belongUUID = UUID.randomUUID();
-        UUID runnerUUID = UUID.randomUUID();
         UUID groupUUID = UUID.randomUUID();
-
-        String belongStrId = belongUUID.toString();
-        String runnerStrId = runnerUUID.toString();
         String groupStrId = groupUUID.toString();
 
-        DeleteBelongRequestDto deleteBelongRequestDto = new DeleteBelongRequestDto(
-                runnerStrId,
-                groupStrId
-        );
-
         //when & then
-        String content = new ObjectMapper().writeValueAsString(deleteBelongRequestDto);
 
-        mockMvc.perform(delete("/api/v1/belongs/belongId={belongId}", belongStrId) // POST 요청 URL
-                        .contentType(MediaType.APPLICATION_JSON) // 요청 타입 확인
-                        .content(content)) // Body에 JSON 문자열 담기
+        mockMvc.perform(delete("/api/v1/belongs/{groupId}", groupStrId) // POST 요청 URL
+                        .contentType(MediaType.APPLICATION_JSON)) // 요청 타입 확인
                 .andExpect(status().isOk()) //
                 .andExpect(jsonPath("$.message").value("그룹에서 성공적으로 탈퇴되었습니다."));
     }
@@ -125,8 +126,7 @@ class BelongControllerTest {
     @DisplayName("특정 러너가 가입한 모든 그룹 찾기")
     void getAllGroupsRunnerJoin() throws Exception {
         //given
-        UUID runnerUUID = UUID.randomUUID();
-        String runnerStrId = runnerUUID.toString();
+        String runnerStrId = "test_runner";
 
         UUID group1UUID = UUID.randomUUID();
         UUID group2UUID = UUID.randomUUID();
@@ -166,16 +166,16 @@ class BelongControllerTest {
     void getAllRunnersInGroup() throws Exception {
         //given
         UUID groupUUID = UUID.randomUUID();
-        UUID runner1UUID = UUID.randomUUID();
-        UUID runner2UUID = UUID.randomUUID();
+        String runner1Id = "test_runner1";
+        String runner2Id = "test_runner2";
 
         GetRunnerResponseDto getRunnerResponseDto1 =  new GetRunnerResponseDto(
-                runner1UUID.toString(),
+                runner1Id,
                 "test_runner1",
                 "test_runner1_imageLink"
         );
         GetRunnerResponseDto getRunnerResponseDto2 =  new GetRunnerResponseDto(
-                runner2UUID.toString(),
+                runner2Id,
                 "test_runner2",
                 "test_runner2_imageLink"
         );
@@ -186,10 +186,10 @@ class BelongControllerTest {
         mockMvc.perform(get("/api/v1/belongs/groupId={groupId}", groupUUID.toString())) // get요청
                 .andExpect(status().isOk()) //
                 .andExpect(jsonPath("$", hasSize(2))) //전체 길이가 2인지 확인
-                .andExpect(jsonPath("$[0].runnerId").value(runner1UUID.toString())) // groupId 확인
+                .andExpect(jsonPath("$[0].runnerId").value(runner1Id)) // groupId 확인
                 .andExpect(jsonPath("$[0].runnerName").value("test_runner1")) // 이름 확인
                 .andExpect(jsonPath("$[0].runnerImageLink").value("test_runner1_imageLink"))
-                .andExpect(jsonPath("$[1].runnerId").value(runner2UUID.toString())) // groupId 확인
+                .andExpect(jsonPath("$[1].runnerId").value(runner2Id)) // groupId 확인
                 .andExpect(jsonPath("$[1].runnerName").value("test_runner2")) // 이름 확인
                 .andExpect(jsonPath("$[1].runnerImageLink").value("test_runner2_imageLink"));
 
@@ -201,32 +201,18 @@ class BelongControllerTest {
     @DisplayName("그룹 리더 변경 성공 컨트롤러 테스트")
     void changeLeader() throws Exception {
         //given
-        UUID oldLeaderRunnerUUID = UUID.randomUUID();
-        UUID newLeaderRunnerUUID = UUID.randomUUID();
-        UUID groupUUID = UUID.randomUUID();
-
         ChangeLeaderRequestDto changeLeaderRequestDto = new ChangeLeaderRequestDto(
-                newLeaderRunnerUUID.toString(),
-                groupUUID.toString()
+                "newLeaderRunnerId",
+                UUID.randomUUID().toString()
         );
-
-        ChangeLeaderResponseDto changeLeaderResponseDto = new ChangeLeaderResponseDto(
-                oldLeaderRunnerUUID.toString(),
-                newLeaderRunnerUUID.toString(),
-                groupUUID.toString()
-        );
-        given(belongService.changeLeader(anyString(), any(ChangeLeaderRequestDto.class))).willReturn(changeLeaderResponseDto);
-
         //when & then
         String content = new ObjectMapper().writeValueAsString(changeLeaderRequestDto);
 
-        mockMvc.perform(patch("/api/v1/belongs/leader/oldLeaderRunnerId={oldLeaderRunnerId}", oldLeaderRunnerUUID.toString()) // POST 요청 URL
-                        .contentType(MediaType.APPLICATION_JSON) // 요청 타입 확인
-                        .content(content)) // Body에 JSON 문자열 담기
+        mockMvc.perform(patch("/api/v1/belongs/leader") // POST 요청 URL
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content)// 요청 타입 확인
+                        .with(csrf()))
                 .andExpect(status().isAccepted()) //
-                .andExpect(jsonPath("$.oldLeaderRunnerId").value(oldLeaderRunnerUUID.toString())) // id 확인
-                .andExpect(jsonPath("$.newLeaderRunnerId").value(newLeaderRunnerUUID.toString()))
-                .andExpect(jsonPath("$.groupId").value(groupUUID.toString()));
-        //when
+                .andExpect(jsonPath("$.message").value("해당 그룹의 리더가 성공적으로 변경되었습니다."));
     }
 }

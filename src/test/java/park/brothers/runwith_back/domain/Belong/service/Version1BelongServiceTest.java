@@ -7,12 +7,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import park.brothers.runwith_back.common.Exceptions.DuplicateResourceException;
-import park.brothers.runwith_back.common.Exceptions.NotAcceptableException;
 import park.brothers.runwith_back.common.Exceptions.ResourceNotFoundException;
 import park.brothers.runwith_back.common.Exceptions.UnauthorizedException;
 import park.brothers.runwith_back.domain.Belong.dto.Request.ChangeLeaderRequestDto;
 import park.brothers.runwith_back.domain.Belong.dto.Request.CreateBelongRequestDto;
-import park.brothers.runwith_back.domain.Belong.dto.Request.DeleteBelongRequestDto;
 import park.brothers.runwith_back.domain.Belong.dto.Response.CreateBelongResponseDto;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
 import park.brothers.runwith_back.domain.Belong.repository.BelongRepository;
@@ -59,11 +57,10 @@ class Version1BelongServiceTest {
     @DisplayName("그룹 참여 실패 서비스 테스트 - 이미 가입된 그룹")
     void joinGroupFailByAlreadyJoin() {
         //given
-        UUID runnerUUID = UUID.randomUUID();
+        String runnerId = "test_runner";
         UUID groupUUID = UUID.randomUUID();
 
         CreateBelongRequestDto createBelongRequestDto = new CreateBelongRequestDto(
-                runnerUUID.toString(),
                 groupUUID.toString(),
                 "test_nickname"
         );
@@ -71,7 +68,7 @@ class Version1BelongServiceTest {
         given(belongRepository.findByRunnerIdAndGroupId(any(), any())).willReturn(Optional.of(new Belong()));
 
         // when & then
-        assertThrows(DuplicateResourceException.class, () -> belongService.joinGroup(createBelongRequestDto));
+        assertThrows(DuplicateResourceException.class, () -> belongService.joinGroup(runnerId, createBelongRequestDto));
         verify(belongRepository, times(1)).findByRunnerIdAndGroupId(any(), any());
         verify(belongRepository, times(0)).findByGroupIdAndNickname(any(), anyString());
         verify(runnerRepository, times(0)).findById(any());
@@ -83,11 +80,10 @@ class Version1BelongServiceTest {
     @DisplayName("그룹 참여 실패 서비스 테스트 - 그룹 내 이미 존재하는 닉네임")
     void joinGroupFailByAlreadyUsedNickname() {
         //given
-        UUID runnerUUID = UUID.randomUUID();
+        String runnerId = "test_runner";
         UUID groupUUID = UUID.randomUUID();
 
         CreateBelongRequestDto createBelongRequestDto = new CreateBelongRequestDto(
-                runnerUUID.toString(),
                 groupUUID.toString(),
                 "test_nickname"
         );
@@ -97,7 +93,7 @@ class Version1BelongServiceTest {
 
 
         // when & then
-        assertThrows(DuplicateResourceException.class, () -> belongService.joinGroup(createBelongRequestDto));
+        assertThrows(DuplicateResourceException.class, () -> belongService.joinGroup(runnerId, createBelongRequestDto));
         verify(belongRepository, times(1)).findByRunnerIdAndGroupId(any(), any());
         verify(belongRepository, times(1)).findByGroupIdAndNickname(any(), anyString());
         verify(runnerRepository, times(0)).findById(any());
@@ -109,11 +105,10 @@ class Version1BelongServiceTest {
     @DisplayName("그룹 참여 실패 서비스 테스트 - 존재하지 않는 러너")
     void joinGroupFailByNotFoundRunner() {
         //given
-        UUID runnerUUID = UUID.randomUUID();
+        String runnerId = "test_runner";
         UUID groupUUID = UUID.randomUUID();
 
         CreateBelongRequestDto createBelongRequestDto = new CreateBelongRequestDto(
-                runnerUUID.toString(),
                 groupUUID.toString(),
                 "test_nickname"
         );
@@ -124,7 +119,7 @@ class Version1BelongServiceTest {
 
 
         // when & then
-        assertThrows(ResourceNotFoundException.class, () -> belongService.joinGroup(createBelongRequestDto));
+        assertThrows(ResourceNotFoundException.class, () -> belongService.joinGroup(runnerId, createBelongRequestDto));
         verify(belongRepository, times(1)).findByRunnerIdAndGroupId(any(), any());
         verify(belongRepository, times(1)).findByGroupIdAndNickname(any(), anyString());
         verify(runnerRepository, times(1)).findById(any());
@@ -136,11 +131,10 @@ class Version1BelongServiceTest {
     @DisplayName("그룹 참여 실패 서비스 테스트 - 존재하지 않는 그룹")
     void joinGroupFailByNotFoundGroup() {
         //given
-        UUID runnerUUID = UUID.randomUUID();
+        String runnerId = "test_runner";
         UUID groupUUID = UUID.randomUUID();
 
         CreateBelongRequestDto createBelongRequestDto = new CreateBelongRequestDto(
-                runnerUUID.toString(),
                 groupUUID.toString(),
                 "test_nickname"
         );
@@ -149,10 +143,8 @@ class Version1BelongServiceTest {
         given(belongRepository.findByGroupIdAndNickname(any(), anyString())).willReturn(Optional.empty());
 
         Runner runner = new Runner();
-        runner.setId(UUID.randomUUID());
+        runner.setId(runnerId);
         runner.setName("test_runner");
-        runner.setEmail("test_email");
-        runner.setPassword("test_password");
         runner.setCreatedAt(LocalDateTime.now());
         given(runnerRepository.findById(any())).willReturn(Optional.of(runner));
 
@@ -160,7 +152,7 @@ class Version1BelongServiceTest {
 
 
         // when & then
-        assertThrows(ResourceNotFoundException.class, () -> belongService.joinGroup(createBelongRequestDto));
+        assertThrows(ResourceNotFoundException.class, () -> belongService.joinGroup(runnerId, createBelongRequestDto));
         verify(belongRepository, times(1)).findByRunnerIdAndGroupId(any(), any());
         verify(belongRepository, times(1)).findByGroupIdAndNickname(any(), anyString());
         verify(runnerRepository, times(1)).findById(any());
@@ -172,11 +164,10 @@ class Version1BelongServiceTest {
     @DisplayName("그룹 참여 성공 서비스 테스트")
     void joinGroupSuccess() {
         //given
-        UUID runnerUUID = UUID.randomUUID();
+        String runnerId = "test_runner";
         UUID groupUUID = UUID.randomUUID();
 
         CreateBelongRequestDto createBelongRequestDto = new CreateBelongRequestDto(
-                runnerUUID.toString(),
                 groupUUID.toString(),
                 "test_nickname"
         );
@@ -185,10 +176,8 @@ class Version1BelongServiceTest {
         given(belongRepository.findByGroupIdAndNickname(any(), anyString())).willReturn(Optional.empty());
 
         Runner runner = new Runner();
-        runner.setId(runnerUUID);
+        runner.setId(runnerId);
         runner.setName("test_runner");
-        runner.setEmail("test_email");
-        runner.setPassword("test_password");
         runner.setCreatedAt(LocalDateTime.now());
         given(runnerRepository.findById(any())).willReturn(Optional.of(runner));
 
@@ -214,7 +203,6 @@ class Version1BelongServiceTest {
 
         CreateBelongResponseDto createBelongResponseDto = new CreateBelongResponseDto(
                 belongUUID.toString(),
-                runnerUUID.toString(),
                 groupUUID.toString(),
                 "test_nickname",
                 false
@@ -222,7 +210,7 @@ class Version1BelongServiceTest {
 
 
         // when & then
-        assertThat(belongService.joinGroup(createBelongRequestDto)).isEqualTo(createBelongResponseDto);
+        assertThat(belongService.joinGroup(runnerId, createBelongRequestDto)).isEqualTo(createBelongResponseDto);
         verify(belongRepository, times(1)).findByRunnerIdAndGroupId(any(), any());
         verify(belongRepository, times(1)).findByGroupIdAndNickname(any(), anyString());
         verify(runnerRepository, times(1)).findById(any());
@@ -235,67 +223,28 @@ class Version1BelongServiceTest {
     void leaveGroupFailByNotExistBelong() {
         //given
         UUID groupUUID = UUID.randomUUID();
-        UUID runnerUUID = UUID.randomUUID();
-        UUID belongUUID = UUID.randomUUID();
+        String runnerId = "test_runner";
 
-        DeleteBelongRequestDto deleteBelongRequestDto = new DeleteBelongRequestDto(
-                runnerUUID.toString(),
-                groupUUID.toString()
-        );
 
         given(belongRepository.findByRunnerIdAndGroupId(any(), any())).willReturn(Optional.empty());
 
         //when &then
-        assertThrows(ResourceNotFoundException.class, () -> belongService.leaveGroup(belongUUID.toString(), deleteBelongRequestDto));
+        assertThrows(ResourceNotFoundException.class, () -> belongService.leaveGroup(runnerId, groupUUID.toString()));
         verify(belongRepository, times(1)).findByRunnerIdAndGroupId(any(), any());
         verify(belongRepository, times(0)).deleteByRunnerIdAndGroupId(any(), any());
     }
 
-    @Test
-    @DisplayName("그룹 탈퇴 실패 서비스 테스트 - belong정보가 러너, 그룹과 일치하지 않음")
-    void leaveGroupFailByNotCorrect() {
-        //given
-        UUID groupUUID = UUID.randomUUID();
-        UUID runnerUUID = UUID.randomUUID();
-        UUID belongUUID = UUID.randomUUID();
-
-        DeleteBelongRequestDto deleteBelongRequestDto = new DeleteBelongRequestDto(
-                runnerUUID.toString(),
-                groupUUID.toString()
-        );
-        Runner runner = new Runner();
-        runner.setId(runnerUUID);
-
-        Group group = new Group();
-        group.setId(groupUUID);
-
-
-        Belong belong = new Belong();
-        belong.setId(UUID.randomUUID());
-        belong.setRunner(runner);
-        belong.setGroup(group);
-        given(belongRepository.findByRunnerIdAndGroupId(any(), any())).willReturn(Optional.of(belong));
-
-        //when &then
-        assertThrows(NotAcceptableException.class, () -> belongService.leaveGroup(belongUUID.toString(), deleteBelongRequestDto));
-        verify(belongRepository, times(1)).findByRunnerIdAndGroupId(any(), any());
-        verify(belongRepository, times(0)).deleteByRunnerIdAndGroupId(any(), any());
-    }
 
     @Test
     @DisplayName("그룹 탈퇴 성공 서비스 테스트")
     void leaveGroupSuccess() {
         //given
         UUID groupUUID = UUID.randomUUID();
-        UUID runnerUUID = UUID.randomUUID();
         UUID belongUUID = UUID.randomUUID();
+        String runnerId = "test_runner";
 
-        DeleteBelongRequestDto deleteBelongRequestDto = new DeleteBelongRequestDto(
-                runnerUUID.toString(),
-                groupUUID.toString()
-        );
         Runner runner = new Runner();
-        runner.setId(runnerUUID);
+        runner.setId(runnerId);
 
         Group group = new Group();
         group.setId(groupUUID);
@@ -311,7 +260,7 @@ class Version1BelongServiceTest {
 
         given(belongRepository.findByRunnerIdAndGroupId(any(), any())).willReturn(Optional.of(belong));
 
-        belongService.leaveGroup(belongUUID.toString(), deleteBelongRequestDto);
+        belongService.leaveGroup(runnerId, groupUUID.toString());
 
         //when &then
         verify(belongRepository, times(1)).findByRunnerIdAndGroupId(any(), any());
@@ -321,10 +270,10 @@ class Version1BelongServiceTest {
     @Test
     @DisplayName("특정 러너가 속한 모든 그룹 찾기 성공 서비스 테스트")
     void getAllGroupsRunnerJoin() {
-        //gien
+        //given
         Runner runner = new Runner();
-        UUID runnerUUID = UUID.randomUUID();
-        runner.setId(runnerUUID);
+        String runnerId = "test_runner";
+        runner.setId(runnerId);
 
         Belong belong1 = new Belong();
         Group group1 = new Group();
@@ -352,7 +301,7 @@ class Version1BelongServiceTest {
         given(awss3Service.getImagePresignedUrl(anyString(), anyString(), anyInt())).willReturn(null);
 
         //when & then
-        assertThat(belongService.getAllGroupsRunnerJoin(runnerUUID.toString())).isEqualTo(List.of(
+        assertThat(belongService.getAllGroupsRunnerJoin(runnerId)).isEqualTo(List.of(
                 new GetGroupResponseDto(
                         group1UUID.toString(),
                         "test_group1",
@@ -378,20 +327,20 @@ class Version1BelongServiceTest {
 
         Belong belong1 = new Belong();
         Runner runner1 = new Runner();
-        UUID runner1UUID = UUID.randomUUID();
+        String runner1Id= "test_runner1";
         UUID belong1UUID = UUID.randomUUID();
         belong1.setId(belong1UUID);
-        runner1.setId(runner1UUID);
+        runner1.setId(runner1Id);
         runner1.setName("test_runner1");
         belong1.setRunner(runner1);
         belong1.setGroup(group);
 
         Belong belong2 = new Belong();
         Runner runner2 = new Runner();
-        UUID runner2UUID = UUID.randomUUID();
+        String runner2Id= "test_runner2";
         UUID belong2UUID = UUID.randomUUID();
         belong2.setId(belong2UUID);
-        runner2.setId(runner2UUID);
+        runner2.setId(runner2Id);
         runner2.setName("test_runner2");
         belong2.setRunner(runner2);
         belong2.setGroup(group);
@@ -402,12 +351,12 @@ class Version1BelongServiceTest {
         //when & then
         assertThat(belongService.getAllRunnersInGroup(groupUUID.toString())).isEqualTo(List.of(
                 new GetRunnerResponseDto(
-                        runner1UUID.toString(),
+                        runner1Id,
                         "test_runner1",
                         null
                 ),
                 new GetRunnerResponseDto(
-                        runner2UUID.toString(),
+                        runner2Id,
                         "test_runner2",
                         null
                 )
@@ -417,22 +366,22 @@ class Version1BelongServiceTest {
     @Test
     @DisplayName("리더 변경 실패 서비스 테스트 - 이전 리더로 요청한 리더가 그룹에 속하지 않음")
     void changeLeaderFailByNotInGroup() {
-        UUID oldLeaderRunnerUUID = UUID.randomUUID();
+        String oldLeaderRunnerId = "oldLeaderRunnerId";
         Runner oldRunner = new Runner();
-        oldRunner.setId(oldLeaderRunnerUUID);
+        oldRunner.setId(oldLeaderRunnerId);
 
-        UUID newLeaderRunnerUUID = UUID.randomUUID();
+        String newLeaderRunnerId = "newLeaderRunnerId";
         UUID groupUUID = UUID.randomUUID();
 
         ChangeLeaderRequestDto changeLeaderRequestDto = new ChangeLeaderRequestDto(
-                newLeaderRunnerUUID.toString(),
+                newLeaderRunnerId,
                 groupUUID.toString()
         );
 
         given(belongRepository.findByRunnerIdAndGroupId(any(), any())).willReturn(Optional.empty());
 
         assertThrows(UnauthorizedException.class, () ->
-                belongService.changeLeader(oldRunner.getId().toString(), changeLeaderRequestDto));
+                belongService.changeLeader(oldRunner.getId(), changeLeaderRequestDto));
         verify(belongRepository, times(1)).findByRunnerIdAndGroupId(any(), any());
         verify(belongRepository, times(0)).changeIsLeader(any(), any(), anyBoolean());
     }
@@ -440,15 +389,15 @@ class Version1BelongServiceTest {
     @Test
     @DisplayName("리더 변경 실패 서비스 테스트 - 리더가 아님")
     void changeLeaderFailByNotLeader() {
-        UUID oldLeaderRunnerUUID = UUID.randomUUID();
+        String oldLeaderRunnerId = "oldLeaderRunnerId";
         Runner oldRunner = new Runner();
-        oldRunner.setId(oldLeaderRunnerUUID);
+        oldRunner.setId(oldLeaderRunnerId);
 
-        UUID newLeaderRunnerUUID = UUID.randomUUID();
+        String newLeaderRunnerId = "newLeaderRunnerId";
         UUID groupUUID = UUID.randomUUID();
 
         ChangeLeaderRequestDto changeLeaderRequestDto = new ChangeLeaderRequestDto(
-                newLeaderRunnerUUID.toString(),
+                newLeaderRunnerId,
                 groupUUID.toString()
         );
 
@@ -459,7 +408,7 @@ class Version1BelongServiceTest {
         given(belongRepository.findByRunnerIdAndGroupId(any(), any())).willReturn(Optional.of(belong));
 
         assertThrows(UnauthorizedException.class, () ->
-                belongService.changeLeader(oldRunner.getId().toString(), changeLeaderRequestDto));
+                belongService.changeLeader(oldRunner.getId(), changeLeaderRequestDto));
         verify(belongRepository, times(1)).findByRunnerIdAndGroupId(any(), any());
         verify(belongRepository, times(0)).changeIsLeader(any(), any(), anyBoolean());
     }
@@ -467,15 +416,15 @@ class Version1BelongServiceTest {
     @Test
     @DisplayName("리더 변경 성공 서비스 테스트")
     void changeLeaderSuccess() {
-        UUID oldLeaderRunnerUUID = UUID.randomUUID();
+        String oldLeaderRunnerId = "oldLeaderRunnerId";
         Runner oldRunner = new Runner();
-        oldRunner.setId(oldLeaderRunnerUUID);
+        oldRunner.setId(oldLeaderRunnerId);
 
-        UUID newLeaderRunnerUUID = UUID.randomUUID();
+        String newLeaderRunnerId = "newLeaderRunnerId";
         UUID groupUUID = UUID.randomUUID();
 
         ChangeLeaderRequestDto changeLeaderRequestDto = new ChangeLeaderRequestDto(
-                newLeaderRunnerUUID.toString(),
+                newLeaderRunnerId,
                 groupUUID.toString()
         );
 
@@ -485,7 +434,7 @@ class Version1BelongServiceTest {
 
         given(belongRepository.findByRunnerIdAndGroupId(any(), any())).willReturn(Optional.of(belong));
 
-        belongService.changeLeader(oldRunner.getId().toString(), changeLeaderRequestDto);
+        belongService.changeLeader(oldRunner.getId(), changeLeaderRequestDto);
         verify(belongRepository, times(1)).findByRunnerIdAndGroupId(any(), any());
         verify(belongRepository, times(2)).changeIsLeader(any(), any(), anyBoolean());
     }

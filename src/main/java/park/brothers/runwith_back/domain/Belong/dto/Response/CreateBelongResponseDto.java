@@ -12,9 +12,6 @@ public class CreateBelongResponseDto {
     private String belongId; // 그룹에 가입한 belong id
 
     @NotEmpty
-    private String runnerId; //그룹에 가입한 러너 id
-
-    @NotEmpty
     private String groupId; //가입한 그룹 id
 
     @NotEmpty
