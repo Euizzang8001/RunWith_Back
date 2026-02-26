@@ -75,7 +75,6 @@ class BelongControllerTest {
     void save() throws Exception {
         //given
         UUID groupUUID = UUID.randomUUID();
-        String runnerStrId = "test_runner";
         String groupStrId = groupUUID.toString();
         String belongNickname = "test_nickname";
 

@@ -7,7 +7,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import park.brothers.runwith_back.common.Exceptions.DuplicateResourceException;
-import park.brothers.runwith_back.common.Exceptions.NotAcceptableException;
 import park.brothers.runwith_back.common.Exceptions.ResourceNotFoundException;
 import park.brothers.runwith_back.common.Exceptions.UnauthorizedException;
 import park.brothers.runwith_back.domain.Belong.dto.Request.ChangeLeaderRequestDto;

@@ -1,7 +1,5 @@
 package park.brothers.runwith_back.domain.Runner.service;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,11 +19,9 @@ import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
 import park.brothers.runwith_back.external.AWS_S3.AWSS3Service;
 
 import java.io.IOException;
-import java.util.Optional;
-import java.util.UUID;
+
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;

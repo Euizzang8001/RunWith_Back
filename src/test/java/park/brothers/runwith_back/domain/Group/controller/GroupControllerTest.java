@@ -189,7 +189,6 @@ class GroupControllerTest {
     @DisplayName("그룹 정보 수정 성공 컨트롤러 테스트")
     void reviseGroupInfo() throws Exception {
         String groupId = UUID.randomUUID().toString();
-        String runnerId = UUID.randomUUID().toString();
         ReviseGroupRequestDto reviseGroupRequestDto = new ReviseGroupRequestDto(
                 0,
                 "test_description"
