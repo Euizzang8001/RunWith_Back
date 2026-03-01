@@ -23,8 +23,6 @@ import park.brothers.runwith_back.domain.Belong.dto.Response.CreateBelongRespons
 import park.brothers.runwith_back.domain.Belong.dto.Response.GetBelongOfGroupResponseDto;
 import park.brothers.runwith_back.domain.Belong.dto.Response.GetBelongOfRunnerResponseDto;
 import park.brothers.runwith_back.domain.Belong.service.BelongService;
-import park.brothers.runwith_back.domain.Group.dto.Response.GetGroupResponseDto;
-import park.brothers.runwith_back.domain.Runner.dto.Response.GetRunnerResponseDto;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
