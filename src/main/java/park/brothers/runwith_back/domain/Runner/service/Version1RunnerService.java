@@ -3,17 +3,20 @@ package park.brothers.runwith_back.domain.Runner.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import park.brothers.runwith_back.common.Exceptions.ResourceNotFoundException;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
 import park.brothers.runwith_back.domain.Belong.repository.BelongRepository;
 import park.brothers.runwith_back.domain.Group.entity.Group;
 import park.brothers.runwith_back.domain.Group.repository.GroupRepository;
 import park.brothers.runwith_back.domain.Runner.dto.Request.CreateRunnerRequestDto;
 import park.brothers.runwith_back.domain.Runner.dto.Response.CreateRunnerResponseDto;
+import park.brothers.runwith_back.domain.Runner.dto.Response.GetMyInfoResponseDto;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
 import park.brothers.runwith_back.external.AWS_S3.AWSS3Service;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -69,4 +72,20 @@ public class Version1RunnerService implements RunnerService {
     public Boolean isSavedRunner(String runnerId){
         return runnerRepository.findById(runnerId).isPresent();
     }
+
+    //로그인한 러너 정보 조회
+    @Override
+    public GetMyInfoResponseDto findRunner(String runnerId) {
+        Optional<Runner> runner = runnerRepository.findById(runnerId);
+        if(runner.isEmpty()){
+            throw new ResourceNotFoundException("존재하지 않는 러너입니다.");
+        }
+
+        return new GetMyInfoResponseDto(
+                runner.get().getName(),
+                awss3Service.getImagePresignedUrl("runners", runnerId, 0)
+        );
+    }
+
+
 }

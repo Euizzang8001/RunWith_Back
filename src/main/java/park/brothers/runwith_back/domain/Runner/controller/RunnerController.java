@@ -14,6 +14,7 @@ import park.brothers.runwith_back.common.CommonMessage;
 import park.brothers.runwith_back.common.Response.ValidationErrorUtils;
 import park.brothers.runwith_back.domain.Runner.dto.Request.CreateRunnerRequestDto;
 import park.brothers.runwith_back.domain.Runner.dto.Response.CreateRunnerResponseDto;
+import park.brothers.runwith_back.domain.Runner.dto.Response.GetMyInfoResponseDto;
 import park.brothers.runwith_back.domain.Runner.service.RunnerService;
 
 import java.io.IOException;
@@ -53,5 +54,15 @@ public class RunnerController {
         } else{
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new CommonMessage("존재하지 않는 러너입니다."));
         }
+    }
+
+    //러너 정보 조회
+    @GetMapping
+    public ResponseEntity<Object> getRunner(
+            @AuthenticationPrincipal @Valid String runnerId
+    ){
+        GetMyInfoResponseDto getMyInfoResponseDto = runnerService.findRunner(runnerId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(getMyInfoResponseDto);
     }
 }
