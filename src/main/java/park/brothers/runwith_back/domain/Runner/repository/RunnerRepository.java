@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotEmpty;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 
 import java.util.Optional;
-import java.util.UUID;
 
 public interface RunnerRepository {
     Runner save(Runner runner);
@@ -13,4 +12,5 @@ public interface RunnerRepository {
 
     Optional<Runner> findByName(@NotEmpty String name);
 
+    void reviseRunner(Runner runner, @NotEmpty String runnerName);
 }

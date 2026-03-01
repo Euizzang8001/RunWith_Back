@@ -46,4 +46,10 @@ public class JPARunnerRepository implements RunnerRepository {
                 .findFirst();
     }
 
+    //러너 정보 수정
+    @Override
+    public void reviseRunner(Runner runner, String runnerName) {
+        runner.setName(runnerName);
+    }
+
 }
