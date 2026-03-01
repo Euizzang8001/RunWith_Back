@@ -3,17 +3,19 @@ package park.brothers.runwith_back.domain.Schedule.service;
 import jakarta.validation.Valid;
 import park.brothers.runwith_back.domain.Schedule.dto.Request.CreateScheduleRequestDto;
 import park.brothers.runwith_back.domain.Schedule.dto.Request.ReviseScheduleRequestDto;
+import park.brothers.runwith_back.domain.Schedule.dto.Response.CreateScheduleResponseDto;
 import park.brothers.runwith_back.domain.Schedule.dto.Response.GetSchedulesResponseDto;
+import park.brothers.runwith_back.domain.Schedule.dto.Response.ReviseScheduleResponseDto;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public interface ScheduleService {
-    void create(@Valid CreateScheduleRequestDto createScheduleRequestDto);
+    CreateScheduleResponseDto create(String runnerId, @Valid CreateScheduleRequestDto createScheduleRequestDto);
 
-    void delete(@Valid String id);
+    void delete(String runnerId, String scheduleId);
 
-    List<GetSchedulesResponseDto> getSchedules(@Valid String belongId, @Valid LocalDate localDate);
+    List<GetSchedulesResponseDto> getSchedules(String runnerId, @Valid String belongId, @Valid LocalDate localDate);
 
-    void revise(@Valid ReviseScheduleRequestDto reviseScheduleRequestDto);
+    ReviseScheduleResponseDto revise(String runnerId, String scheduleId, @Valid ReviseScheduleRequestDto reviseScheduleRequestDto);
 }

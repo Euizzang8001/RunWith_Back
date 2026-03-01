@@ -8,11 +8,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ScheduleRepository {
-    void save(Schedule schedule);
+    Schedule save(Schedule schedule);
 
-    void delete(UUID id);
+    void delete(Schedule schedule);
 
-    List<Schedule> fintAllSchedule();
+    List<Schedule> findAllSchedule();
 
     List<Schedule> findByLocalDate(LocalDate localDate);
 
@@ -20,7 +20,7 @@ public interface ScheduleRepository {
 
     List<Schedule> findByBelongIdAndLocalDate(UUID belongId, LocalDate localDate);
 
-    void reviseSchedule(UUID id, String description);
+    void reviseSchedule(Schedule schedule, String description);
 
     Optional<Schedule> findScheduleById(UUID scheduleId);
 }

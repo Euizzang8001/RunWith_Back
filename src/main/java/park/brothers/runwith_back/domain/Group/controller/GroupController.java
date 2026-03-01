@@ -87,4 +87,14 @@ public class GroupController {
 
         return ResponseEntity.status(HttpStatus.OK).body(reviseGroupResponseDto);
     }
+
+    //자신의 그룹 정보(자신만의 일정을 담은) 조회하기
+    @GetMapping("/self")
+    public ResponseEntity<Object> getMyGroupInfo(
+            @AuthenticationPrincipal String runnerId
+    ){
+        GetGroupResponseDto getGroupResponseDto = groupService.getMyGroup(runnerId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(getGroupResponseDto);
+    }
 }

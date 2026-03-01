@@ -9,8 +9,5 @@ import lombok.Getter;
 public class ReviseScheduleRequestDto {
 
     @NotEmpty
-    private String scheduleId;
-
-    @NotEmpty
     private String scheduleDescription;
 }

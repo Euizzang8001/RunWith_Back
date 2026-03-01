@@ -12,12 +12,10 @@ import park.brothers.runwith_back.common.CommonMessage;
 import park.brothers.runwith_back.common.Response.ValidationErrorUtils;
 import park.brothers.runwith_back.domain.Belong.dto.Request.ChangeLeaderRequestDto;
 import park.brothers.runwith_back.domain.Belong.dto.Request.CreateBelongRequestDto;
-import park.brothers.runwith_back.domain.Belong.dto.Request.DeleteBelongRequestDto;
-import park.brothers.runwith_back.domain.Belong.dto.Response.ChangeLeaderResponseDto;
 import park.brothers.runwith_back.domain.Belong.dto.Response.CreateBelongResponseDto;
+import park.brothers.runwith_back.domain.Belong.dto.Response.GetBelongOfGroupResponseDto;
+import park.brothers.runwith_back.domain.Belong.dto.Response.GetBelongOfRunnerResponseDto;
 import park.brothers.runwith_back.domain.Belong.service.BelongService;
-import park.brothers.runwith_back.domain.Group.dto.Response.GetGroupResponseDto;
-import park.brothers.runwith_back.domain.Runner.dto.Response.GetRunnerResponseDto;
 
 import java.util.List;
 
@@ -59,14 +57,14 @@ public class BelongController {
     //특정 runner가 속한 모든 그룹들을 응답 받는 api
     @GetMapping("/runnerId={runnerId}")
     public ResponseEntity<Object> getAllGroupsRunnerJoin(@PathVariable @Valid String runnerId){
-        List<GetGroupResponseDto> groups = belongService.getAllGroupsRunnerJoin(runnerId);
+        List<GetBelongOfGroupResponseDto> groups = belongService.getAllGroupsRunnerJoin(runnerId);
         return ResponseEntity.status(HttpStatus.OK).body(groups);
     }
 
     //특정 그룹에 속한 모든 runner들을 응답 받는 api
     @GetMapping("/groupId={groupId}")
     public ResponseEntity<Object> getAllRunnersInGroup(@PathVariable @Valid String groupId){
-        List<GetRunnerResponseDto> runners = belongService.getAllRunnersInGroup(groupId);
+        List<GetBelongOfRunnerResponseDto> runners = belongService.getAllRunnersInGroup(groupId);
         return ResponseEntity.status(HttpStatus.OK).body(runners);
     }
 

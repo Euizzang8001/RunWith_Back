@@ -59,4 +59,18 @@ public class JPAGroupRepository implements GroupRepository {
                 .getResultStream()
                 .findFirst();
     }
+
+    //특정 러너의 id로 셀프 그룹 찾기
+    @Override
+    public Optional<Group> findSelfGroupByRunnerId(String runnerId) {
+
+        return em.createQuery(
+                        "select g from Group g " +
+                                "inner join Belong b on b.group = g " +
+                                "where g.isSelf = true and b.isLeader = true and b.runner.id = :runnerId", Group.class)
+                .setParameter("runnerId", runnerId)
+                .setMaxResults(1)
+                .getResultStream()
+                .findFirst();
+    }
 }

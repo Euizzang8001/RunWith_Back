@@ -18,4 +18,6 @@ public interface GroupRepository {
     List<Group> findBySimilarName(String name);
 
     Optional<Group> findById(UUID groupId);
+
+    Optional<Group> findSelfGroupByRunnerId(String runnerId);
 }
