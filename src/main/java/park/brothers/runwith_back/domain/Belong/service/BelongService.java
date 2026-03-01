@@ -6,6 +6,8 @@ import park.brothers.runwith_back.domain.Belong.dto.Request.CreateBelongRequestD
 import park.brothers.runwith_back.domain.Belong.dto.Request.DeleteBelongRequestDto;
 import park.brothers.runwith_back.domain.Belong.dto.Response.ChangeLeaderResponseDto;
 import park.brothers.runwith_back.domain.Belong.dto.Response.CreateBelongResponseDto;
+import park.brothers.runwith_back.domain.Belong.dto.Response.GetBelongOfGroupResponseDto;
+import park.brothers.runwith_back.domain.Belong.dto.Response.GetBelongOfRunnerResponseDto;
 import park.brothers.runwith_back.domain.Group.dto.Response.GetGroupResponseDto;
 import park.brothers.runwith_back.domain.Runner.dto.Response.GetRunnerResponseDto;
 
@@ -16,9 +18,9 @@ public interface BelongService {
 
     void leaveGroup(String runnerId, String groupId);
 
-    List<GetGroupResponseDto> getAllGroupsRunnerJoin(@Valid String runnerId);
+    List<GetBelongOfGroupResponseDto> getAllGroupsRunnerJoin(@Valid String runnerId);
 
-    List<GetRunnerResponseDto> getAllRunnersInGroup(@Valid String groupId);
+    List<GetBelongOfRunnerResponseDto> getAllRunnersInGroup(@Valid String groupId);
 
     void changeLeader(String oldLeaderRunnerId, @Valid ChangeLeaderRequestDto changeLeaderRequestDto);
 }

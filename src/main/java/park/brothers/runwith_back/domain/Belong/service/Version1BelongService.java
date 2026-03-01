@@ -8,6 +8,8 @@ import park.brothers.runwith_back.common.Exceptions.UnauthorizedException;
 import park.brothers.runwith_back.domain.Belong.dto.Request.ChangeLeaderRequestDto;
 import park.brothers.runwith_back.domain.Belong.dto.Request.CreateBelongRequestDto;
 import park.brothers.runwith_back.domain.Belong.dto.Response.CreateBelongResponseDto;
+import park.brothers.runwith_back.domain.Belong.dto.Response.GetBelongOfGroupResponseDto;
+import park.brothers.runwith_back.domain.Belong.dto.Response.GetBelongOfRunnerResponseDto;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
 import park.brothers.runwith_back.domain.Belong.repository.BelongRepository;
 import park.brothers.runwith_back.domain.Group.dto.Response.GetGroupResponseDto;
@@ -91,19 +93,19 @@ public class Version1BelongService implements BelongService{
 
     //특정 러너가 속한 모든 그룹 가져오기
     @Override
-    public List<GetGroupResponseDto> getAllGroupsRunnerJoin(String runnerId) {
+    public List<GetBelongOfGroupResponseDto> getAllGroupsRunnerJoin(String runnerId) {
         List<Belong> belongs = belongRepository.findByRunnerId(runnerId);
         return belongs.stream()
-                .map(belong -> new GetGroupResponseDto(belong.getGroup().getId().toString(), belong.getGroup().getName(), belong.getGroup().getDescription(), aWSS3Service.getImagePresignedUrl("groups", belong.getGroup().getId().toString(), 0)))
+                .map(belong -> new GetBelongOfGroupResponseDto(belong.getId().toString(), belong.getGroup().getId().toString(), belong.getGroup().getName(), belong.getGroup().getDescription(), aWSS3Service.getImagePresignedUrl("groups", belong.getGroup().getId().toString(), 0)))
                 .collect(Collectors.toList());
     }
 
     //특정 그룹에 속한 모든 러너들 가져오기
     @Override
-    public List<GetRunnerResponseDto> getAllRunnersInGroup(String groupId) {
+    public List<GetBelongOfRunnerResponseDto> getAllRunnersInGroup(String groupId) {
         List<Belong> belongs = belongRepository.findByGroupId(UUID.fromString(groupId));
         return belongs.stream()
-                .map(belong -> new GetRunnerResponseDto(belong.getRunner().getId(), belong.getRunner().getName(), aWSS3Service.getImagePresignedUrl("runners",belong.getRunner().getId(), 0 )))
+                .map(belong -> new GetBelongOfRunnerResponseDto(belong.getId().toString(), belong.getRunner().getId(), belong.getRunner().getName(), aWSS3Service.getImagePresignedUrl("runners",belong.getRunner().getId(), 0 )))
                 .collect(Collectors.toList());
     }
 

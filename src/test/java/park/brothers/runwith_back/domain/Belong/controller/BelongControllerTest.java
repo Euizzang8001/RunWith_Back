@@ -20,6 +20,8 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import park.brothers.runwith_back.domain.Belong.dto.Request.ChangeLeaderRequestDto;
 import park.brothers.runwith_back.domain.Belong.dto.Request.CreateBelongRequestDto;
 import park.brothers.runwith_back.domain.Belong.dto.Response.CreateBelongResponseDto;
+import park.brothers.runwith_back.domain.Belong.dto.Response.GetBelongOfGroupResponseDto;
+import park.brothers.runwith_back.domain.Belong.dto.Response.GetBelongOfRunnerResponseDto;
 import park.brothers.runwith_back.domain.Belong.service.BelongService;
 import park.brothers.runwith_back.domain.Group.dto.Response.GetGroupResponseDto;
 import park.brothers.runwith_back.domain.Runner.dto.Response.GetRunnerResponseDto;
@@ -131,20 +133,22 @@ class BelongControllerTest {
         UUID group1UUID = UUID.randomUUID();
         UUID group2UUID = UUID.randomUUID();
 
-        GetGroupResponseDto getGroupResponseDto1 = new GetGroupResponseDto(
+        GetBelongOfGroupResponseDto getBelongOfGroupResponseDto1 = new GetBelongOfGroupResponseDto(
+                UUID.randomUUID().toString(),
                 group1UUID.toString(),
                 "test_group1",
                 "test_group1_description",
                 "test_group1_imageLink"
         );
-        GetGroupResponseDto getGroupResponseDto2 = new GetGroupResponseDto(
+        GetBelongOfGroupResponseDto getBelongOfGroupResponseDto2 = new GetBelongOfGroupResponseDto(
+                UUID.randomUUID().toString(),
                 group2UUID.toString(),
                 "test_group2",
                 "test_group2_description",
                 "test_group2_imageLink"
         );
 
-        given(belongService.getAllGroupsRunnerJoin(anyString())).willReturn(List.of(getGroupResponseDto1, getGroupResponseDto2));
+        given(belongService.getAllGroupsRunnerJoin(anyString())).willReturn(List.of(getBelongOfGroupResponseDto1, getBelongOfGroupResponseDto2));
 
         //when & then
         mockMvc.perform(get("/api/v1/belongs/runnerId={runnerId}", runnerStrId)) // get요청
@@ -169,18 +173,20 @@ class BelongControllerTest {
         String runner1Id = "test_runner1";
         String runner2Id = "test_runner2";
 
-        GetRunnerResponseDto getRunnerResponseDto1 =  new GetRunnerResponseDto(
+        GetBelongOfRunnerResponseDto getBelongOfRunnerResponseDto1 =  new GetBelongOfRunnerResponseDto(
+                UUID.randomUUID().toString(),
                 runner1Id,
                 "test_runner1",
                 "test_runner1_imageLink"
         );
-        GetRunnerResponseDto getRunnerResponseDto2 =  new GetRunnerResponseDto(
+        GetBelongOfRunnerResponseDto getBelongOfRunnerResponseDto2 =  new GetBelongOfRunnerResponseDto(
+                UUID.randomUUID().toString(),
                 runner2Id,
                 "test_runner2",
                 "test_runner2_imageLink"
         );
 
-        given(belongService.getAllRunnersInGroup(anyString())).willReturn(List.of(getRunnerResponseDto1, getRunnerResponseDto2));
+        given(belongService.getAllRunnersInGroup(anyString())).willReturn(List.of(getBelongOfRunnerResponseDto1, getBelongOfRunnerResponseDto2));
 
         //when & then
         mockMvc.perform(get("/api/v1/belongs/groupId={groupId}", groupUUID.toString())) // get요청
