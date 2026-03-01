@@ -9,6 +9,7 @@ import park.brothers.runwith_back.domain.Belong.repository.BelongRepository;
 import park.brothers.runwith_back.domain.Group.entity.Group;
 import park.brothers.runwith_back.domain.Group.repository.GroupRepository;
 import park.brothers.runwith_back.domain.Runner.dto.Request.CreateRunnerRequestDto;
+import park.brothers.runwith_back.domain.Runner.dto.Request.ReviseMyInfoRequestDto;
 import park.brothers.runwith_back.domain.Runner.dto.Response.CreateRunnerResponseDto;
 import park.brothers.runwith_back.domain.Runner.dto.Response.GetMyInfoResponseDto;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
@@ -85,6 +86,39 @@ public class Version1RunnerService implements RunnerService {
                 runner.get().getName(),
                 awss3Service.getImagePresignedUrl("runners", runnerId, 0)
         );
+    }
+
+    @Override
+    public GetMyInfoResponseDto revise(String runnerId, ReviseMyInfoRequestDto reviseMyInfoRequestDto, MultipartFile image) throws IOException {
+        Optional<Runner> runner = runnerRepository.findById(runnerId);
+
+        if(runner.isEmpty()){
+            throw new ResourceNotFoundException("존재하지 않는 러너입니다.");
+        }
+
+        //이름이 변경될 예정이면 이름 수정
+        String runnerName;
+        if(reviseMyInfoRequestDto != null && !reviseMyInfoRequestDto.getRunnerName().isEmpty()){
+            runnerRepository.reviseRunner(runner.get(), reviseMyInfoRequestDto.getRunnerName());
+            runnerName = reviseMyInfoRequestDto.getRunnerName();
+        } else {
+            runnerName = runner.get().getName();
+        }
+
+        //이미지가 비어있지 않다면 이미지 수정
+        String imageLink;
+        if(!image.isEmpty()){
+            imageLink = awss3Service.putImageToAWSS3(image, "runners", runnerId, 0);
+        } else {
+            imageLink = awss3Service.getImagePresignedUrl("runners", runnerId, 0);
+        }
+
+
+        return new GetMyInfoResponseDto(
+                runnerName,
+                imageLink
+        );
+
     }
 
 

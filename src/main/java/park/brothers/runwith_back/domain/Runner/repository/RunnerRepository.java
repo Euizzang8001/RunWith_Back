@@ -13,4 +13,5 @@ public interface RunnerRepository {
 
     Optional<Runner> findByName(@NotEmpty String name);
 
+    void reviseRunner(Runner runner, @NotEmpty String runnerName);
 }
