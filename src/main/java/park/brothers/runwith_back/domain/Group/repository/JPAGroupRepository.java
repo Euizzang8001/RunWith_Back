@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import park.brothers.runwith_back.domain.Belong.entity.Belong;
 import park.brothers.runwith_back.domain.Group.entity.Group;
 
 import java.util.List;
@@ -56,6 +57,20 @@ public class JPAGroupRepository implements GroupRepository {
     public Optional<Group> findById(UUID id) {
         return em.createQuery("select g from Group g where g.id = :id", Group.class)
                 .setParameter("id", id)
+                .getResultStream()
+                .findFirst();
+    }
+
+    //특정 러너의 id로 셀프 그룹 찾기
+    @Override
+    public Optional<Group> findSelfGroupByRunnerId(String runnerId) {
+
+        return em.createQuery(
+                        "select g from Group g " +
+                                "inner join Belong b on b.group = g " +
+                                "where g.isSelf = true and b.isLeader = true and b.runner.id = :runnerId", Group.class)
+                .setParameter("runnerId", runnerId)
+                .setMaxResults(1)
                 .getResultStream()
                 .findFirst();
     }

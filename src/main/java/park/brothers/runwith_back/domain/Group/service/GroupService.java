@@ -22,4 +22,6 @@ public interface GroupService {
     void delete(String runnerId, String groupId);
 
     ReviseGroupResponseDto reviseGroup(String runnerId, String groupId, @Valid ReviseGroupRequestDto reviseGroupRequestDto, MultipartFile image) throws IllegalAccessException, IOException;
+
+    GetGroupResponseDto getMyGroup(String runnerId);
 }

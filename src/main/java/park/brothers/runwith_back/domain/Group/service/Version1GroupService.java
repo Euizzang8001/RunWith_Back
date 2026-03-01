@@ -3,6 +3,7 @@ package park.brothers.runwith_back.domain.Group.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import park.brothers.runwith_back.common.Exceptions.ResourceNotFoundException;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
 import park.brothers.runwith_back.domain.Belong.repository.BelongRepository;
 import park.brothers.runwith_back.domain.Group.dto.Request.CreateGroupRequestDto;
@@ -60,7 +61,8 @@ public class Version1GroupService implements GroupService {
          belong.setGroup(savedGroup);
          belong.setNickname(createGroupRequestDto.getGroupNickname());
          belong.setLeader(true);
-         belongRepository.save(belong);
+         Belong savedBelong = belongRepository.save(belong);
+        System.out.println("savedBelong = " + savedBelong);
 
          //이미지가 존재하면 저장하고 presignedurl 받기, 없으면 null return
          String presignedImageUrl = (image != null && !image.isEmpty())
@@ -183,6 +185,25 @@ public class Version1GroupService implements GroupService {
                 group.get().getDescription(),
                 presignedImageUrl,
                 group.get().getCertificationCriteria()
+        );
+    }
+
+
+    //self group 정보 조회
+    @Override
+    public GetGroupResponseDto getMyGroup(String runnerId) {
+        Optional<Group> group = groupRepository.findSelfGroupByRunnerId(runnerId);
+
+        //셀프 그룹이 존재하지 않으면 오류
+        if(group.isEmpty()){
+            throw new ResourceNotFoundException("셀프 그룹이 존재하지 않습니다");
+        }
+
+        return new GetGroupResponseDto(
+                group.get().getId().toString(),
+                group.get().getName(),
+                group.get().getDescription(),
+                awss3Service.getImagePresignedUrl("runners", runnerId, 0)
         );
     }
 }
