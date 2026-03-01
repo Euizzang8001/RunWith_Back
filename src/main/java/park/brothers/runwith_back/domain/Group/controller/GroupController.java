@@ -1,5 +1,8 @@
 package park.brothers.runwith_back.domain.Group.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,10 +35,18 @@ public class GroupController {
 
     //그룹 생성 api
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @Operation(summary = "그룹 생성",description = "새로운 그룹을 생성합니다.")
     public ResponseEntity<Object> save(
             @AuthenticationPrincipal String runnerId,
+            @Parameter(
+                    description = "그룹 생성 정보",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
+            )
             @RequestPart(value = "request") @Valid CreateGroupRequestDto createGroupRequestDto,
             BindingResult bindingResult,
+            @Parameter(
+                    description = "러너 이미지"
+            )
             @RequestPart(value = "image", required = false)MultipartFile image
             ) throws IOException { //BindingResult은 DTO만
         if (bindingResult.hasErrors()) {
@@ -49,13 +60,16 @@ public class GroupController {
 
     //유사 이름의 그룹 얻기
     @GetMapping("/groupName={groupName}")
-    public ResponseEntity<Object> findGroupsBySimilarName(@PathVariable @Valid String groupName){
+    @Operation(summary = "유사한 이름의 그룹 조회",description = "검색한 이름이 들어간 모든 그룹을 조회합니다.")
+    public ResponseEntity<Object> findGroupsBySimilarName(
+            @Parameter( description = "검색할 그룹 이름" ) @PathVariable @Valid String groupName){
         List<GetGroupResponseDto> groups = groupService.getGroupsBySimilarName(groupName);
         return ResponseEntity.status(HttpStatus.OK).body(groups);
     }
 
     // 모든 그룹 얻기
     @GetMapping
+    @Operation(summary = "모든 그룹 조회",description = "생성된 모든 그룹들을 조회합니다.")
     public ResponseEntity<Object> getAllGroups() {
         List<GetGroupResponseDto> groups = groupService.getAllGroups();
         return ResponseEntity.status(HttpStatus.OK).body(groups);
@@ -63,6 +77,7 @@ public class GroupController {
 
     //그룹 삭제하기
     @DeleteMapping("/groupId={groupId}")
+    @Operation(summary = "그룹 삭제",description = "특정 그룹을 삭제합니다.")
     public ResponseEntity<Object> deleteGroup(
             @AuthenticationPrincipal String runnerId,
             @PathVariable @Valid String groupId
@@ -90,6 +105,7 @@ public class GroupController {
 
     //자신의 그룹 정보(자신만의 일정을 담은) 조회하기
     @GetMapping("/self")
+    @Operation(summary = "셀프 그룹 정보 조회",description = "로그인한 러너의 셀프 그룹을 조회합니다.")
     public ResponseEntity<Object> getMyGroupInfo(
             @AuthenticationPrincipal String runnerId
     ){
