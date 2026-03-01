@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import park.brothers.runwith_back.domain.Schedule.entity.Schedule;
 
 import java.time.LocalDate;
@@ -23,30 +24,30 @@ public class JpaScheduleRepository implements ScheduleRepository{
 
     //schedule 객체 저장
     @Override
-    public void save(Schedule schedule) {
+    @Transactional
+    public Schedule save(Schedule schedule) {
         em.persist(schedule);
+        return schedule;
     }
 
     // 스케줄 객체 삭제
     @Override
-    public void delete(UUID id) {
-        Schedule schedule = em.createQuery("select s from Schedule s where id = :id", Schedule.class)
-                .setParameter("id", id)
-                .getSingleResult();
+    @Transactional
+    public void delete(Schedule schedule) {
         em.remove(schedule);
     }
 
     //전체 스케줄 조회
     @Override
-    public List<Schedule> fintAllSchedule() {
-        return em.createQuery("select s from Schedule s", Schedule.class)
+    public List<Schedule> findAllSchedule() {
+        return em.createQuery("select s from Schedule s order by s.scheduleYear, s.scheduleMonth, s.scheduleDate", Schedule.class)
                 .getResultList();
     }
 
     //LocalDateTime에 따라 조회
     @Override
     public List<Schedule> findByLocalDate(LocalDate localDate) {
-        return em.createQuery("select s from Schedule s where s.scheduleYear = :year and s.scheduleMonth = :month", Schedule.class)
+        return em.createQuery("select s from Schedule s where s.scheduleYear = :year and s.scheduleMonth = :month order by s.scheduleYear, s.scheduleMonth, s.scheduleDate", Schedule.class)
                 .setParameter("year", localDate.getYear())
                 .setParameter("month", localDate.getMonthValue())
                 .getResultList();
@@ -55,7 +56,7 @@ public class JpaScheduleRepository implements ScheduleRepository{
     //Belong Id에 따라 조회
     @Override
     public List<Schedule> findByBelongId(UUID belongId) {
-        return em.createQuery("select s from Schedule s where s.belong.id = :belongId", Schedule.class)
+        return em.createQuery("select s from Schedule s where s.belong.id = :belongId order by s.scheduleYear, s.scheduleMonth, s.scheduleDate", Schedule.class)
                 .setParameter("belongId", belongId)
                 .getResultList();
     }
@@ -63,7 +64,7 @@ public class JpaScheduleRepository implements ScheduleRepository{
     //BelongId와 LocalDateTime에 따라 조회
     @Override
     public List<Schedule> findByBelongIdAndLocalDate(UUID belongId, LocalDate localDateTime) {
-        return em.createQuery("select s from Schedule s where s.scheduleYear = :year and s.scheduleMonth = :month and s.belong.id = :belongId", Schedule.class)
+        return em.createQuery("select s from Schedule s where s.scheduleYear = :year and s.scheduleMonth = :month and s.belong.id = :belongId order by s.scheduleYear, s.scheduleMonth, s.scheduleDate", Schedule.class)
                 .setParameter("year", localDateTime.getYear())
                 .setParameter("month", localDateTime.getMonthValue())
                 .setParameter("belongId", belongId)
@@ -72,10 +73,8 @@ public class JpaScheduleRepository implements ScheduleRepository{
 
     //스케줄 수정하기
     @Override
-    public void reviseSchedule(UUID id, String description) {
-        Schedule schedule = em.createQuery("select s from Schedule s where s.id = :id", Schedule.class)
-                .setParameter("id", id)
-                .getSingleResult();
+    @Transactional
+    public void reviseSchedule(Schedule schedule, String description) {
         schedule.setDescription(description);
     }
 
