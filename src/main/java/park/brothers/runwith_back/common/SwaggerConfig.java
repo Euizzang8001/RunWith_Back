@@ -25,7 +25,7 @@ public class SwaggerConfig { //스웨거 config
 
         return new OpenAPI() //openapi 명세 설정
                 .info(new Info().title("Run With API 명세서")
-                        .description("러닝 크루 매칭 서비스 API 문서입니다.")
+                        .description("RunWith API 명세서 페이지입니다.")
                         .version("v1.0.0"))
                 .components(new Components().addSecuritySchemes("bearerAuth", securityScheme))
                 .addSecurityItem(securityRequirement);
