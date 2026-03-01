@@ -31,7 +31,13 @@ public class SecurityConfig {
 
                 //접근 권한 설정
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/public/**").permitAll() // 인증 없이 접근 가능한 경로
+                        .requestMatchers(
+                                "/swagger-ui/**", //아래 4개는 스웨거 관련 url임 -> public
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/v3/api-docs.yaml",
+                                "/public/**"
+                        ).permitAll()
                         .anyRequest().authenticated() //이외의 요청은 모두 인증 필요
                 )
 
