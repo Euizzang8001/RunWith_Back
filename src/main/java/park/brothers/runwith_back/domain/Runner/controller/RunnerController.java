@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import park.brothers.runwith_back.common.CommonMessage;
 import park.brothers.runwith_back.common.Response.ValidationErrorUtils;
 import park.brothers.runwith_back.domain.Runner.dto.Request.CreateRunnerRequestDto;
+import park.brothers.runwith_back.domain.Runner.dto.Request.ReviseMyInfoRequestDto;
 import park.brothers.runwith_back.domain.Runner.dto.Response.CreateRunnerResponseDto;
 import park.brothers.runwith_back.domain.Runner.dto.Response.GetMyInfoResponseDto;
 import park.brothers.runwith_back.domain.Runner.service.RunnerService;
@@ -62,6 +63,23 @@ public class RunnerController {
             @AuthenticationPrincipal @Valid String runnerId
     ){
         GetMyInfoResponseDto getMyInfoResponseDto = runnerService.findRunner(runnerId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(getMyInfoResponseDto);
+    }
+
+    //러너 정보 수정
+    @PatchMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<Object> reviseMyInfo(
+            @AuthenticationPrincipal String runnerId,
+            @RequestPart(value = "request", required = false) ReviseMyInfoRequestDto reviseMyInfoRequestDto,
+            BindingResult bindingResult,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) throws IOException {
+        if (bindingResult.hasErrors()) {
+            return ValidationErrorUtils.handleValidationErrors(bindingResult);
+        }
+
+        GetMyInfoResponseDto getMyInfoResponseDto = runnerService.revise(runnerId, reviseMyInfoRequestDto, image);
 
         return ResponseEntity.status(HttpStatus.OK).body(getMyInfoResponseDto);
     }
