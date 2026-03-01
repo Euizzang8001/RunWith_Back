@@ -1,5 +1,8 @@
 package park.brothers.runwith_back.domain.Runner.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,11 +31,20 @@ public class RunnerController {
 
     private final RunnerService runnerService;
 
+    //러너 저장 api
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})//요청 받는 미디어 타입을 입력해야 함
+    @Operation(summary = "러너 생성",description = "새로운 러너를 생성합니다.")
     public ResponseEntity<Object> save(
-            @AuthenticationPrincipal String runnerId,
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId,
+            @Parameter(
+                    description = "러너 생성 정보",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
+            )
             @RequestPart(value = "request") @Valid CreateRunnerRequestDto createRunnerRequestDto,
             BindingResult bindingResult,
+            @Parameter(
+                    description = "러너 이미지"
+            )
             @RequestPart(value = "image", required = false) MultipartFile image
     ) throws IOException {
         if (bindingResult.hasErrors()) {
@@ -46,6 +58,7 @@ public class RunnerController {
 
     //토큰으로 이미 유저가 존재하는지 확인하는 api
     @GetMapping("/exist")
+    @Operation(summary = "러너 존재 여부 확인",description = "해당 로그인 정보르 가입한 러너가 존재하는지 확인합니다.")
     public ResponseEntity<Object> isSavedRunner(
             @AuthenticationPrincipal @Valid String runnerId
     ){
@@ -59,6 +72,7 @@ public class RunnerController {
 
     //러너 정보 조회
     @GetMapping
+    @Operation(summary = "러너 조회",description = "로그인한 러너 정보를 조회합니다.")
     public ResponseEntity<Object> getRunner(
             @AuthenticationPrincipal @Valid String runnerId
     ){
@@ -69,10 +83,18 @@ public class RunnerController {
 
     //러너 정보 수정
     @PatchMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @Operation(summary = "러너 수정",description = "로그인한 러너 정보를 수정합니다.")
     public ResponseEntity<Object> reviseMyInfo(
-            @AuthenticationPrincipal String runnerId,
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId,
+            @Parameter(
+                    description = "러너 수정 정보",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
+            )
             @RequestPart(value = "request", required = false) ReviseMyInfoRequestDto reviseMyInfoRequestDto,
             BindingResult bindingResult,
+            @Parameter(
+                    description = "러너 수정 이미지"
+            )
             @RequestPart(value = "image", required = false) MultipartFile image
     ) throws IOException {
         if (bindingResult.hasErrors()) {
