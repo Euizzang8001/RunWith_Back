@@ -40,7 +40,7 @@ public class Action {
     @Column(nullable = false)
     private int endMinute;
 
-
-
+    @Column(nullable = false)
+    private int maxImageSize;
 
 }

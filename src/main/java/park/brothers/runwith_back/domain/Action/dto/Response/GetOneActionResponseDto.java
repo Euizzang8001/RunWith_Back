@@ -5,27 +5,31 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 public class GetOneActionResponseDto {
     @NotEmpty
-    String actionId;
+    private String actionId;
 
     @NotEmpty
-    String actionName;
+    private String actionName;
 
     @NotEmpty
-    String actionDescription;
+    private String actionDescription;
 
     @NotNull
-    int actionStartHour;
+    private int actionStartHour;
 
     @NotNull
-    int actionStartMinute;
+    private int actionStartMinute;
 
     @NotNull
-    int actionEndHour;
+    private int actionEndHour;
 
     @NotNull
-    int actionEndMinute;
+    private int actionEndMinute;
+
+    private List<String> actionImageLinkList;
 }

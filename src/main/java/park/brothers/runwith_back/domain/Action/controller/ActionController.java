@@ -22,6 +22,7 @@ import park.brothers.runwith_back.domain.Action.dto.Request.ReviseActionRequestD
 import park.brothers.runwith_back.domain.Action.dto.Response.CreateActionResponseDto;
 import park.brothers.runwith_back.domain.Action.dto.Response.GetActionsResponseDto;
 import park.brothers.runwith_back.domain.Action.dto.Response.GetOneActionResponseDto;
+import park.brothers.runwith_back.domain.Action.dto.Response.ReviseActionResponseDto;
 import park.brothers.runwith_back.domain.Action.service.ActionService;
 
 import java.io.IOException;
@@ -47,7 +48,7 @@ public class ActionController {
             @RequestPart(value = "request") @Valid CreateActionRequestDto createActionRequestDto,
             BindingResult bindingResult,
             @Parameter(
-                    description = "액션 이미지 목록 (최대 10장)",
+                    description = "액션 이미지 목록 (최대 5장)",
                     content = @Content(
                             mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
                             array = @ArraySchema(schema = @Schema(type = "string", format = "binary"))
@@ -59,8 +60,8 @@ public class ActionController {
             return ValidationErrorUtils.handleValidationErrors(bindingResult);
         }
 
-        //이미지 10장 초과면 경고
-        if(images.size() > 10){
+        //이미지 5장 초과면 경고
+        if(!images.isEmpty() && images.size() > 5){
             return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE).body(new CommonMessage("이미지는 최대 10장까지입니다."));
         }
 
@@ -70,8 +71,12 @@ public class ActionController {
 
     //조건에 맞는 Actions 조회
     @GetMapping
+    @Operation(summary = "Action들 조회", description = "ScheduleId에 속한 여러 액션들을 조회합니다.")
     public ResponseEntity<Object>  getActionsByScheduleId(
-            @RequestParam(required = false) @Valid String scheduleId
+            @Parameter(
+                    description = "Schedule Id"
+            )
+            @RequestParam @Valid String scheduleId
     ){
            List<GetActionsResponseDto> getActionsResponseDto = actionService.getActionsByScheduleId(scheduleId);
 
@@ -79,34 +84,62 @@ public class ActionController {
     }
 
     //id로 하나의 Action조회
-    @GetMapping("/detail")
+    @GetMapping("/detail/{actionId}")
+    @Operation(summary = "하나의 Action 상세 보기", description = "특정 Action하나를 상세 보기 합니다.")
     public ResponseEntity<Object> getOneActionById(
-        @RequestParam(required = false) @Valid String id
+        @PathVariable @Valid String actionId
     ){
-        GetOneActionResponseDto getOneActionResponseDto = actionService.getActionById(id);
-        return ResponseEntity.status(HttpStatus.OK).body((getOneActionResponseDto));
+        GetOneActionResponseDto getOneActionResponseDto = actionService.getActionById(actionId);
+        return ResponseEntity.status(HttpStatus.OK).body(getOneActionResponseDto);
     }
 
 
 
     //Action 삭제
-    @DeleteMapping
-    public ResponseEntity<Object> deleteAction(@RequestParam @Valid String id){
-        actionService.deleteAction(id);
+    @DeleteMapping("/{actionId}")
+    @Operation(summary = "액션 삭제", description = "하나의 액션을 삭제합니다.")
+    public ResponseEntity<Object> deleteAction(
+            @AuthenticationPrincipal String runnerId,
+            @PathVariable @Valid String actionId
+    ){
+        actionService.deleteAction(runnerId, actionId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(id);
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonMessage("액션 삭제가 완료되었습니다."));
     }
 
     //Action수정
-    @PatchMapping
-    public ResponseEntity<Object> reviseAction(@RequestBody @Valid ReviseActionRequestDto reviseActionRequestDto, BindingResult bindingResult){
+    @PatchMapping(path = "/{actionId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @Operation(summary = "하나의 Action 수정하기", description = "특정 Action하나를 수정합니다.")
+    public ResponseEntity<Object> reviseAction(
+            @AuthenticationPrincipal String runnerId,
+            @PathVariable @Valid String actionId,
+            @Parameter(
+                    description = "수정할 Action 정보",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
+            )
+            @RequestPart(value = "request") @Valid ReviseActionRequestDto reviseActionRequestDto,
+            BindingResult bindingResult,
+            @Parameter(
+                    description = "액션 이미지 목록 (최대 5장)",
+                    content = @Content(
+                            mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                            array = @ArraySchema(schema = @Schema(type = "string", format = "binary"))
+                    )
+            )
+            @RequestPart(value = "image", required = false) List<MultipartFile> images
+    ) throws IOException {
         if(bindingResult.hasErrors()){
             return ValidationErrorUtils.handleValidationErrors(bindingResult);
         }
 
-        actionService.reviseAction(reviseActionRequestDto);
+        //이미지 5장 초과면 경고
+        if(!images.isEmpty() && images.size() > 5){
+            return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE).body(new CommonMessage("이미지는 최대 10장까지입니다."));
+        }
 
-        return ResponseEntity.status(HttpStatus.OK).body(reviseActionRequestDto);
+        ReviseActionResponseDto reviseActionResponseDto = actionService.reviseAction(runnerId, actionId, reviseActionRequestDto, images);
+
+        return ResponseEntity.status(HttpStatus.OK).body(reviseActionResponseDto);
     }
 
 }

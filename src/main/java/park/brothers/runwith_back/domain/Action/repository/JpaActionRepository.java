@@ -59,16 +59,16 @@ public class JpaActionRepository implements ActionRepository{
     //Action 수정
     @Override
     @Transactional
-    public void reviseAction(UUID id, String name, String description, int startHour, int startMinute, int endHour, int endMinute) {
-        Action action = em.createQuery("select a from Action a where a.id = :id", Action.class)
-                .setParameter("id", id)
-                .getSingleResult();
+    public Action reviseAction(Action action, String name, String description, int startHour, int startMinute, int endHour, int endMinute, int maxImageSize) {
         action.setName(name);
         action.setDescription(description);
         action.setStartHour(startHour);
         action.setStartMinute(startMinute);
         action.setEndHour(endHour);
         action.setEndMinute(endMinute);
+        action.setMaxImageSize(maxImageSize);
+
+        return action;
     }
 
     //ScheduleId로 찾고, 시간에 따라 정렬
