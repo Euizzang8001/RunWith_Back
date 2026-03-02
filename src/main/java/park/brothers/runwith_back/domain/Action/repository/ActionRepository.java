@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ActionRepository {
-    void save(Action action);
+    Action save(Action action);
 
     void delete(Action action);
 

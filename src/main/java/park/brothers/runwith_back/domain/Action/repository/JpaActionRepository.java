@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import park.brothers.runwith_back.domain.Action.entity.Action;
 
 import java.util.List;
@@ -15,18 +16,22 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 @Primary
+@Transactional(readOnly = true)
 public class JpaActionRepository implements ActionRepository{
 
     private final EntityManager em;
 
     //action저장
     @Override
-    public void save(Action action) {
+    @Transactional
+    public Action save(Action action) {
         em.persist(action);
+        return action;
     }
 
     //action 삭제
     @Override
+    @Transactional
     public void delete(Action action) {
         em.remove(action);
     }
@@ -47,11 +52,13 @@ public class JpaActionRepository implements ActionRepository{
         return em.createQuery("select a from Action a where a.schedule.id = :scheduleId and a.startHour * 60 + a.startMinute < :carEndMinute and a.endHour * 60 + a.endMinute > :carStartMinute", Action.class)
                 .setParameter("carStartMinute", carStartMinute)
                 .setParameter("carEndMinute", carEndMinute)
+                .setParameter("scheduleId", scheduleId)
                 .getResultList();
     }
 
     //Action 수정
     @Override
+    @Transactional
     public void reviseAction(UUID id, String name, String description, int startHour, int startMinute, int endHour, int endMinute) {
         Action action = em.createQuery("select a from Action a where a.id = :id", Action.class)
                 .setParameter("id", id)

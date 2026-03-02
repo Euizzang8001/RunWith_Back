@@ -1,19 +1,30 @@
 package park.brothers.runwith_back.domain.Action.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import park.brothers.runwith_back.common.CommonMessage;
 import park.brothers.runwith_back.common.Response.ValidationErrorUtils;
 import park.brothers.runwith_back.domain.Action.dto.Request.CreateActionRequestDto;
 import park.brothers.runwith_back.domain.Action.dto.Request.ReviseActionRequestDto;
+import park.brothers.runwith_back.domain.Action.dto.Response.CreateActionResponseDto;
 import park.brothers.runwith_back.domain.Action.dto.Response.GetActionsResponseDto;
 import park.brothers.runwith_back.domain.Action.dto.Response.GetOneActionResponseDto;
 import park.brothers.runwith_back.domain.Action.service.ActionService;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -25,14 +36,36 @@ public class ActionController {
     private final ActionService actionService;
 
     //Action 생성
-    @PostMapping
-    public ResponseEntity<Object> createAction(@RequestBody @Valid CreateActionRequestDto createActionRequestDto, BindingResult bindingResult){
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @Operation(summary = "Action 생성", description = "Action을 생성합니다.")
+    public ResponseEntity<Object> createAction(
+            @AuthenticationPrincipal String runnerId,
+            @Parameter(
+                    description = "Action 정보",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
+            )
+            @RequestPart(value = "request") @Valid CreateActionRequestDto createActionRequestDto,
+            BindingResult bindingResult,
+            @Parameter(
+                    description = "액션 이미지 목록 (최대 10장)",
+                    content = @Content(
+                            mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                            array = @ArraySchema(schema = @Schema(type = "string", format = "binary"))
+                    )
+            )
+            @RequestPart(value = "image", required = false) List<MultipartFile> images
+    ) throws IOException {
         if(bindingResult.hasErrors()){
             return ValidationErrorUtils.handleValidationErrors(bindingResult);
         }
 
-        actionService.createAction(createActionRequestDto);
-        return ResponseEntity.status(HttpStatus.OK).body(createActionRequestDto);
+        //이미지 10장 초과면 경고
+        if(images.size() > 10){
+            return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE).body(new CommonMessage("이미지는 최대 10장까지입니다."));
+        }
+
+        CreateActionResponseDto createActionResponseDto = actionService.createAction(runnerId, createActionRequestDto, images);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createActionResponseDto);
     }
 
     //조건에 맞는 Actions 조회

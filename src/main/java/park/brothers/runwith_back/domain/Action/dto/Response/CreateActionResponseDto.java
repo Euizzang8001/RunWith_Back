@@ -1,14 +1,18 @@
-package park.brothers.runwith_back.domain.Action.dto.Request;
-
+package park.brothers.runwith_back.domain.Action.dto.Response;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
+
+import java.util.List;
 
 @Data
-@Getter
-public class CreateActionRequestDto {
+@AllArgsConstructor
+public class CreateActionResponseDto {
+
+    @NotEmpty
+    private String actionId;
 
     @NotEmpty
     private String scheduleId;
@@ -30,4 +34,7 @@ public class CreateActionRequestDto {
 
     @NotNull
     private int actionEndMinute;
+
+    private List<String> actionImageLinks;
+
 }

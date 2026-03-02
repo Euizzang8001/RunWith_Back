@@ -4,16 +4,24 @@ package park.brothers.runwith_back.domain.Action.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import park.brothers.runwith_back.common.Exceptions.NotAcceptableException;
+import park.brothers.runwith_back.common.Exceptions.ResourceNotFoundException;
 import park.brothers.runwith_back.domain.Action.dto.Request.CreateActionRequestDto;
 import park.brothers.runwith_back.domain.Action.dto.Request.ReviseActionRequestDto;
+import park.brothers.runwith_back.domain.Action.dto.Response.CreateActionResponseDto;
 import park.brothers.runwith_back.domain.Action.dto.Response.GetActionsResponseDto;
 import park.brothers.runwith_back.domain.Action.dto.Response.GetOneActionResponseDto;
 import park.brothers.runwith_back.domain.Action.entity.Action;
 import park.brothers.runwith_back.domain.Action.repository.ActionRepository;
 import park.brothers.runwith_back.domain.Schedule.entity.Schedule;
 import park.brothers.runwith_back.domain.Schedule.repository.ScheduleRepository;
+import park.brothers.runwith_back.external.AWS_S3.AWSS3Service;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,19 +35,25 @@ public class Version1ActionService implements ActionService{
 
     private final ActionRepository actionRepository;
     private final ScheduleRepository scheduleRepository;
+    private final AWSS3Service awss3Service;
 
-    //action 생성
+    //action 생성하기
     @Override
-    public void createAction(CreateActionRequestDto createActionRequestDto) {
+    public CreateActionResponseDto createAction(String runnerId, CreateActionRequestDto createActionRequestDto, List<MultipartFile> images) throws IOException {
+        //유효한 스케줄이어야 한다.
         String scheduleId = createActionRequestDto.getScheduleId();
+        Optional<Schedule> schedule = scheduleRepository.findScheduleById(UUID.fromString(scheduleId));
+        if(schedule.isEmpty()){
+            throw new ResourceNotFoundException("존재하지 않는 스케줄입니다.");
+        }
+        //일정은 겹쳐서는 안된다.
         int startHour = createActionRequestDto.getActionStartHour();
         int startMinute = createActionRequestDto.getActionStartMinute();
         int endHour = createActionRequestDto.getActionEndHour();
         int endMinute = createActionRequestDto.getActionEndMinute();
-
         List<Action> overlappedActions = actionRepository.findOverlappedActions(UUID.fromString(scheduleId), startHour, startMinute, endHour, endMinute);
         if (!overlappedActions.isEmpty()) {
-            throw new IllegalArgumentException("이미 일정이 존재하는 시간대입니다.");
+            throw new NotAcceptableException("이미 일정이 존재하는 시간대입니다.");
         }
 
         Action action = new Action();
@@ -49,14 +63,37 @@ public class Version1ActionService implements ActionService{
         action.setStartMinute(startMinute);
         action.setEndHour(endHour);
         action.setEndMinute(endMinute);
-
-        Optional<Schedule> schedule = scheduleRepository.findScheduleById(UUID.fromString(scheduleId));
-        if(schedule.isEmpty()){
-            throw new IllegalAccessError("존재하지 않는 스케줄입니다.");
-        }
         action.setSchedule(schedule.get());
+        Action savedAction = actionRepository.save(action);
 
-        actionRepository.save(action);
+        //이미지가 있다면 이미지 저장
+        List<String> imageLinkList = new ArrayList<>();
+        if (images != null && !images.isEmpty()) {
+            int i = 0;
+            for (MultipartFile image : images) {
+                if (image != null && !image.isEmpty()) {
+                    String imageLink = awss3Service.putImageToAWSS3(
+                            image,
+                            "actions",
+                            savedAction.getId().toString(),
+                            i++
+                    );
+                    imageLinkList.add(imageLink);
+                }
+            }
+        }
+
+        return new CreateActionResponseDto(
+                savedAction.getId().toString(),
+                schedule.get().getId().toString(),
+                savedAction.getName(),
+                savedAction.getDescription(),
+                savedAction.getStartHour(),
+                savedAction.getStartMinute(),
+                savedAction.getEndHour(),
+                savedAction.getEndMinute(),
+                imageLinkList
+        );
     }
 
     //Actions 조회하기
