@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ActionRepository {
-    void save(Action action);
+    Action save(Action action);
 
     void delete(Action action);
 
@@ -15,7 +15,7 @@ public interface ActionRepository {
 
     List<Action> findOverlappedActions(UUID scheduleId, int startHour, int startMinute, int endHour, int endMinute);
 
-    void reviseAction(UUID id, String name, String description, int startHour, int startMinute, int endHour, int endMinute);
+    Action reviseAction(Action action, String name, String description, int startHour, int startMinute, int endHour, int endMinute, int maxImageSize);
 
     List<Action> findActionsByScheduleId(UUID scheduleId);
 }

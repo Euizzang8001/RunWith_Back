@@ -11,23 +11,23 @@ import lombok.Getter;
 public class CreateActionRequestDto {
 
     @NotEmpty
-    String scheduleId;
+    private String scheduleId;
 
     @NotEmpty
-    String actionName;
+    private String actionName;
 
     @NotEmpty
-    String actionDescription;
+    private String actionDescription;
 
     @NotNull
-    int actionStartHour;
+    private int actionStartHour;
 
     @NotNull
-    int actionStartMinute;
+    private int actionStartMinute;
 
     @NotNull
-    int actionEndHour;
+    private int actionEndHour;
 
     @NotNull
-    int actionEndMinute;
+    private int actionEndMinute;
 }
