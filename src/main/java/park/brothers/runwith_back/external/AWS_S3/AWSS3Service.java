@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import park.brothers.runwith_back.common.CommonMessage;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
@@ -110,6 +112,19 @@ public class AWSS3Service {
             return null;
         }
     }
+
+    //S3에 저장한 이미지 삭제
+    public void deleteImageFromS3(String imageType, String stringId, int sequence) {
+        String imageName = "%s/id=%ssequence=%d.png".formatted(imageType, stringId, sequence);
+        s3Client.deleteObject(
+                DeleteObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(imageName)
+                .build()
+        );
+    }
+
+
 
     //캐시에 저장할 객체
     public record CachedUrlInfo(String url, Instant expiredTime) {
