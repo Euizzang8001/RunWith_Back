@@ -68,7 +68,7 @@ public class BelongController {
     }
 
     //특정 runner가 속한 모든 그룹들을 응답 받는 api
-    @GetMapping("/runnerId={runnerId}")
+    @GetMapping("/runner-id={runnerId}")
     @Operation(summary = "특정 러너가 속한 모든 그룹 조회",description = "특정 러너가 속한 모든 그룹을 조회합니다.")
     public ResponseEntity<Object> getAllGroupsRunnerJoin(
             @Parameter(
@@ -81,7 +81,7 @@ public class BelongController {
     }
 
     //특정 그룹에 속한 모든 runner들을 응답 받는 api
-    @GetMapping("/groupId={groupId}")
+    @GetMapping("/group-id={groupId}")
     @Operation(summary = "특정 그룹에 속한 모든 러너 조회",description = "특정 그룹에 속한 모든 러너들을 조회합니다.")
     public ResponseEntity<Object> getAllRunnersInGroup(
             @Parameter(
