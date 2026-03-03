@@ -20,6 +20,8 @@ public class GetBelongOfGroupResponseDto {
     @NotEmpty
     private String groupDescription; //그룹 설명
 
+    private boolean isLeader; //리더 여부
+
     private String groupImageLink; //그룹의 이미지 링크
 
 }
