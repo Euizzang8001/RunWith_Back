@@ -59,7 +59,7 @@ public class GroupController {
     }
 
     //유사 이름의 그룹 얻기
-    @GetMapping("/groupName={groupName}")
+    @GetMapping("/group-name={groupName}")
     @Operation(summary = "유사한 이름의 그룹 조회",description = "검색한 이름이 들어간 모든 그룹을 조회합니다.")
     public ResponseEntity<Object> findGroupsBySimilarName(
             @Parameter( description = "검색할 그룹 이름" ) @PathVariable @Valid String groupName){
@@ -76,7 +76,7 @@ public class GroupController {
     }
 
     //그룹 삭제하기
-    @DeleteMapping("/groupId={groupId}")
+    @DeleteMapping("/group-id={groupId}")
     @Operation(summary = "그룹 삭제",description = "특정 그룹을 삭제합니다.")
     public ResponseEntity<Object> deleteGroup(
             @AuthenticationPrincipal String runnerId,
@@ -87,7 +87,7 @@ public class GroupController {
     }
 
     //그룹 수정하기
-    @PostMapping(value = {"/groupId={groupId}"}, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(value = {"/group-id={groupId}"}, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Object> reviseGroupInfo(
             @AuthenticationPrincipal String runnerId,
             @PathVariable @Valid String groupId,

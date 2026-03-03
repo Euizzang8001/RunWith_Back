@@ -94,7 +94,7 @@ public class Version1BelongService implements BelongService{
     public List<GetBelongOfGroupResponseDto> getAllGroupsRunnerJoin(String runnerId) {
         List<Belong> belongs = belongRepository.findByRunnerId(runnerId);
         return belongs.stream()
-                .map(belong -> new GetBelongOfGroupResponseDto(belong.getId().toString(), belong.getGroup().getId().toString(), belong.getGroup().getName(), belong.getGroup().getDescription(), aWSS3Service.getImagePresignedUrl("groups", belong.getGroup().getId().toString(), 0)))
+                .map(belong -> new GetBelongOfGroupResponseDto(belong.getId().toString(), belong.getGroup().getId().toString(), belong.getGroup().getName(), belong.getGroup().getDescription(), belong.isLeader(), aWSS3Service.getImagePresignedUrl("groups", belong.getGroup().getId().toString(), 0)))
                 .collect(Collectors.toList());
     }
 
@@ -103,7 +103,7 @@ public class Version1BelongService implements BelongService{
     public List<GetBelongOfRunnerResponseDto> getAllRunnersInGroup(String groupId) {
         List<Belong> belongs = belongRepository.findByGroupId(UUID.fromString(groupId));
         return belongs.stream()
-                .map(belong -> new GetBelongOfRunnerResponseDto(belong.getId().toString(), belong.getRunner().getId(), belong.getRunner().getName(), aWSS3Service.getImagePresignedUrl("runners",belong.getRunner().getId(), 0 )))
+                .map(belong -> new GetBelongOfRunnerResponseDto(belong.getId().toString(), belong.getRunner().getId(), belong.getRunner().getName(), belong.isLeader(),aWSS3Service.getImagePresignedUrl("runners",belong.getRunner().getId(), 0 )))
                 .collect(Collectors.toList());
     }
 

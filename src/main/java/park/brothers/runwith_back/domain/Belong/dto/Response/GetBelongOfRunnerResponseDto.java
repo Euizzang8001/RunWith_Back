@@ -17,6 +17,8 @@ public class GetBelongOfRunnerResponseDto {
     @NotEmpty
     private String runnerName;
 
+    private boolean isLeader; //리더 여부
+
     private String runnerImageLink;
 
 }
