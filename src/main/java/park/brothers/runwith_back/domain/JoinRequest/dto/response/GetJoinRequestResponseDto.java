@@ -18,5 +18,8 @@ public class GetJoinRequestResponseDto {
     @NotEmpty
     private String runnerId;
 
+    @NotEmpty
+    private String runnerName;
+
     private LocalDateTime createdAt; //가입 신청한 시간
 }

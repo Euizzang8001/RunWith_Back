@@ -15,5 +15,8 @@ public class GetMyJoinRequestsResponseDto {
     @NotEmpty
     private String groupId;
 
+    @NotEmpty
+    private String groupName;
+
     private LocalDateTime createdAt; //가입 신청한 시간
 }
