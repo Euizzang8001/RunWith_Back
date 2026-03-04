@@ -182,7 +182,7 @@ class Version1GroupServiceTest {
         List<Group> groupList = List.of(group1, group2);
 
         //when
-        given(groupRepository.findAll()).willReturn(groupList);
+        given(groupRepository.findAll(anyInt(), anyInt())).willReturn(groupList);
 
         //then
         List<GetGroupResponseDto> fakeResponse = groupService.getAllGroups();
@@ -190,7 +190,7 @@ class Version1GroupServiceTest {
         assertThat(fakeResponse.get(0).getGroupId()).isEqualTo(group1Id);
         assertThat(fakeResponse.get(1).getGroupId()).isEqualTo(group2Id);
 
-        verify(groupRepository, times(1)).findAll();
+        verify(groupRepository, times(1)).findAll(anyInt(), anyInt());
 
     }
 
@@ -206,15 +206,15 @@ class Version1GroupServiceTest {
         List<Group> groupList = List.of(group1, group2);
 
         //when
-        given(groupRepository.findBySimilarName(anyString())).willReturn(groupList);
+        given(groupRepository.findBySimilarName(anyString(), anyInt(), anyInt())).willReturn(groupList);
 
         //then
-        List<GetGroupResponseDto> fakeResponse = groupService.getGroupsBySimilarName("test");
+        List<GetGroupResponseDto> fakeResponse = groupService.getGroupsBySimilarName("test", 1, 2);
         assertThat(fakeResponse.size()).isEqualTo(2);
         assertThat(fakeResponse.get(0).getGroupId()).isEqualTo(group1Id);
         assertThat(fakeResponse.get(1).getGroupId()).isEqualTo(group2Id);
 
-        verify(groupRepository, times(1)).findBySimilarName(anyString());
+        verify(groupRepository, times(1)).findBySimilarName(anyString(), anyInt(), anyInt());
     }
 
     //그룹 생성 자동화 메서드

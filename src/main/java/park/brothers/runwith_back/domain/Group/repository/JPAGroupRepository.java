@@ -33,8 +33,10 @@ public class JPAGroupRepository implements GroupRepository {
     }
 
     @Override
-    public List<Group> findAll() {
+    public List<Group> findAll(int offset, int limit) {
         return em.createQuery("select g from Group g where g.isSelf = false", Group.class)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
                 .getResultList();
     }
 
@@ -46,9 +48,11 @@ public class JPAGroupRepository implements GroupRepository {
                 .findFirst();
     }
 
-    public List<Group> findBySimilarName(String name) {
+    public List<Group> findBySimilarName(String name, int offset, int limit) {
         return em.createQuery("select g from Group g where g.name like :name and g.isSelf = false", Group.class)
-                .setParameter("name", "%" + name + "%") //jpa query에서 파라미터를 커스텀하는 방식
+                .setParameter("name", "%" + name + "%")
+                .setFirstResult(offset)
+                .setMaxResults(limit)
                 .getResultList();
     }
 

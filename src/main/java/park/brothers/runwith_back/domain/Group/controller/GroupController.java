@@ -59,19 +59,17 @@ public class GroupController {
     }
 
     //유사 이름의 그룹 얻기
-    @GetMapping("/group-name={groupName}")
-    @Operation(summary = "유사한 이름의 그룹 조회",description = "검색한 이름이 들어간 모든 그룹을 조회합니다.")
-    public ResponseEntity<Object> findGroupsBySimilarName(
-            @Parameter( description = "검색할 그룹 이름" ) @PathVariable @Valid String groupName){
-        List<GetGroupResponseDto> groups = groupService.getGroupsBySimilarName(groupName);
-        return ResponseEntity.status(HttpStatus.OK).body(groups);
-    }
-
-    // 모든 그룹 얻기
     @GetMapping
-    @Operation(summary = "모든 그룹 조회",description = "생성된 모든 그룹들을 조회합니다.")
-    public ResponseEntity<Object> getAllGroups() {
-        List<GetGroupResponseDto> groups = groupService.getAllGroups();
+    @Operation(summary = "그룹 조회",description = "검색한 이름이 들어간 모든 그룹을 조회합니다. / groupName을 입력하지 않으면 전체 조회합니다.")
+    public ResponseEntity<Object> findGroupsBySimilarName(
+            @Parameter( description = "검색할 그룹 이름" )
+            @RequestParam(required = false) @Valid String groupName,
+            @Parameter( description = "검색을 시작할 index" )
+            @RequestParam @Valid int offset,
+            @Parameter( description = "검색 결과 수" )
+            @RequestParam @Valid int limit
+    ){
+        List<GetGroupResponseDto> groups = groupService.getGroupsBySimilarName(groupName, offset, limit);
         return ResponseEntity.status(HttpStatus.OK).body(groups);
     }
 
@@ -87,12 +85,23 @@ public class GroupController {
     }
 
     //그룹 수정하기
+    @Operation(summary = "그룹 수정",description = "특정 그룹 정보를 수정합니다.")
     @PostMapping(value = {"/group-id={groupId}"}, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Object> reviseGroupInfo(
             @AuthenticationPrincipal String runnerId,
+            @Parameter(
+                    description = "그룹 id"
+            )
             @PathVariable @Valid String groupId,
+            @Parameter(
+                    description = "그룹 수정 정보",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
+            )
             @RequestPart(value = "request") @Valid ReviseGroupRequestDto reviseGroupRequestDto,
             BindingResult bindingResult,
+            @Parameter(
+                    description = "그룹 수정 이미지"
+            )
             @RequestPart(value = "image", required = false) MultipartFile image
             ) throws IllegalAccessException, IOException {
         if(bindingResult.hasErrors()){

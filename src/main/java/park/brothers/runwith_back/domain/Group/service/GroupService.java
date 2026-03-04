@@ -17,7 +17,7 @@ public interface GroupService {
 
     List<GetGroupResponseDto> getAllGroups();
 
-    List<GetGroupResponseDto> getGroupsBySimilarName(String name);
+    List<GetGroupResponseDto> getGroupsBySimilarName(String name, int offset, int limit);
 
     void delete(String runnerId, String groupId);
 
