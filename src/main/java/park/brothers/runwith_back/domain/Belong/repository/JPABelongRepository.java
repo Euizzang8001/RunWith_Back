@@ -59,7 +59,7 @@ public class JPABelongRepository implements BelongRepository{
 
     @Override
     public List<Belong> findByRunnerId(String runnerId) {
-        return em.createQuery("select b from Belong b where b.runner.id = :runnerId", Belong.class)
+        return em.createQuery("select b from Belong b where b.runner.id = :runnerId and b.group.isSelf = false", Belong.class)
                         .setParameter("runnerId", runnerId)
                         .getResultList();
     }
