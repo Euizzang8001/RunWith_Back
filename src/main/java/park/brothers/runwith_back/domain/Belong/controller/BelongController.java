@@ -113,8 +113,15 @@ public class BelongController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new CommonMessage("해당 그룹의 리더가 성공적으로 변경되었습니다."));
     }
 
-
-
+    //내가 속한 그룹들을 알 수 있는 api
+    @GetMapping("/mine")
+    @Operation(summary = "내가 속한 그룹 조회", description = "내가 소속한 그룹(셀프 그룹 제외)을 조회합니다.")
+    public ResponseEntity<Object> getMyGroups(
+            @AuthenticationPrincipal String runnerId
+    ){
+        List<GetBelongOfGroupResponseDto> groups = belongService.getAllGroupsRunnerJoin(runnerId);
+        return ResponseEntity.status(HttpStatus.OK).body(groups);
+    }
 
 
 

@@ -200,7 +200,7 @@ public class Version1JoinRequestService implements JoinRequestService {
         List<JoinRequest> joinRequests = joinRequestRepository.findByGroupId(groupUUID);
 
         return joinRequests.stream()
-                .map(joinRequest -> new GetJoinRequestResponseDto(joinRequest.getId().toString(), joinRequest.getRunner().getId(), joinRequest.getCreatedAt()))
+                .map(joinRequest -> new GetJoinRequestResponseDto(joinRequest.getId().toString(), joinRequest.getRunner().getId(), joinRequest.getRunner().getName(), joinRequest.getCreatedAt()))
                 .collect(Collectors.toList());
     }
 
@@ -217,7 +217,7 @@ public class Version1JoinRequestService implements JoinRequestService {
         List<JoinRequest> joinRequests = joinRequestRepository.findByRunnerId(runnerId);
 
         return joinRequests.stream()
-                .map(joinRequest -> new GetMyJoinRequestsResponseDto(joinRequest.getId().toString(), joinRequest.getGroup().getId().toString(), joinRequest.getCreatedAt()))
+                .map(joinRequest -> new GetMyJoinRequestsResponseDto(joinRequest.getId().toString(), joinRequest.getGroup().getId().toString(), joinRequest.getGroup().getName(), joinRequest.getCreatedAt()))
                 .collect(Collectors.toList());
     }
 }

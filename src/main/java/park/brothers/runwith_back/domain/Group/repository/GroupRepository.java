@@ -11,11 +11,11 @@ public interface GroupRepository {
 
     void delete(Group group);
 
-    List<Group> findAll();
+    List<Group> findAll(int offset, int limit);
 
     Optional<Group> findByName(String name);
 
-    List<Group> findBySimilarName(String name);
+    List<Group> findBySimilarName(String name, int offset, int limit);
 
     Optional<Group> findById(UUID groupId);
 

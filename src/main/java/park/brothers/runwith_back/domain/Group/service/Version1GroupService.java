@@ -82,7 +82,7 @@ public class Version1GroupService implements GroupService {
     //모든 그룹 얻기
     @Override
     public List<GetGroupResponseDto> getAllGroups() {
-        List<Group> groups = groupRepository.findAll();
+        List<Group> groups = groupRepository.findAll(0, 100);
 
         return groups.stream()
                 .map(group -> new GetGroupResponseDto(
@@ -96,8 +96,13 @@ public class Version1GroupService implements GroupService {
 
     //유사 이름을 가진 그룹 정보 얻기
     @Override
-    public List<GetGroupResponseDto> getGroupsBySimilarName(String name) {
-        List<Group> groups = groupRepository.findBySimilarName(name);
+    public List<GetGroupResponseDto> getGroupsBySimilarName(String name, int offset, int limit) {
+        List<Group> groups;
+        if(name == null){
+            groups = groupRepository.findAll(offset, limit);
+        } else {
+            groups = groupRepository.findBySimilarName(name, offset, limit);
+        }
         return groups.stream()
                 .map(group -> new GetGroupResponseDto(
                         group.getId().toString(),
