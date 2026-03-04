@@ -40,14 +40,14 @@ public class JPAGroupRepository implements GroupRepository {
 
     @Override
     public Optional<Group> findByName(String name) {
-        return em.createQuery("select g from Group g where g.name = :name", Group.class)
+        return em.createQuery("select g from Group g where g.name = :name and g.isSelf = false", Group.class)
                 .setParameter("name", name)
                 .getResultStream()
                 .findFirst();
     }
 
     public List<Group> findBySimilarName(String name) {
-        return em.createQuery("select g from Group g where g.name like :name", Group.class)
+        return em.createQuery("select g from Group g where g.name like :name and g.isSelf = false", Group.class)
                 .setParameter("name", "%" + name + "%") //jpa query에서 파라미터를 커스텀하는 방식
                 .getResultList();
     }
