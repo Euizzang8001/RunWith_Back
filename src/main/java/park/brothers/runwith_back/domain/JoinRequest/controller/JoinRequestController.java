@@ -35,7 +35,7 @@ public class JoinRequestController {
     @PostMapping
     @Operation(summary = "그룹 가입 신청 생성",description = "그룹에 가입 신청합니다.")
     public ResponseEntity<Object> save(
-            @AuthenticationPrincipal String runnerId,
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId,
             @Parameter(
                     description = "그룹 가입 신청 정보",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
@@ -56,8 +56,8 @@ public class JoinRequestController {
     @DeleteMapping("/{joinRequestId}")
     @Operation(summary = "그룹 가입 신청 삭제",description = "신청한 그룹 가입을 삭제합니다.")
     public ResponseEntity<Object> deleteJoinRequest(
-            @AuthenticationPrincipal String runnerId,
-            @PathVariable @Valid String joinRequestId
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId,
+            @PathVariable String joinRequestId
     ){
         joinRequestService.delete(runnerId, joinRequestId);
 
@@ -65,11 +65,11 @@ public class JoinRequestController {
     }
 
     //그룹 가입 신청 승인 api(리더)
-    @PostMapping("/accept/{joinRequestId}")
+    @PostMapping("/{joinRequestId}/accept")
     @Operation(summary = "그룹 신청 승인", description = "리더가 그룹 가입 신청 하나를 승인합니다.")
     public ResponseEntity<Object> acceptJoinRequest(
-            @AuthenticationPrincipal String runnerId,
-            @PathVariable @Valid String joinRequestId
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId,
+            @PathVariable String joinRequestId
     ){
         joinRequestService.accept(runnerId, joinRequestId);
 
@@ -77,11 +77,11 @@ public class JoinRequestController {
     }
 
     //그룹 가입 신청 거부 api(리더)
-    @PostMapping("/reject/{joinRequestId}")
+    @PostMapping("/{joinRequestId}/reject")
     @Operation(summary = "그룹 신청 거절", description = "리더가 그룹 가입 신청 하나를 거절합니다.")
     public ResponseEntity<Object> rejectJoinRequest(
-            @AuthenticationPrincipal String runnerId,
-            @PathVariable @Valid String joinRequestId
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId,
+            @PathVariable String joinRequestId
     ){
         joinRequestService.reject(runnerId, joinRequestId);
 
@@ -89,11 +89,11 @@ public class JoinRequestController {
     }
 
     //그룹 가입 신청 명단 보기(리더)
-    @GetMapping("/{groupId}")
+    @GetMapping("/groups/{groupId}")
     @Operation(summary = "그룹 신청 명단 보기", description = "리더가 그룹 신청 명단을 조회합니다.")
     public ResponseEntity<Object> getJoinRequestList(
-            @AuthenticationPrincipal String runnerId,
-            @PathVariable @Valid String groupId
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId,
+            @PathVariable String groupId
     ){
         List<GetJoinRequestResponseDto> getJoinRequestResponseDtos = joinRequestService.getJoinRequestOfGroup(runnerId, groupId);
 
@@ -101,10 +101,10 @@ public class JoinRequestController {
     }
 
     //내 가입 신청 보기
-    @GetMapping("/mine")
+    @GetMapping("/me")
     @Operation(summary = "나의 신청 보기", description = "내가 신청한 그룹 신청 명단을 조회합니다.")
     public  ResponseEntity<Object> getMyJoinRequest(
-            @AuthenticationPrincipal String runnerId
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId
     ){
         List<GetMyJoinRequestsResponseDto> getMyJoinRequestsResponseDtos = joinRequestService.getMyJoinRequest(runnerId);
 

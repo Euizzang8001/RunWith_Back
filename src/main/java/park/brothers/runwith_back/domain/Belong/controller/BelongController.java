@@ -36,7 +36,7 @@ public class BelongController {
     @PostMapping
     @Operation(summary = "그룹 가입하기",description = "그룹에 가입합니다.")
     public ResponseEntity<Object> save(
-            @AuthenticationPrincipal String runnerId,
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId,
             @Parameter(
                     description = "그룹 가입 정보",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
@@ -53,14 +53,14 @@ public class BelongController {
     }
 
     //그룹 탈퇴 api
-    @DeleteMapping("/{groupId}")
+    @DeleteMapping("/groups/{groupId}")
     @Operation(summary = "그룹 탈퇴하기",description = "그룹에서 탈퇴합니다.")
     public ResponseEntity<Object> leave(
-            @AuthenticationPrincipal String runnerId,
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId,
             @Parameter(
                     description = "탈퇴할 그룹의 ID"
             )
-            @PathVariable @Valid String groupId
+            @PathVariable String groupId
     ){
         belongService.leaveGroup(runnerId, groupId);
 
@@ -68,26 +68,26 @@ public class BelongController {
     }
 
     //특정 runner가 속한 모든 그룹들을 응답 받는 api
-    @GetMapping("/runner-id={runnerId}")
+    @GetMapping("/runners/{runnerId}")
     @Operation(summary = "특정 러너가 속한 모든 그룹 조회",description = "특정 러너가 속한 모든 그룹을 조회합니다.")
     public ResponseEntity<Object> getAllGroupsRunnerJoin(
             @Parameter(
                     description = "검색할 러너의 ID"
             )
-            @PathVariable @Valid String runnerId
+            @PathVariable String runnerId
     ){
         List<GetBelongOfGroupResponseDto> groups = belongService.getAllGroupsRunnerJoin(runnerId);
         return ResponseEntity.status(HttpStatus.OK).body(groups);
     }
 
     //특정 그룹에 속한 모든 runner들을 응답 받는 api
-    @GetMapping("/group-id={groupId}")
+    @GetMapping("/groups/{groupId}")
     @Operation(summary = "특정 그룹에 속한 모든 러너 조회",description = "특정 그룹에 속한 모든 러너들을 조회합니다.")
     public ResponseEntity<Object> getAllRunnersInGroup(
             @Parameter(
                     description = "검색할 그룹의 ID"
             )
-            @PathVariable @Valid String groupId
+            @PathVariable String groupId
     ){
         List<GetBelongOfRunnerResponseDto> runners = belongService.getAllRunnersInGroup(groupId);
         return ResponseEntity.status(HttpStatus.OK).body(runners);
@@ -97,7 +97,7 @@ public class BelongController {
     @PatchMapping("/leader")
     @Operation(summary = "그룹 리더 변경",description = "로그인한 유저는 현재 리더이며, 리더를 다른 그룹원에 넘겨줍니다.")
     public ResponseEntity<Object> changeLeader(
-            @AuthenticationPrincipal String oldLeaderRunnerId,
+            @Parameter(hidden = true) @AuthenticationPrincipal String oldLeaderRunnerId,
             @Parameter(
                     description = "리더 변경 정보",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
@@ -114,10 +114,10 @@ public class BelongController {
     }
 
     //내가 속한 그룹들을 알 수 있는 api
-    @GetMapping("/mine")
+    @GetMapping("/me")
     @Operation(summary = "내가 속한 그룹 조회", description = "내가 소속한 그룹(셀프 그룹 제외)을 조회합니다.")
     public ResponseEntity<Object> getMyGroups(
-            @AuthenticationPrincipal String runnerId
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId
     ){
         List<GetBelongOfGroupResponseDto> groups = belongService.getAllGroupsRunnerJoin(runnerId);
         return ResponseEntity.status(HttpStatus.OK).body(groups);
