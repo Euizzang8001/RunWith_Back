@@ -74,7 +74,7 @@ public class GroupController {
     }
 
     //그룹 삭제하기
-    @DeleteMapping("/group-id={groupId}")
+    @DeleteMapping("/{groupId}")
     @Operation(summary = "그룹 삭제",description = "특정 그룹을 삭제합니다.")
     public ResponseEntity<Object> deleteGroup(
             @AuthenticationPrincipal String runnerId,
@@ -86,7 +86,7 @@ public class GroupController {
 
     //그룹 수정하기
     @Operation(summary = "그룹 수정",description = "특정 그룹 정보를 수정합니다.")
-    @PostMapping(value = {"/group-id={groupId}"}, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(value = {"/{groupId}"}, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Object> reviseGroupInfo(
             @AuthenticationPrincipal String runnerId,
             @Parameter(
