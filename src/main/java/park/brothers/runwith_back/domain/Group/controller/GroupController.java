@@ -37,7 +37,7 @@ public class GroupController {
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(summary = "그룹 생성",description = "새로운 그룹을 생성합니다.")
     public ResponseEntity<Object> save(
-            @AuthenticationPrincipal String runnerId,
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId,
             @Parameter(
                     description = "그룹 생성 정보",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
@@ -45,7 +45,7 @@ public class GroupController {
             @RequestPart(value = "request") @Valid CreateGroupRequestDto createGroupRequestDto,
             BindingResult bindingResult,
             @Parameter(
-                    description = "러너 이미지"
+                    description = "그룹 이미지"
             )
             @RequestPart(value = "image", required = false)MultipartFile image
             ) throws IOException { //BindingResult은 DTO만
@@ -63,22 +63,22 @@ public class GroupController {
     @Operation(summary = "그룹 조회",description = "검색한 이름이 들어간 모든 그룹을 조회합니다. / groupName을 입력하지 않으면 전체 조회합니다.")
     public ResponseEntity<Object> findGroupsBySimilarName(
             @Parameter( description = "검색할 그룹 이름" )
-            @RequestParam(required = false) @Valid String groupName,
+            @RequestParam(required = false) String groupName,
             @Parameter( description = "검색을 시작할 index" )
-            @RequestParam @Valid int offset,
+            @RequestParam int offset,
             @Parameter( description = "검색 결과 수" )
-            @RequestParam @Valid int limit
+            @RequestParam int limit
     ){
         List<GetGroupResponseDto> groups = groupService.getGroupsBySimilarName(groupName, offset, limit);
         return ResponseEntity.status(HttpStatus.OK).body(groups);
     }
 
     //그룹 삭제하기
-    @DeleteMapping("/group-id={groupId}")
+    @DeleteMapping("/{groupId}")
     @Operation(summary = "그룹 삭제",description = "특정 그룹을 삭제합니다.")
     public ResponseEntity<Object> deleteGroup(
-            @AuthenticationPrincipal String runnerId,
-            @PathVariable @Valid String groupId
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId,
+            @PathVariable String groupId
     ) {
         groupService.delete(runnerId, groupId);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonMessage("그룹이 성공적으로 삭제되었습니다."));
@@ -86,13 +86,13 @@ public class GroupController {
 
     //그룹 수정하기
     @Operation(summary = "그룹 수정",description = "특정 그룹 정보를 수정합니다.")
-    @PostMapping(value = {"/group-id={groupId}"}, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PatchMapping(value = {"/{groupId}"}, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Object> reviseGroupInfo(
-            @AuthenticationPrincipal String runnerId,
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId,
             @Parameter(
                     description = "그룹 id"
             )
-            @PathVariable @Valid String groupId,
+            @PathVariable String groupId,
             @Parameter(
                     description = "그룹 수정 정보",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
@@ -116,7 +116,7 @@ public class GroupController {
     @GetMapping("/self")
     @Operation(summary = "셀프 그룹 정보 조회",description = "로그인한 러너의 셀프 그룹을 조회합니다.")
     public ResponseEntity<Object> getMyGroupInfo(
-            @AuthenticationPrincipal String runnerId
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId
     ){
         GetGroupResponseDto getGroupResponseDto = groupService.getMyGroup(runnerId);
 

@@ -57,24 +57,24 @@ public class RunnerController {
     }
 
     //토큰으로 이미 유저가 존재하는지 확인하는 api
-    @GetMapping("/exist")
-    @Operation(summary = "러너 존재 여부 확인",description = "해당 로그인 정보르 가입한 러너가 존재하는지 확인합니다.")
+    @GetMapping("/me/exists")
+    @Operation(summary = "러너 존재 여부 확인",description = "해당 로그인 정보로 가입한 러너가 존재하는지 확인합니다.")
     public ResponseEntity<Object> isSavedRunner(
-            @AuthenticationPrincipal @Valid String runnerId
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId
     ){
         Boolean isSavedRunner = runnerService.isSavedRunner(runnerId);
         if(isSavedRunner){
-            return ResponseEntity.status(HttpStatus.FOUND).body(new CommonMessage("존재하는 러너입니다."));
+            return ResponseEntity.status(HttpStatus.OK).body(new CommonMessage("존재하는 러너입니다."));
         } else{
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new CommonMessage("존재하지 않는 러너입니다."));
         }
     }
 
     //러너 정보 조회
-    @GetMapping
-    @Operation(summary = "러너 조회",description = "로그인한 러너 정보를 조회합니다.")
+    @GetMapping("/me")
+    @Operation(summary = "로그인한 러너 조회",description = "로그인한 러너 정보를 조회합니다.")
     public ResponseEntity<Object> getRunner(
-            @AuthenticationPrincipal @Valid String runnerId
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId
     ){
         GetMyInfoResponseDto getMyInfoResponseDto = runnerService.findRunner(runnerId);
 
@@ -82,7 +82,7 @@ public class RunnerController {
     }
 
     //러너 정보 수정
-    @PatchMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PatchMapping(value = "/me", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(summary = "러너 수정",description = "로그인한 러너 정보를 수정합니다.")
     public ResponseEntity<Object> reviseMyInfo(
             @Parameter(hidden = true) @AuthenticationPrincipal String runnerId,
@@ -90,7 +90,7 @@ public class RunnerController {
                     description = "러너 수정 정보",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
             )
-            @RequestPart(value = "request", required = false) ReviseMyInfoRequestDto reviseMyInfoRequestDto,
+            @RequestPart(value = "request", required = false) @Valid ReviseMyInfoRequestDto reviseMyInfoRequestDto,
             BindingResult bindingResult,
             @Parameter(
                     description = "러너 수정 이미지"
