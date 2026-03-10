@@ -26,6 +26,7 @@ import park.brothers.runwith_back.domain.Action.dto.Response.ReviseActionRespons
 import park.brothers.runwith_back.domain.Action.service.ActionService;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -65,7 +66,7 @@ public class ActionController {
             return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE).body(new CommonMessage("이미지는 최대 5장까지입니다."));
         }
 
-        CreateActionResponseDto createActionResponseDto = actionService.createAction(runnerId, createActionRequestDto, images);
+        CreateActionResponseDto createActionResponseDto = actionService.createAction(runnerId, createActionRequestDto, images == null ? new ArrayList<>() : images) ;
         return ResponseEntity.status(HttpStatus.CREATED).body(createActionResponseDto);
     }
 
@@ -137,7 +138,7 @@ public class ActionController {
             return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE).body(new CommonMessage("이미지는 최대 5장까지입니다."));
         }
 
-        ReviseActionResponseDto reviseActionResponseDto = actionService.reviseAction(runnerId, actionId, reviseActionRequestDto, images);
+        ReviseActionResponseDto reviseActionResponseDto = actionService.reviseAction(runnerId, actionId, reviseActionRequestDto, images == null ? new ArrayList<>() : images);
 
         return ResponseEntity.status(HttpStatus.OK).body(reviseActionResponseDto);
     }
