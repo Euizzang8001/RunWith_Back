@@ -1,0 +1,46 @@
+package park.brothers.runwith_back.domain.Recognize.repository;
+
+import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import park.brothers.runwith_back.domain.Recognize.entity.Recognize;
+
+import java.util.Optional;
+import java.util.UUID;
+
+@Repository
+@Slf4j
+@Primary
+@Transactional
+@RequiredArgsConstructor
+public class JPARecognizeRepository implements RecognizeRepository {
+
+    private final EntityManager em;
+
+    //recognize 객체 저장
+    @Override
+    public Recognize save(Recognize recognize) {
+        em.persist(recognize);
+        return recognize;
+    }
+
+    //인정 여부 수정
+    @Override
+    public Recognize revise(Recognize recognize, boolean recognizing) {
+        recognize.setRecognizing(recognizing);
+        return recognize;
+    }
+
+    //belong id와 스케줄 id로 recognize찾기
+    @Override
+    public Optional<Recognize> findByBelongIdAndScheduleId(UUID belongId, UUID scheduleId) {
+        return em.createQuery("select r from Recognize r where r.recognizingBelong.id = :belongId and r.recognizedSchedule.id = :scheduleId", Recognize.class)
+                .setParameter("belongId", belongId)
+                .setParameter("scheduleId", scheduleId)
+                .getResultStream()
+                .findFirst();
+    }
+}
