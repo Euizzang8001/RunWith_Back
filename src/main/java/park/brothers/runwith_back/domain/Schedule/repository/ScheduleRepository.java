@@ -23,4 +23,8 @@ public interface ScheduleRepository {
     void reviseSchedule(Schedule schedule, String description);
 
     Optional<Schedule> findScheduleById(UUID scheduleId);
+
+    List<Schedule> findByRunnerIdAndLocalDate(String runnerId, LocalDate localDate);
+
+    List<Schedule> findScheduleByRunnerId(String runnerId);
 }

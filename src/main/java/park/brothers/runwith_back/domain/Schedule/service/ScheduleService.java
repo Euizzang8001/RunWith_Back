@@ -18,4 +18,6 @@ public interface ScheduleService {
     List<GetSchedulesResponseDto> getSchedules(String runnerId, @Valid String belongId, @Valid LocalDate localDate);
 
     ReviseScheduleResponseDto revise(String runnerId, String scheduleId, @Valid ReviseScheduleRequestDto reviseScheduleRequestDto);
+
+    List<GetSchedulesResponseDto> getMySchedules(String runnerId, String groupId, LocalDate localDate);
 }

@@ -82,6 +82,24 @@ public class ScheduleController {
       return ResponseEntity.status(HttpStatus.OK).body(schedules);
     }
 
+    //특정 그룹에서의 나의 스케줄 조회
+    @GetMapping("/me")
+    @Operation(summary = "나의 스케줄 조회",description = "특정 그룹에서의 스케줄을 조회합니다. 오늘을 입력하면, 해당 달의 스케줄들을 조회합니다.")
+    public ResponseEntity<Object> getMySchedule(
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId,
+            @Parameter(
+                    description = "검색할 Group Id"
+            )
+            @RequestParam(required = false) String groupId,
+            @Parameter(
+                    description = "오늘의 날짜 ex) 2026-03-01"
+            )
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate localDate
+    ) {
+        List<GetSchedulesResponseDto> schedules = scheduleService.getMySchedules(runnerId, groupId, localDate);
+        return ResponseEntity.status(HttpStatus.OK).body(schedules);
+    }
+
     //스케줄 수정
     @PatchMapping("/{scheduleId}")
     @Operation(summary = "스케줄 수정",description = "스케줄 정보를 수정합니다.")

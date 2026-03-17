@@ -96,6 +96,7 @@ public class Version1ScheduleService implements ScheduleService{
         return schedules.stream()
                 .map(schedule -> new GetSchedulesResponseDto(
                         schedule.getId().toString(),
+                        schedule.getBelong().getId().toString(),
                         schedule.getScheduleYear(),
                         schedule.getScheduleMonth(),
                         schedule.getScheduleDate(),
@@ -125,5 +126,44 @@ public class Version1ScheduleService implements ScheduleService{
                 schedule.get().getScheduleDate(),
                 reviseScheduleRequestDto.getScheduleDescription()
         );
+    }
+
+    @Override
+    public List<GetSchedulesResponseDto> getMySchedules(String runnerId, String groupId, LocalDate localDate) {
+        //러너가 해당 그룹에 속하지 않으면 문제
+        if(groupId != null){
+            Optional<Belong> belong = belongRepository.findByRunnerIdAndGroupId(runnerId, UUID.fromString(groupId));
+            if(belong.isEmpty()){
+                throw new ResourceNotFoundException("해당 러너는 그룹에 속하지 않습니다.");
+            }
+        }
+        List<Schedule> schedules;
+        if(groupId == null && localDate == null){
+            schedules = scheduleRepository.findScheduleByRunnerId(runnerId);
+        } else if (groupId == null) {
+            schedules = scheduleRepository.findByRunnerIdAndLocalDate(runnerId, localDate);
+        } else{
+            //러너가 해당 그룹에 속하지 않으면 문제
+            Optional<Belong> belong = belongRepository.findByRunnerIdAndGroupId(runnerId, UUID.fromString(groupId));
+            if(belong.isEmpty()){
+                throw new ResourceNotFoundException("해당 러너는 그룹에 속하지 않습니다.");
+            }
+            if(localDate == null){
+                schedules = scheduleRepository.findByBelongId(belong.get().getId());
+            }
+            else{
+                schedules = scheduleRepository.findByBelongIdAndLocalDate(belong.get().getId(), localDate);
+            }
+        }
+
+        return schedules.stream()
+                .map(schedule -> new GetSchedulesResponseDto(
+                        schedule.getId().toString(),
+                        schedule.getBelong().getId().toString(),
+                        schedule.getScheduleYear(),
+                        schedule.getScheduleMonth(),
+                        schedule.getScheduleDate(),
+                        schedule.getDescription()))
+                .collect(Collectors.toList());
     }
 }
