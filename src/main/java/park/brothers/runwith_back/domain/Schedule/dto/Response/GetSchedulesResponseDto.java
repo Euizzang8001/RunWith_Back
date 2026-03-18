@@ -13,6 +13,9 @@ public class GetSchedulesResponseDto {
     private String scheduleId;
 
     @NotNull
+    private int recognizeCount; //인정 수
+
+    @NotNull
     private int scheduleYear;
 
     @NotNull
