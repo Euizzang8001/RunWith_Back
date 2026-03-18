@@ -3,6 +3,7 @@ package park.brothers.runwith_back.domain.Schedule.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Formula;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
 
 import java.util.UUID;
@@ -33,4 +34,7 @@ public class Schedule {
 
     @Column(nullable = false)
     private String description;
+
+    @Formula("(select count(*) from recognizes r where r.schedules = id)") //Schedule 테이블엔 없지만, schedule 테이블 조회시 서브 쿼리로 수행
+    private int recognizeCount;
 }
