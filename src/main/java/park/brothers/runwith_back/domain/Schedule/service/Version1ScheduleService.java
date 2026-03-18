@@ -96,8 +96,8 @@ public class Version1ScheduleService implements ScheduleService{
         return schedules.stream()
                 .map(schedule -> new GetSchedulesResponseDto(
                         schedule.getId().toString(),
-                        schedule.getRecognizeCount(),
                         schedule.getBelong().getId().toString(),
+                        schedule.getRecognizeCount(),
                         schedule.getScheduleYear(),
                         schedule.getScheduleMonth(),
                         schedule.getScheduleDate(),
@@ -161,6 +161,7 @@ public class Version1ScheduleService implements ScheduleService{
                 .map(schedule -> new GetSchedulesResponseDto(
                         schedule.getId().toString(),
                         schedule.getBelong().getId().toString(),
+                        schedule.getRecognizeCount(),
                         schedule.getScheduleYear(),
                         schedule.getScheduleMonth(),
                         schedule.getScheduleDate(),
