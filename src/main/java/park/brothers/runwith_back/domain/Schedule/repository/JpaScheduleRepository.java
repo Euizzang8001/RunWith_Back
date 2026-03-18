@@ -85,4 +85,22 @@ public class JpaScheduleRepository implements ScheduleRepository{
                 .setParameter("id", id)
                 .getSingleResult());
     }
+
+    //러너 id와 날짜로 스케줄 찾기
+    @Override
+    public List<Schedule> findByRunnerIdAndLocalDate(String runnerId, LocalDate localDateTime) {
+        return em.createQuery("select s from Schedule s where s.scheduleYear = :year and s.scheduleMonth = :month and s.belong.runner.id = :runnerId order by s.scheduleYear, s.scheduleMonth, s.scheduleDate", Schedule.class)
+                .setParameter("year", localDateTime.getYear())
+                .setParameter("month", localDateTime.getMonthValue())
+                .setParameter("runnerId", runnerId)
+                .getResultList();
+    }
+
+    //오늘
+    @Override
+    public List<Schedule> findScheduleByRunnerId(String runnerId) {
+        return em.createQuery("select s from Schedule s where s.belong.runner.id = :runnerId order by s.scheduleYear, s.scheduleMonth, s.scheduleDate", Schedule.class)
+                .setParameter("runnerId", runnerId)
+                .getResultList();
+    }
 }

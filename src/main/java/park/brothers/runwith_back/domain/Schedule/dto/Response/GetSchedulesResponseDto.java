@@ -12,6 +12,9 @@ public class GetSchedulesResponseDto {
     @NotEmpty
     private String scheduleId;
 
+    @NotEmpty
+    private String belongId;
+
     @NotNull
     private int recognizeCount; //인정 수
 
