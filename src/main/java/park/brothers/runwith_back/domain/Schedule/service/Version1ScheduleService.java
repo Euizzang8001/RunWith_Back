@@ -7,9 +7,12 @@ import park.brothers.runwith_back.common.Exceptions.ResourceNotFoundException;
 import park.brothers.runwith_back.common.Exceptions.UnauthorizedException;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
 import park.brothers.runwith_back.domain.Belong.repository.BelongRepository;
+import park.brothers.runwith_back.domain.Recognize.entity.Recognize;
+import park.brothers.runwith_back.domain.Recognize.repository.RecognizeRepository;
 import park.brothers.runwith_back.domain.Schedule.dto.Request.CreateScheduleRequestDto;
 import park.brothers.runwith_back.domain.Schedule.dto.Request.ReviseScheduleRequestDto;
 import park.brothers.runwith_back.domain.Schedule.dto.Response.CreateScheduleResponseDto;
+import park.brothers.runwith_back.domain.Schedule.dto.Response.GetMySchedulesResponseDto;
 import park.brothers.runwith_back.domain.Schedule.dto.Response.GetSchedulesResponseDto;
 import park.brothers.runwith_back.domain.Schedule.dto.Response.ReviseScheduleResponseDto;
 import park.brothers.runwith_back.domain.Schedule.entity.Schedule;
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
 public class Version1ScheduleService implements ScheduleService{
     private final ScheduleRepository scheduleRepository;
     private final BelongRepository belongRepository;
+    private final RecognizeRepository recognizeRepository;
 
     //스케줄 생성
     @Override
@@ -76,6 +80,12 @@ public class Version1ScheduleService implements ScheduleService{
             throw new UnauthorizedException("스케줄은 해당 러너만이 삭제할 수 있습니다.");
         }
 
+        //해당 스케줄 id를 인정한 기록 삭제
+        List<Recognize> recognizes = recognizeRepository.findByScheduleId(schedule.get().getId());
+        for(Recognize r: recognizes){
+            recognizeRepository.delete(r);
+        }
+
         scheduleRepository.delete(schedule.get());
     }
 
@@ -98,6 +108,9 @@ public class Version1ScheduleService implements ScheduleService{
                         schedule.getId().toString(),
                         schedule.getBelong().getId().toString(),
                         schedule.getRecognizeCount(),
+                        recognizeRepository.findByRunnerIdAndScheduleId(runnerId, schedule.getId())
+                            .map(Recognize::isRecognizing)
+                            .orElse(false),
                         schedule.getScheduleYear(),
                         schedule.getScheduleMonth(),
                         schedule.getScheduleDate(),
@@ -130,7 +143,7 @@ public class Version1ScheduleService implements ScheduleService{
     }
 
     @Override
-    public List<GetSchedulesResponseDto> getMySchedules(String runnerId, String groupId, LocalDate localDate) {
+    public List<GetMySchedulesResponseDto> getMySchedules(String runnerId, String groupId, LocalDate localDate) {
         //러너가 해당 그룹에 속하지 않으면 문제
         if(groupId != null){
             Optional<Belong> belong = belongRepository.findByRunnerIdAndGroupId(runnerId, UUID.fromString(groupId));
@@ -158,7 +171,7 @@ public class Version1ScheduleService implements ScheduleService{
         }
 
         return schedules.stream()
-                .map(schedule -> new GetSchedulesResponseDto(
+                .map(schedule -> new GetMySchedulesResponseDto(
                         schedule.getId().toString(),
                         schedule.getBelong().getId().toString(),
                         schedule.getRecognizeCount(),

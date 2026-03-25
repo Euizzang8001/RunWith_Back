@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class GetSchedulesResponseDto {
+public class GetMySchedulesResponseDto {
 
     @NotEmpty
     private String scheduleId;
@@ -17,8 +17,6 @@ public class GetSchedulesResponseDto {
 
     @NotNull
     private int recognizeCount; //인정 수
-
-    private boolean recognizedByMe; //나에게 인정 받았는지 여부
 
     @NotNull
     private int scheduleYear;
