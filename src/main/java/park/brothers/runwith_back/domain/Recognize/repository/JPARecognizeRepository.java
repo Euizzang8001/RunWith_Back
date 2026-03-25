@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import park.brothers.runwith_back.domain.JoinRequest.entity.JoinRequest;
 import park.brothers.runwith_back.domain.Recognize.entity.Recognize;
 
 import java.util.List;
