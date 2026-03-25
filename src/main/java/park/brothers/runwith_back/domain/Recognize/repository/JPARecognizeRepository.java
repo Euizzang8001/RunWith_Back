@@ -6,8 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import park.brothers.runwith_back.domain.JoinRequest.entity.JoinRequest;
 import park.brothers.runwith_back.domain.Recognize.entity.Recognize;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -42,5 +44,19 @@ public class JPARecognizeRepository implements RecognizeRepository {
                 .setParameter("scheduleId", scheduleId)
                 .getResultStream()
                 .findFirst();
+    }
+
+    //Recognize삭제
+    @Override
+    public void delete(Recognize recognize) {
+        em.remove(recognize);
+    }
+
+    //스케줄id로 Recognize찾기
+    @Override
+    public List<Recognize> findByScheduleId(UUID scheduleId) {
+        return em.createQuery("select r from Recognize r where r.recognizedSchedule.id = :scheduleId", Recognize.class)
+                .setParameter("scheduleId", scheduleId)
+                .getResultList();
     }
 }
