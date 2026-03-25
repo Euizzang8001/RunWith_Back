@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import park.brothers.runwith_back.domain.Schedule.dto.Request.CreateScheduleRequestDto;
 import park.brothers.runwith_back.domain.Schedule.dto.Request.ReviseScheduleRequestDto;
 import park.brothers.runwith_back.domain.Schedule.dto.Response.CreateScheduleResponseDto;
+import park.brothers.runwith_back.domain.Schedule.dto.Response.GetMySchedulesResponseDto;
 import park.brothers.runwith_back.domain.Schedule.dto.Response.GetSchedulesResponseDto;
 import park.brothers.runwith_back.domain.Schedule.dto.Response.ReviseScheduleResponseDto;
 
@@ -19,5 +20,5 @@ public interface ScheduleService {
 
     ReviseScheduleResponseDto revise(String runnerId, String scheduleId, @Valid ReviseScheduleRequestDto reviseScheduleRequestDto);
 
-    List<GetSchedulesResponseDto> getMySchedules(String runnerId, String groupId, LocalDate localDate);
+    List<GetMySchedulesResponseDto> getMySchedules(String runnerId, String groupId, LocalDate localDate);
 }

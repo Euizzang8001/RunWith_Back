@@ -12,6 +12,7 @@ import park.brothers.runwith_back.domain.Recognize.repository.RecognizeRepositor
 import park.brothers.runwith_back.domain.Schedule.dto.Request.CreateScheduleRequestDto;
 import park.brothers.runwith_back.domain.Schedule.dto.Request.ReviseScheduleRequestDto;
 import park.brothers.runwith_back.domain.Schedule.dto.Response.CreateScheduleResponseDto;
+import park.brothers.runwith_back.domain.Schedule.dto.Response.GetMySchedulesResponseDto;
 import park.brothers.runwith_back.domain.Schedule.dto.Response.GetSchedulesResponseDto;
 import park.brothers.runwith_back.domain.Schedule.dto.Response.ReviseScheduleResponseDto;
 import park.brothers.runwith_back.domain.Schedule.entity.Schedule;
@@ -107,6 +108,9 @@ public class Version1ScheduleService implements ScheduleService{
                         schedule.getId().toString(),
                         schedule.getBelong().getId().toString(),
                         schedule.getRecognizeCount(),
+                        recognizeRepository.findByRunnerIdAndScheduleId(runnerId, schedule.getId())
+                            .map(Recognize::isRecognizing)
+                            .orElse(false),
                         schedule.getScheduleYear(),
                         schedule.getScheduleMonth(),
                         schedule.getScheduleDate(),
@@ -139,7 +143,7 @@ public class Version1ScheduleService implements ScheduleService{
     }
 
     @Override
-    public List<GetSchedulesResponseDto> getMySchedules(String runnerId, String groupId, LocalDate localDate) {
+    public List<GetMySchedulesResponseDto> getMySchedules(String runnerId, String groupId, LocalDate localDate) {
         //러너가 해당 그룹에 속하지 않으면 문제
         if(groupId != null){
             Optional<Belong> belong = belongRepository.findByRunnerIdAndGroupId(runnerId, UUID.fromString(groupId));
@@ -167,7 +171,7 @@ public class Version1ScheduleService implements ScheduleService{
         }
 
         return schedules.stream()
-                .map(schedule -> new GetSchedulesResponseDto(
+                .map(schedule -> new GetMySchedulesResponseDto(
                         schedule.getId().toString(),
                         schedule.getBelong().getId().toString(),
                         schedule.getRecognizeCount(),

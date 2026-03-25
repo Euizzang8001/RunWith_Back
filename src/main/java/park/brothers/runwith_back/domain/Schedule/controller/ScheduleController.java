@@ -18,6 +18,7 @@ import park.brothers.runwith_back.common.Response.ValidationErrorUtils;
 import park.brothers.runwith_back.domain.Schedule.dto.Request.CreateScheduleRequestDto;
 import park.brothers.runwith_back.domain.Schedule.dto.Request.ReviseScheduleRequestDto;
 import park.brothers.runwith_back.domain.Schedule.dto.Response.CreateScheduleResponseDto;
+import park.brothers.runwith_back.domain.Schedule.dto.Response.GetMySchedulesResponseDto;
 import park.brothers.runwith_back.domain.Schedule.dto.Response.GetSchedulesResponseDto;
 import park.brothers.runwith_back.domain.Schedule.dto.Response.ReviseScheduleResponseDto;
 import park.brothers.runwith_back.domain.Schedule.service.ScheduleService;
@@ -96,7 +97,7 @@ public class ScheduleController {
             )
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate localDate
     ) {
-        List<GetSchedulesResponseDto> schedules = scheduleService.getMySchedules(runnerId, groupId, localDate);
+        List<GetMySchedulesResponseDto> schedules = scheduleService.getMySchedules(runnerId, groupId, localDate);
         return ResponseEntity.status(HttpStatus.OK).body(schedules);
     }
 

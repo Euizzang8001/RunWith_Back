@@ -58,4 +58,15 @@ public class JPARecognizeRepository implements RecognizeRepository {
                 .setParameter("scheduleId", scheduleId)
                 .getResultList();
     }
+
+
+    //러너가 특정 스케줄을 인정하고 있는지 확인
+    @Override
+    public Optional<Recognize> findByRunnerIdAndScheduleId(String runnerId, UUID scheduleId) {
+        return em.createQuery("select r from Recognize r where r.recognizingBelong.runner.id = :runnerId and r.recognizedSchedule.id = :scheduleId", Recognize.class)
+                .setParameter("runnerId", runnerId)
+                .setParameter("scheduleId", scheduleId)
+                .getResultStream()
+                .findFirst();
+    }
 }
