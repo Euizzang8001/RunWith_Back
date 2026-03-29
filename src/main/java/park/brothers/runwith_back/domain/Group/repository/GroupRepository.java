@@ -20,4 +20,6 @@ public interface GroupRepository {
     Optional<Group> findById(UUID groupId);
 
     Optional<Group> findSelfGroupByRunnerId(String runnerId);
+
+    Group revise(Group group, String groupDescription, int groupCertificationCriteria);
 }

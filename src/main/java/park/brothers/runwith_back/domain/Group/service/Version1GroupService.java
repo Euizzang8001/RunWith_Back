@@ -173,23 +173,18 @@ public class Version1GroupService implements GroupService {
             throw new IllegalAccessError("해당 러너는 이 그룹의 리더가 아닙니다.");
         }
 
-        if(reviseGroupRequestDto.getGroupCertificationCriteria() != 0){
-            group.get().setCertificationCriteria(reviseGroupRequestDto.getGroupCertificationCriteria());
-        }
-        if(reviseGroupRequestDto.getGroupDescription() != null){
-            group.get().setDescription(reviseGroupRequestDto.getGroupDescription());
-        }
+        Group revisedGroup = groupRepository.revise(group.get(), reviseGroupRequestDto.getGroupDescription(), reviseGroupRequestDto.getGroupCertificationCriteria());
 
         String presignedImageUrl = (image != null && !image.isEmpty())
                 ? awss3Service.putImageToAWSS3(image, "groups", groupId, 0)
                 : awss3Service.getImagePresignedUrl("groups", groupId, 0);
 
         return new ReviseGroupResponseDto(
-                group.get().getId().toString(),
-                group.get().getName(),
-                group.get().getDescription(),
+                revisedGroup.getId().toString(),
+                revisedGroup.getName(),
+                revisedGroup.getDescription(),
                 presignedImageUrl,
-                group.get().getCertificationCriteria()
+                revisedGroup.getCertificationCriteria()
         );
     }
 
