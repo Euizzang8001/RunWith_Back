@@ -77,4 +77,18 @@ public class JPAGroupRepository implements GroupRepository {
                 .getResultStream()
                 .findFirst();
     }
+
+    //그룹 정보 수정
+    @Override
+    public Group revise(Group group, String groupDescription, int groupCertificationCriteria) {
+        if(groupDescription != null){
+            group.setDescription(groupDescription);
+        }
+
+        if(groupCertificationCriteria > 0){
+            group.setCertificationCriteria(groupCertificationCriteria);
+        }
+
+        return group;
+    }
 }
