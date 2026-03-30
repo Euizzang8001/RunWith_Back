@@ -1,7 +1,6 @@
 package park.brothers.runwith_back.domain.Schedule.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import park.brothers.runwith_back.common.Exceptions.ResourceNotFoundException;
