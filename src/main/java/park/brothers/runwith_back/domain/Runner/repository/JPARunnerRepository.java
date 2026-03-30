@@ -11,7 +11,6 @@ import park.brothers.runwith_back.domain.Runner.entity.Runner;
 import java.util.*;
 
 @Repository
-@Slf4j
 @Primary
 @Transactional
 @RequiredArgsConstructor
@@ -48,6 +47,7 @@ public class JPARunnerRepository implements RunnerRepository {
 
     //러너 정보 수정
     @Override
+    @Transactional
     public void reviseRunner(Runner runner, String runnerName) {
         runner.setName(runnerName);
     }

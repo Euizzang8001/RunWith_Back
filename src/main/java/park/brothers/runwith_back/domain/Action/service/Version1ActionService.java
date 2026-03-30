@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import park.brothers.runwith_back.common.Exceptions.NotAcceptableException;
 import park.brothers.runwith_back.common.Exceptions.ResourceNotFoundException;
@@ -26,7 +27,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@Slf4j
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Primary
 public class Version1ActionService implements ActionService{
@@ -37,6 +38,7 @@ public class Version1ActionService implements ActionService{
 
     //action 생성하기
     @Override
+    @Transactional
     public CreateActionResponseDto createAction(String runnerId, CreateActionRequestDto createActionRequestDto, List<MultipartFile> images) throws IOException {
         //유효한 스케줄이어야 한다.
         String scheduleId = createActionRequestDto.getScheduleId();
@@ -115,6 +117,7 @@ public class Version1ActionService implements ActionService{
 
     //Action 삭제
     @Override
+    @Transactional
     public void deleteAction(String runnerId, String actionId) {
         Optional<Action> action = actionRepository.findById(UUID.fromString(actionId));
         //액션이 존재하지 않으면 에러
@@ -137,6 +140,7 @@ public class Version1ActionService implements ActionService{
 
     //Action 수정
     @Override
+    @Transactional
     public ReviseActionResponseDto reviseAction(String runnerId, String actionId, ReviseActionRequestDto reviseActionRequestDto, List<MultipartFile> images) throws IOException {
         Optional<Action> action = actionRepository.findById(UUID.fromString(actionId));
         //액션이 존재하지 않음

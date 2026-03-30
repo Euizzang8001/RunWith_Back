@@ -2,6 +2,7 @@ package park.brothers.runwith_back.domain.Runner.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import park.brothers.runwith_back.common.Exceptions.ResourceNotFoundException;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
@@ -21,6 +22,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class Version1RunnerService implements RunnerService {
 
     private final RunnerRepository runnerRepository;
@@ -30,6 +32,7 @@ public class Version1RunnerService implements RunnerService {
     private final AWSS3Service awss3Service;
 
     @Override
+    @Transactional
     public CreateRunnerResponseDto save(String runnerId, CreateRunnerRequestDto createRunnerRequestDto, MultipartFile image) throws IllegalAccessError, IOException {
         //러너 생성
         Runner runner = new Runner();

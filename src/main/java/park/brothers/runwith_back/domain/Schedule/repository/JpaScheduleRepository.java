@@ -15,9 +15,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-@Slf4j
 @Primary
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class JpaScheduleRepository implements ScheduleRepository{
 
     private final EntityManager em;

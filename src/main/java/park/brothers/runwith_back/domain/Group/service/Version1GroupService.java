@@ -2,6 +2,7 @@ package park.brothers.runwith_back.domain.Group.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import park.brothers.runwith_back.common.Exceptions.ResourceNotFoundException;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class Version1GroupService implements GroupService {
 
     private final GroupRepository groupRepository;
@@ -33,6 +35,7 @@ public class Version1GroupService implements GroupService {
     private final AWSS3Service awss3Service;
 
     @Override
+    @Transactional
     public CreateGroupResponseDto save(String runnerId, CreateGroupRequestDto createGroupRequestDto, MultipartFile image) throws IllegalAccessError, IOException {
         //이미 존재하는 그룹 이름인지 확인하기
         Optional<Group> existGroup = groupRepository.findByName(createGroupRequestDto.getGroupName());
@@ -115,6 +118,7 @@ public class Version1GroupService implements GroupService {
 
 
     @Override
+    @Transactional
     public void delete(String runnerId, String groupId) {
         UUID groupUUID = UUID.fromString(groupId);
 
@@ -149,6 +153,7 @@ public class Version1GroupService implements GroupService {
 
     //그룹 정보 수정
     @Override
+    @Transactional
     public ReviseGroupResponseDto reviseGroup(String runnerId, String groupId, ReviseGroupRequestDto reviseGroupRequestDto, MultipartFile image) throws IllegalAccessError, IOException {
         Optional<Group> group = groupRepository.findById(UUID.fromString(groupId));
         //그룹이 없으면 에러

@@ -2,6 +2,7 @@ package park.brothers.runwith_back.domain.JoinRequest.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import park.brothers.runwith_back.common.Exceptions.NotAcceptableException;
 import park.brothers.runwith_back.common.Exceptions.ResourceNotFoundException;
 import park.brothers.runwith_back.common.Exceptions.UnauthorizedException;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class Version1JoinRequestService implements JoinRequestService {
 
     private final BelongRepository belongRepository;
@@ -34,6 +36,7 @@ public class Version1JoinRequestService implements JoinRequestService {
 
     //그룹 가입 신청 생성하기
     @Override
+    @Transactional
     public CreateJoinRequestResponseDto save(String runnerId, CreateJoinRequestRequestDto createJoinRequestRequestDto) {
         //러너가 존재하지 않으면 안됨
         Optional<Runner> runner = runnerRepository.findById(runnerId);
@@ -78,6 +81,7 @@ public class Version1JoinRequestService implements JoinRequestService {
 
     //그룹 가입 신청 철회
     @Override
+    @Transactional
     public void delete(String runnerId, String joinRequestId) {
         UUID joinRequestUUID = UUID.fromString(joinRequestId);
         Optional<JoinRequest> joinRequest = joinRequestRepository.findById(joinRequestUUID);
@@ -103,6 +107,7 @@ public class Version1JoinRequestService implements JoinRequestService {
 
     //그룹 가입 신청 승인
     @Override
+    @Transactional
     public void accept(String runnerId, String joinRequestId) {
         UUID joinRequestUUID = UUID.fromString(joinRequestId);
         Optional<JoinRequest> joinRequest = joinRequestRepository.findById(joinRequestUUID);
@@ -141,6 +146,7 @@ public class Version1JoinRequestService implements JoinRequestService {
 
     // 그룹 가입 신청 거부
     @Override
+    @Transactional
     public void reject(String runnerId, String joinRequestId) {
         UUID joinRequestUUID = UUID.fromString(joinRequestId);
         Optional<JoinRequest> joinRequest = joinRequestRepository.findById(joinRequestUUID);

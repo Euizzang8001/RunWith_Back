@@ -13,21 +13,22 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-@Slf4j
 @Primary
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class JPAGroupRepository implements GroupRepository {
 
     private final EntityManager em;
 
     @Override
+    @Transactional
     public Group save(Group group) {
         em.persist(group);
         return group;
     }
 
     @Override
+    @Transactional
     public void delete(Group group) {
         em.remove(group);
     }
@@ -80,6 +81,7 @@ public class JPAGroupRepository implements GroupRepository {
 
     //그룹 정보 수정
     @Override
+    @Transactional
     public Group revise(Group group, String groupDescription, int groupCertificationCriteria) {
         if(groupDescription != null){
             group.setDescription(groupDescription);

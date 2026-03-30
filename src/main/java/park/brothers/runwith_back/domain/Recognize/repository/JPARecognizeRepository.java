@@ -13,9 +13,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-@Slf4j
 @Primary
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class JPARecognizeRepository implements RecognizeRepository {
 
@@ -23,6 +22,7 @@ public class JPARecognizeRepository implements RecognizeRepository {
 
     //recognize 객체 저장
     @Override
+    @Transactional
     public Recognize save(Recognize recognize) {
         em.persist(recognize);
         return recognize;
@@ -30,6 +30,7 @@ public class JPARecognizeRepository implements RecognizeRepository {
 
     //인정 여부 수정
     @Override
+    @Transactional
     public Recognize revise(Recognize recognize, boolean recognizing) {
         recognize.setRecognizing(recognizing);
         return recognize;
@@ -47,6 +48,7 @@ public class JPARecognizeRepository implements RecognizeRepository {
 
     //Recognize삭제
     @Override
+    @Transactional
     public void delete(Recognize recognize) {
         em.remove(recognize);
     }
@@ -72,6 +74,7 @@ public class JPARecognizeRepository implements RecognizeRepository {
 
     //스케줄 id를 가진 recognize 전체 삭제
     @Override
+    @Transactional
     public void deleteByScheduleId(UUID scheduleId) {
         em.createQuery("delete from Recognize r where r.recognizedSchedule.id = :scheduleId")
             .setParameter("scheduleId", scheduleId)

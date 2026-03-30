@@ -2,6 +2,7 @@ package park.brothers.runwith_back.domain.Belong.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import park.brothers.runwith_back.common.Exceptions.DuplicateResourceException;
 import park.brothers.runwith_back.common.Exceptions.ResourceNotFoundException;
 import park.brothers.runwith_back.common.Exceptions.UnauthorizedException;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class Version1BelongService implements BelongService{
 
     private final BelongRepository belongRepository;
@@ -41,6 +43,7 @@ public class Version1BelongService implements BelongService{
 
     // 그룹 참여
     @Override
+    @Transactional
     public CreateBelongResponseDto joinGroup(String runnerId, CreateBelongRequestDto createBelongRequestDto) {
         String groupId = createBelongRequestDto.getGroupId();
         String nickname = createBelongRequestDto.getBelongNickname();
@@ -81,6 +84,7 @@ public class Version1BelongService implements BelongService{
     
     //그룹 탈퇴 기능
     @Override
+    @Transactional
     public void leaveGroup(String runnerId, String groupId) {
         UUID groupUUID = UUID.fromString(groupId);
 
@@ -128,6 +132,7 @@ public class Version1BelongService implements BelongService{
 
     //특정 그룹의 리더 변경하기
     @Override
+    @Transactional
     public void changeLeader(String oldLeaderRunnerId, ChangeLeaderRequestDto changeLeaderRequestDto) {
         String newLeaderRunnerId = changeLeaderRequestDto.getNewLeaderRunnerId();
         String groupId = changeLeaderRequestDto.getGroupId();

@@ -3,6 +3,7 @@ package park.brothers.runwith_back.domain.Schedule.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import park.brothers.runwith_back.common.Exceptions.ResourceNotFoundException;
 import park.brothers.runwith_back.common.Exceptions.UnauthorizedException;
 import park.brothers.runwith_back.domain.Action.repository.ActionRepository;
@@ -25,9 +26,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Slf4j
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class Version1ScheduleService implements ScheduleService{
     private final ScheduleRepository scheduleRepository;
     private final BelongRepository belongRepository;
@@ -36,6 +37,7 @@ public class Version1ScheduleService implements ScheduleService{
 
     //스케줄 생성
     @Override
+    @Transactional
     public CreateScheduleResponseDto create(String runnerId, CreateScheduleRequestDto createScheduleRequestDto) {
         //비어있는 belong인지 확인
         Optional<Belong> belong = belongRepository.findById(UUID.fromString(createScheduleRequestDto.getBelongId()));
@@ -69,6 +71,7 @@ public class Version1ScheduleService implements ScheduleService{
 
     //스케줄 삭제
     @Override
+    @Transactional
     public void delete(String runnerId, String scheduleId) {
         Optional<Schedule> schedule = scheduleRepository.findScheduleById(UUID.fromString(scheduleId));
 
@@ -123,6 +126,7 @@ public class Version1ScheduleService implements ScheduleService{
 
     //특정 스케줄 수정
     @Override
+    @Transactional
     public ReviseScheduleResponseDto revise(String runnerId, String scheduleId, ReviseScheduleRequestDto reviseScheduleRequestDto) {
         Optional<Schedule> schedule = scheduleRepository.findScheduleById(UUID.fromString(scheduleId));
         //비어있는 스케줄인지 확인
