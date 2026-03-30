@@ -16,6 +16,7 @@ import park.brothers.runwith_back.domain.Belong.entity.Belong;
 import park.brothers.runwith_back.domain.Belong.repository.BelongRepository;
 import park.brothers.runwith_back.domain.Group.entity.Group;
 import park.brothers.runwith_back.domain.Group.repository.GroupRepository;
+import park.brothers.runwith_back.domain.Recognize.repository.RecognizeRepository;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
 import park.brothers.runwith_back.domain.Schedule.entity.Schedule;
@@ -36,6 +37,7 @@ public class Version1BelongService implements BelongService{
     private final GroupRepository groupRepository;
     private final ScheduleRepository scheduleRepository;
     private final ActionRepository actionRepository;
+    private final RecognizeRepository recognizeRepository;
     private final AWSS3Service aWSS3Service;
 
     // 그룹 참여
@@ -95,12 +97,11 @@ public class Version1BelongService implements BelongService{
         //그룹에서 생성된 Schedule 추출
         List<Schedule> schedules = scheduleRepository.findByBelongId(foundBelong.get().getId());
 
-        //스케줄로부터 생성된 모든 Actions들 삭제
         for(Schedule schedule : schedules){
-            List<Action> actions = actionRepository.findActionsByScheduleId(schedule.getId());
-            for(Action action : actions){
-                actionRepository.delete(action);
-            }
+            //스케줄로부터 생성된 모든 Actions들 삭제
+            actionRepository.deleteByScheduleId(schedule.getId());
+            //recognize도 삭제
+            recognizeRepository.deleteByScheduleId(schedule.getId());
             //actions들 삭제 다 하면 schedule를 삭제
             scheduleRepository.delete(schedule);
         }

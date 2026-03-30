@@ -84,17 +84,12 @@ public class Version1ScheduleService implements ScheduleService{
         }
 
         //해당 스케줄 id를 인정한 기록 삭제
-        List<Recognize> recognizes = recognizeRepository.findByScheduleId(schedule.get().getId());
-        for(Recognize recognize: recognizes){
-            recognizeRepository.delete(recognize);
-        }
+        recognizeRepository.deleteByScheduleId(schedule.get().getId());
 
         //해당 스케줄을 FK로 가진 Actions들 삭제
-        List<Action> actions = actionRepository.findActionsByScheduleId(schedule.get().getId());
-        for(Action action : actions){
-            actionRepository.delete(action);
-        }
+        actionRepository.deleteByScheduleId(schedule.get().getId());
 
+        //스케줄 삭제
         scheduleRepository.delete(schedule.get());
     }
 

@@ -19,4 +19,6 @@ public interface RecognizeRepository {
     List<Recognize> findByScheduleId(UUID scheduleId);
 
     Optional<Recognize> findByRunnerIdAndScheduleId(String runnerId, UUID scheduleId);
+
+    void deleteByScheduleId(UUID scheduleId);
 }

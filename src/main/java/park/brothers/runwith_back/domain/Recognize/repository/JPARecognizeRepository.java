@@ -69,4 +69,12 @@ public class JPARecognizeRepository implements RecognizeRepository {
                 .getResultStream()
                 .findFirst();
     }
+
+    //스케줄 id를 가진 recognize 전체 삭제
+    @Override
+    public void deleteByScheduleId(UUID scheduleId) {
+        em.createQuery("delete from Recognize r where r.recognizedSchedule.id = :scheduleId")
+            .setParameter("scheduleId", scheduleId)
+            .executeUpdate();
+    }
 }
