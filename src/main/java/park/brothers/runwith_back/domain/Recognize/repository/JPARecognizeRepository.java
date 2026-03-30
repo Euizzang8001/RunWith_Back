@@ -2,7 +2,6 @@ package park.brothers.runwith_back.domain.Recognize.repository;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,9 +12,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-@Slf4j
 @Primary
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class JPARecognizeRepository implements RecognizeRepository {
 
@@ -23,6 +21,7 @@ public class JPARecognizeRepository implements RecognizeRepository {
 
     //recognize 객체 저장
     @Override
+    @Transactional
     public Recognize save(Recognize recognize) {
         em.persist(recognize);
         return recognize;
@@ -30,6 +29,7 @@ public class JPARecognizeRepository implements RecognizeRepository {
 
     //인정 여부 수정
     @Override
+    @Transactional
     public Recognize revise(Recognize recognize, boolean recognizing) {
         recognize.setRecognizing(recognizing);
         return recognize;
@@ -47,6 +47,7 @@ public class JPARecognizeRepository implements RecognizeRepository {
 
     //Recognize삭제
     @Override
+    @Transactional
     public void delete(Recognize recognize) {
         em.remove(recognize);
     }
@@ -68,5 +69,14 @@ public class JPARecognizeRepository implements RecognizeRepository {
                 .setParameter("scheduleId", scheduleId)
                 .getResultStream()
                 .findFirst();
+    }
+
+    //스케줄 id를 가진 recognize 전체 삭제
+    @Override
+    @Transactional
+    public void deleteByScheduleId(UUID scheduleId) {
+        em.createQuery("delete from Recognize r where r.recognizedSchedule.id = :scheduleId")
+            .setParameter("scheduleId", scheduleId)
+            .executeUpdate();
     }
 }

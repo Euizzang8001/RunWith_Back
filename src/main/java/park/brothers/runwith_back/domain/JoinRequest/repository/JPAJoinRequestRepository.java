@@ -2,7 +2,6 @@ package park.brothers.runwith_back.domain.JoinRequest.repository;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,9 +12,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-@Slf4j
 @Primary
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class JPAJoinRequestRepository implements JoinRequestRepository {
 
@@ -43,6 +41,7 @@ public class JPAJoinRequestRepository implements JoinRequestRepository {
 
     //저장하기
     @Override
+    @Transactional
     public JoinRequest save(JoinRequest newJoinRequest) {
         em.persist(newJoinRequest);
         return newJoinRequest;
@@ -50,6 +49,7 @@ public class JPAJoinRequestRepository implements JoinRequestRepository {
 
     //삭제하기
     @Override
+    @Transactional
     public void delete(JoinRequest joinRequest) {
         em.remove(joinRequest);
     }

@@ -1,10 +1,11 @@
 package park.brothers.runwith_back.domain.Schedule.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import park.brothers.runwith_back.common.Exceptions.ResourceNotFoundException;
 import park.brothers.runwith_back.common.Exceptions.UnauthorizedException;
+import park.brothers.runwith_back.domain.Action.repository.ActionRepository;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
 import park.brothers.runwith_back.domain.Belong.repository.BelongRepository;
 import park.brothers.runwith_back.domain.Recognize.entity.Recognize;
@@ -24,16 +25,18 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Slf4j
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class Version1ScheduleService implements ScheduleService{
     private final ScheduleRepository scheduleRepository;
     private final BelongRepository belongRepository;
+    private final ActionRepository actionRepository;
     private final RecognizeRepository recognizeRepository;
 
     //스케줄 생성
     @Override
+    @Transactional
     public CreateScheduleResponseDto create(String runnerId, CreateScheduleRequestDto createScheduleRequestDto) {
         //비어있는 belong인지 확인
         Optional<Belong> belong = belongRepository.findById(UUID.fromString(createScheduleRequestDto.getBelongId()));
@@ -67,6 +70,7 @@ public class Version1ScheduleService implements ScheduleService{
 
     //스케줄 삭제
     @Override
+    @Transactional
     public void delete(String runnerId, String scheduleId) {
         Optional<Schedule> schedule = scheduleRepository.findScheduleById(UUID.fromString(scheduleId));
 
@@ -81,11 +85,12 @@ public class Version1ScheduleService implements ScheduleService{
         }
 
         //해당 스케줄 id를 인정한 기록 삭제
-        List<Recognize> recognizes = recognizeRepository.findByScheduleId(schedule.get().getId());
-        for(Recognize r: recognizes){
-            recognizeRepository.delete(r);
-        }
+        recognizeRepository.deleteByScheduleId(schedule.get().getId());
 
+        //해당 스케줄을 FK로 가진 Actions들 삭제
+        actionRepository.deleteByScheduleId(schedule.get().getId());
+
+        //스케줄 삭제
         scheduleRepository.delete(schedule.get());
     }
 
@@ -120,6 +125,7 @@ public class Version1ScheduleService implements ScheduleService{
 
     //특정 스케줄 수정
     @Override
+    @Transactional
     public ReviseScheduleResponseDto revise(String runnerId, String scheduleId, ReviseScheduleRequestDto reviseScheduleRequestDto) {
         Optional<Schedule> schedule = scheduleRepository.findScheduleById(UUID.fromString(scheduleId));
         //비어있는 스케줄인지 확인

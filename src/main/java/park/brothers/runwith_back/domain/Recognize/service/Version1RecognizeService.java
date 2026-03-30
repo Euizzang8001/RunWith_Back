@@ -2,6 +2,7 @@ package park.brothers.runwith_back.domain.Recognize.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import park.brothers.runwith_back.common.Exceptions.NotAcceptableException;
 import park.brothers.runwith_back.common.Exceptions.ResourceNotFoundException;
 import park.brothers.runwith_back.common.Exceptions.UnauthorizedException;
@@ -21,6 +22,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class Version1RecognizeService implements RecognizeService {
 
     private final RunnerRepository runnerRepository;
@@ -29,6 +31,7 @@ public class Version1RecognizeService implements RecognizeService {
     private final RecognizeRepository recognizeRepository;
 
     @Override
+    @Transactional
     public ChangeRecognizeResponseDto changeRecognize(String runnerId, ChangeRecognizeRequestDto changeRecognizeRequestDto, String scheduleId) {
         // runner가 존재해야 함
         Optional<Runner> runner = runnerRepository.findById(runnerId);

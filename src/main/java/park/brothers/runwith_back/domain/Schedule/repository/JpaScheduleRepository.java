@@ -3,7 +3,6 @@ package park.brothers.runwith_back.domain.Schedule.repository;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,9 +14,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-@Slf4j
 @Primary
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class JpaScheduleRepository implements ScheduleRepository{
 
     private final EntityManager em;

@@ -2,7 +2,6 @@ package park.brothers.runwith_back.domain.Belong.repository;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,9 +12,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-@Slf4j
 @Primary
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class JPABelongRepository implements BelongRepository{
 
@@ -43,12 +41,14 @@ public class JPABelongRepository implements BelongRepository{
 
     //belong 저장
     @Override
+    @Transactional
     public Belong save(Belong belong) {
         em.persist(belong);
         return belong;
     }
 
     @Override
+    @Transactional
     public void deleteByRunnerIdAndGroupId(String runnerId, UUID groupId) {
         Optional<Belong> belong = Optional.ofNullable(em.createQuery("select b from Belong b where b.runner.id = :runnerId and b.group.id = :groupId", Belong.class)
                 .setParameter("runnerId", runnerId)
@@ -72,6 +72,7 @@ public class JPABelongRepository implements BelongRepository{
     }
 
     @Override
+    @Transactional
     public void changeIsLeader(String runnerId, UUID groupId, boolean isLeader) {
         Belong belong = em.createQuery("select b from Belong b where b.runner.id = :runnerId and b.group.id = :groupId", Belong.class)
                 .setParameter("runnerId", runnerId)

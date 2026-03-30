@@ -78,4 +78,12 @@ public class JpaActionRepository implements ActionRepository{
                 .setParameter("scheduleId", scheduleId)
                 .getResultList();
     }
+
+    //스케줄 id로 action 삭제
+    @Override
+    public void deleteByScheduleId(UUID scheduleId) {
+        em.createQuery("delete from Action a where a.schedule.id = :scheduleId")
+            .setParameter("scheduleId", scheduleId)
+            .executeUpdate();
+    }
 }

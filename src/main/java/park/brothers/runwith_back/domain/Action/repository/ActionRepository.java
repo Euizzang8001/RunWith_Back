@@ -18,4 +18,6 @@ public interface ActionRepository {
     Action reviseAction(Action action, String name, String description, int startHour, int startMinute, int endHour, int endMinute, int maxImageSize);
 
     List<Action> findActionsByScheduleId(UUID scheduleId);
+
+    void deleteByScheduleId(UUID scheduleId);
 }

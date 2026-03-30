@@ -2,9 +2,11 @@ package park.brothers.runwith_back.domain.Belong.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import park.brothers.runwith_back.common.Exceptions.DuplicateResourceException;
 import park.brothers.runwith_back.common.Exceptions.ResourceNotFoundException;
 import park.brothers.runwith_back.common.Exceptions.UnauthorizedException;
+import park.brothers.runwith_back.domain.Action.repository.ActionRepository;
 import park.brothers.runwith_back.domain.Belong.dto.Request.ChangeLeaderRequestDto;
 import park.brothers.runwith_back.domain.Belong.dto.Request.CreateBelongRequestDto;
 import park.brothers.runwith_back.domain.Belong.dto.Response.CreateBelongResponseDto;
@@ -14,8 +16,11 @@ import park.brothers.runwith_back.domain.Belong.entity.Belong;
 import park.brothers.runwith_back.domain.Belong.repository.BelongRepository;
 import park.brothers.runwith_back.domain.Group.entity.Group;
 import park.brothers.runwith_back.domain.Group.repository.GroupRepository;
+import park.brothers.runwith_back.domain.Recognize.repository.RecognizeRepository;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
+import park.brothers.runwith_back.domain.Schedule.entity.Schedule;
+import park.brothers.runwith_back.domain.Schedule.repository.ScheduleRepository;
 import park.brothers.runwith_back.external.AWS_S3.AWSS3Service;
 
 import java.util.List;
@@ -25,15 +30,20 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class Version1BelongService implements BelongService{
 
     private final BelongRepository belongRepository;
     private final RunnerRepository runnerRepository;
     private final GroupRepository groupRepository;
+    private final ScheduleRepository scheduleRepository;
+    private final ActionRepository actionRepository;
+    private final RecognizeRepository recognizeRepository;
     private final AWSS3Service aWSS3Service;
 
     // 그룹 참여
     @Override
+    @Transactional
     public CreateBelongResponseDto joinGroup(String runnerId, CreateBelongRequestDto createBelongRequestDto) {
         String groupId = createBelongRequestDto.getGroupId();
         String nickname = createBelongRequestDto.getBelongNickname();
@@ -74,6 +84,7 @@ public class Version1BelongService implements BelongService{
     
     //그룹 탈퇴 기능
     @Override
+    @Transactional
     public void leaveGroup(String runnerId, String groupId) {
         UUID groupUUID = UUID.fromString(groupId);
 
@@ -84,6 +95,18 @@ public class Version1BelongService implements BelongService{
         //러너가 그룹에 속하지 않을 때
         if(foundBelong.isEmpty()){
             throw new ResourceNotFoundException("해당 러너는 이 그룹에 속하지 않습니다.");
+        }
+
+        //그룹에서 생성된 Schedule 추출
+        List<Schedule> schedules = scheduleRepository.findByBelongId(foundBelong.get().getId());
+
+        for(Schedule schedule : schedules){
+            //스케줄로부터 생성된 모든 Actions들 삭제
+            actionRepository.deleteByScheduleId(schedule.getId());
+            //recognize도 삭제
+            recognizeRepository.deleteByScheduleId(schedule.getId());
+            //actions들 삭제 다 하면 schedule를 삭제
+            scheduleRepository.delete(schedule);
         }
 
         belongRepository.deleteByRunnerIdAndGroupId(runnerId, groupUUID);
@@ -109,6 +132,7 @@ public class Version1BelongService implements BelongService{
 
     //특정 그룹의 리더 변경하기
     @Override
+    @Transactional
     public void changeLeader(String oldLeaderRunnerId, ChangeLeaderRequestDto changeLeaderRequestDto) {
         String newLeaderRunnerId = changeLeaderRequestDto.getNewLeaderRunnerId();
         String groupId = changeLeaderRequestDto.getGroupId();
