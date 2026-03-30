@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import park.brothers.runwith_back.common.Exceptions.DuplicateResourceException;
 import park.brothers.runwith_back.common.Exceptions.ResourceNotFoundException;
 import park.brothers.runwith_back.common.Exceptions.UnauthorizedException;
+import park.brothers.runwith_back.domain.Action.entity.Action;
+import park.brothers.runwith_back.domain.Action.repository.ActionRepository;
 import park.brothers.runwith_back.domain.Belong.dto.Request.ChangeLeaderRequestDto;
 import park.brothers.runwith_back.domain.Belong.dto.Request.CreateBelongRequestDto;
 import park.brothers.runwith_back.domain.Belong.dto.Response.CreateBelongResponseDto;
@@ -16,6 +18,8 @@ import park.brothers.runwith_back.domain.Group.entity.Group;
 import park.brothers.runwith_back.domain.Group.repository.GroupRepository;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
+import park.brothers.runwith_back.domain.Schedule.entity.Schedule;
+import park.brothers.runwith_back.domain.Schedule.repository.ScheduleRepository;
 import park.brothers.runwith_back.external.AWS_S3.AWSS3Service;
 
 import java.util.List;
@@ -30,6 +34,8 @@ public class Version1BelongService implements BelongService{
     private final BelongRepository belongRepository;
     private final RunnerRepository runnerRepository;
     private final GroupRepository groupRepository;
+    private final ScheduleRepository scheduleRepository;
+    private final ActionRepository actionRepository;
     private final AWSS3Service aWSS3Service;
 
     // 그룹 참여
@@ -84,6 +90,19 @@ public class Version1BelongService implements BelongService{
         //러너가 그룹에 속하지 않을 때
         if(foundBelong.isEmpty()){
             throw new ResourceNotFoundException("해당 러너는 이 그룹에 속하지 않습니다.");
+        }
+
+        //그룹에서 생성된 Schedule 추출
+        List<Schedule> schedules = scheduleRepository.findByBelongId(foundBelong.get().getId());
+
+        //스케줄로부터 생성된 모든 Actions들 삭제
+        for(Schedule schedule : schedules){
+            List<Action> actions = actionRepository.findActionsByScheduleId(schedule.getId());
+            for(Action action : actions){
+                actionRepository.delete(action);
+            }
+            //actions들 삭제 다 하면 schedule를 삭제
+            scheduleRepository.delete(schedule);
         }
 
         belongRepository.deleteByRunnerIdAndGroupId(runnerId, groupUUID);

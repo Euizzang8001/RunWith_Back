@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import park.brothers.runwith_back.common.Exceptions.ResourceNotFoundException;
 import park.brothers.runwith_back.common.Exceptions.UnauthorizedException;
+import park.brothers.runwith_back.domain.Action.entity.Action;
+import park.brothers.runwith_back.domain.Action.repository.ActionRepository;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
 import park.brothers.runwith_back.domain.Belong.repository.BelongRepository;
 import park.brothers.runwith_back.domain.Recognize.entity.Recognize;
@@ -30,6 +32,7 @@ import java.util.stream.Collectors;
 public class Version1ScheduleService implements ScheduleService{
     private final ScheduleRepository scheduleRepository;
     private final BelongRepository belongRepository;
+    private final ActionRepository actionRepository;
     private final RecognizeRepository recognizeRepository;
 
     //스케줄 생성
@@ -82,8 +85,14 @@ public class Version1ScheduleService implements ScheduleService{
 
         //해당 스케줄 id를 인정한 기록 삭제
         List<Recognize> recognizes = recognizeRepository.findByScheduleId(schedule.get().getId());
-        for(Recognize r: recognizes){
-            recognizeRepository.delete(r);
+        for(Recognize recognize: recognizes){
+            recognizeRepository.delete(recognize);
+        }
+
+        //해당 스케줄을 FK로 가진 Actions들 삭제
+        List<Action> actions = actionRepository.findActionsByScheduleId(schedule.get().getId());
+        for(Action action : actions){
+            actionRepository.delete(action);
         }
 
         scheduleRepository.delete(schedule.get());
