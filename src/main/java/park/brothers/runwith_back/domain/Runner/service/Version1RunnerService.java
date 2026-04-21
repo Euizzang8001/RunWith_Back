@@ -93,6 +93,7 @@ public class Version1RunnerService implements RunnerService {
 
     //러너 수정 서비스
     @Override
+    @Transactional
     public GetMyInfoResponseDto revise(String runnerId, ReviseMyInfoRequestDto reviseMyInfoRequestDto, MultipartFile image) throws IOException {
         Optional<Runner> runner = runnerRepository.findById(runnerId);
 
