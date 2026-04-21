@@ -91,6 +91,7 @@ public class Version1RunnerService implements RunnerService {
         );
     }
 
+    //러너 수정 서비스
     @Override
     public GetMyInfoResponseDto revise(String runnerId, ReviseMyInfoRequestDto reviseMyInfoRequestDto, MultipartFile image) throws IOException {
         Optional<Runner> runner = runnerRepository.findById(runnerId);
@@ -109,17 +110,14 @@ public class Version1RunnerService implements RunnerService {
         }
 
         //이미지가 비어있지 않다면 이미지 수정
-        String imageLink;
-        if(!image.isEmpty()){
-            imageLink = awss3Service.putImageToAWSS3(image, "runners", runnerId, 0);
-        } else {
-            imageLink = awss3Service.getImagePresignedUrl("runners", runnerId, 0);
-        }
+        String presignedImageUrl = (image != null && !image.isEmpty())
+                ? awss3Service.putImageToAWSS3(image, "runners", runnerId, 0)
+                : awss3Service.getImagePresignedUrl("runners", runnerId, 0);
 
 
         return new GetMyInfoResponseDto(
                 runnerName,
-                imageLink
+                presignedImageUrl
         );
 
     }
