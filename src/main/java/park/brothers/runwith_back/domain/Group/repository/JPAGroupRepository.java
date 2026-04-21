@@ -90,6 +90,7 @@ public class JPAGroupRepository implements GroupRepository {
             group.setCertificationCriteria(groupCertificationCriteria);
         }
 
+        em.merge(group);
         return group;
     }
 }

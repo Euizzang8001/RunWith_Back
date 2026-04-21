@@ -75,6 +75,7 @@ public class JpaScheduleRepository implements ScheduleRepository{
     @Transactional
     public void reviseSchedule(Schedule schedule, String description) {
         schedule.setDescription(description);
+        em.merge(schedule);
     }
 
     //id로 스케줄 객체 하나 찾기
