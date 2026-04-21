@@ -49,6 +49,7 @@ public class JPARunnerRepository implements RunnerRepository {
     @Transactional
     public void reviseRunner(Runner runner, String runnerName) {
         runner.setName(runnerName);
+        em.merge(runner);
     }
 
 }

@@ -68,6 +68,8 @@ public class JpaActionRepository implements ActionRepository{
         action.setEndMinute(endMinute);
         action.setMaxImageSize(maxImageSize);
 
+        em.merge(action);
+
         return action;
     }
 

@@ -32,6 +32,7 @@ public class JPARecognizeRepository implements RecognizeRepository {
     @Transactional
     public Recognize revise(Recognize recognize, boolean recognizing) {
         recognize.setRecognizing(recognizing);
+        em.merge(recognize);
         return recognize;
     }
 
