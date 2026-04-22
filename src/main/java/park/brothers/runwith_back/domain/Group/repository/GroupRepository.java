@@ -22,4 +22,6 @@ public interface GroupRepository {
     Optional<Group> findSelfGroupByRunnerId(String runnerId);
 
     Group revise(Group group, String groupDescription, int groupCertificationCriteria);
+
+    void reviseSelfGroupName(Group group, String runnerName);
 }
