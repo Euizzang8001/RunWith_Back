@@ -93,4 +93,14 @@ public class JPAGroupRepository implements GroupRepository {
         em.merge(group);
         return group;
     }
+
+    //셀프 그룹 이름 변경
+    @Override
+    @Transactional
+    public void reviseSelfGroupName(Group group, String runnerName) {
+        if(runnerName != null){
+            group.setName(runnerName + "만의 트랙");
+            em.merge(group);
+        }
+    }
 }

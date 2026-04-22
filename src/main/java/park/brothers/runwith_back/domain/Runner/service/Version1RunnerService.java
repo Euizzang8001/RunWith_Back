@@ -46,8 +46,8 @@ public class Version1RunnerService implements RunnerService {
         //러너가 리더인 그룹 하나 생성
         Group group = new Group();
         group.setIsSelf(true);
-        group.setName("나만의 트랙");
-        group.setDescription("나만의 트랙");
+        group.setName(runner.getName() + "만의 트랙");
+        group.setDescription("러너님만의 트랙입니다. 마음껏 계획을 세우고 달려가세요!");
         group.setCertificationCriteria(0);
         Group savedGroup = groupRepository.save(group);
 
@@ -101,11 +101,20 @@ public class Version1RunnerService implements RunnerService {
             throw new ResourceNotFoundException("존재하지 않는 러너입니다.");
         }
 
-        //이름이 변경될 예정이면 이름 수정
+        //이름이 변경될 예정이면 이름 + 셀프 그룹 이름 수정
         String runnerName;
         if(reviseMyInfoRequestDto != null && !reviseMyInfoRequestDto.getRunnerName().isEmpty()){
+            //셀프 그룹 찾기
+            Optional<Group> group = groupRepository.findSelfGroupByRunnerId(runnerId);
+            if(group.isEmpty()){
+                throw new ResourceNotFoundException("셀프 그룹이 존재하지 않는 러너입니다.");
+            }
+
             runnerRepository.reviseRunner(runner.get(), reviseMyInfoRequestDto.getRunnerName());
             runnerName = reviseMyInfoRequestDto.getRunnerName();
+
+            //셀프 그룹 이름 수정
+            groupRepository.reviseSelfGroupName(group.get(), runnerName);
         } else {
             runnerName = runner.get().getName();
         }
