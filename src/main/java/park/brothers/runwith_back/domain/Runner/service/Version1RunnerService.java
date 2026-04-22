@@ -46,8 +46,8 @@ public class Version1RunnerService implements RunnerService {
         //러너가 리더인 그룹 하나 생성
         Group group = new Group();
         group.setIsSelf(true);
-        group.setName(runner.getName() + "'s self group");
-        group.setDescription(runner.getName() + "'s self group");
+        group.setName("나만의 트랙");
+        group.setDescription("나만의 트랙");
         group.setCertificationCriteria(0);
         Group savedGroup = groupRepository.save(group);
 
