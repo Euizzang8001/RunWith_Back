@@ -3,6 +3,9 @@ plugins {
     id 'org.springframework.boot' version '4.0.2'
     id 'io.spring.dependency-management' version '1.1.7'
 }
+ext {
+    springAiVersion = "2.0.0-M2"
+}
 
 group = 'park.brothers'
 version = '0.0.1-SNAPSHOT'
@@ -10,7 +13,7 @@ description = 'RunWith_Back'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -20,8 +23,34 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1' //스웨거 설정
+    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    testImplementation 'org.springframework.security:spring-security-test'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'com.h2database:h2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    //lombok library
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    //AWS S3
+    implementation 'software.amazon.awssdk:s3:2.25.14'
+
+    //image
+    implementation 'net.coobird:thumbnailator:0.4.19'
+
+    //Firebase
+    implementation 'com.google.firebase:firebase-admin:9.7.1'
 }
 
 tasks.named('test') {
