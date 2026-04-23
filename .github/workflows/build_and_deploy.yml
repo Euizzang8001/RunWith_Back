@@ -2,7 +2,7 @@ name: Build And Deploy (Multi-Env)
 
 on:
   push:
-    branches: [ "main", "develop" ] # main과 develop 브랜치 푸시 시 동작
+    branches: [ "master", "develop" ] # master와 develop 브랜치 푸시 시 동작
 
 jobs:
   build-and-push:
@@ -14,8 +14,8 @@ jobs:
       # 브랜치에 따라 변수 다르게 등록
       - name: Set Environment Variables
         run: |
-          if [[ "${{ github.ref_name }}" == "main" || "${{ github.base_ref }}" == "main" ]]; then
-            echo "Building for PRODUCTION (main)"
+          if [[ "${{ github.ref_name }}" == "master" || "${{ github.base_ref }}" == "master" ]]; then
+            echo "Building for PRODUCTION (master)"
             echo "TARGET_TAG=${{ secrets.DOCKER_PROD_TAG }}" >> $GITHUB_ENV
             echo "BUILD_PORT=${{ secrets.SERVER_OUTER_PROD_PORT }}" >> $GITHUB_ENV
           else
@@ -49,10 +49,10 @@ jobs:
     needs: build-and-push
     runs-on: self-hosted
     steps:
-      # deploy 잡에서 실행될 때 필요한 secret설정 -> main과 dev 분리
+      # deploy 잡에서 실행될 때 필요한 secret설정 -> master와 dev 분리
       - name: Set Environment Variables for Deploy
         run: |
-          if [[ "${{ github.ref_name }}" == "main" ]]; then
+          if [[ "${{ github.ref_name }}" == "master" ]]; then
             echo "Deploying to PRODUCTION"
             echo "TARGET_TAG=${{ secrets.DOCKER_PROD_TAG }}" >> $GITHUB_ENV
             echo "INNER_PORT=${{ secrets.SERVER_PROD_INNER_PORT }}" >> $GITHUB_ENV
