@@ -35,8 +35,6 @@ public class Version1RunnerService implements RunnerService {
     private final RunnerRepository runnerRepository;
     private final GroupRepository groupRepository;
     private final BelongRepository belongRepository;
-    private final ScheduleRepository scheduleRepository;
-    private final ActionRepository actionRepository;
 
     private final AWSS3Service awss3Service;
 
