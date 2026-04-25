@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
 import park.brothers.runwith_back.domain.Schedule.entity.Schedule;
 
@@ -23,10 +25,12 @@ public class Recognize {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "belongs")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Belong recognizingBelong; //인정을 해준 사람
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "schedules")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Schedule recognizedSchedule; //인증을 받는 스케줄
 
     @Column

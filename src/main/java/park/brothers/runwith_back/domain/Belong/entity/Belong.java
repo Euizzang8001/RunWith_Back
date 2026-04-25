@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import park.brothers.runwith_back.domain.Group.entity.Group;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 
@@ -23,10 +25,12 @@ public class Belong {
 
     @ManyToOne(fetch = FetchType.LAZY) //Belong을 조회할 때 Belog만 조회하고, Runner는 나중에 조회(지연 로딩)
     @JoinColumn(name = "runners")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Runner runner;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "groups")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Group group;
 
     @Column(nullable = false)
