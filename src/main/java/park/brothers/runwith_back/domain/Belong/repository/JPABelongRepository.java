@@ -89,4 +89,29 @@ public class JPABelongRepository implements BelongRepository{
                 .getResultStream()
                 .findFirst();
     }
+    
+    //특정 러너가 리더로 속한 그룹에 다른 러너가 존재하는지 확인하기
+    @Override
+    public boolean existGroupWithOtherMembersWhereRunnerIsLeader(String runnerId) {
+        String jpql = "select b1.id from Belong b1 " +
+                "inner join Belong b2 on b1.group.id = b2.group.id " +
+                "where b1.runner.id = :runnerId " +
+                "and b1.isLeader = true " +
+                "and b2.runner.id != :runnerId";
+
+        List<UUID> result = em.createQuery(jpql, UUID.class)
+                .setParameter("runnerId", runnerId)
+                .setMaxResults(1)
+                .getResultList();
+
+        return !result.isEmpty();
+    }
+    
+    //특정 러너가 리더인 모든 그룹 가져오기
+    @Override
+    public List<Belong> findGroupsWhereRunnerIsLeader(String runnerId) {
+        return em.createQuery("select b from Belong b where b.runner.id = :runnerId and b.isLeader = true", Belong.class)
+                .setParameter("runnerId", runnerId)
+                .getResultList();
+    }
 }

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
 
 import java.util.UUID;
@@ -21,6 +23,7 @@ public class Schedule {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "belongs")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Belong belong;
 
     @Column(nullable = false)

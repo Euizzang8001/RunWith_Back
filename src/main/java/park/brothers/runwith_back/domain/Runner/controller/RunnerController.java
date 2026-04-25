@@ -1,5 +1,6 @@
 package park.brothers.runwith_back.domain.Runner.controller;
 
+import com.google.firebase.auth.FirebaseAuthException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -104,5 +105,15 @@ public class RunnerController {
         GetMyInfoResponseDto getMyInfoResponseDto = runnerService.revise(runnerId, reviseMyInfoRequestDto, image);
 
         return ResponseEntity.status(HttpStatus.OK).body(getMyInfoResponseDto);
+    }
+
+    //러너 정보 삭제(탈퇴)
+    @DeleteMapping(value = "/me")
+    @Operation(summary = "러너 삭제", description = "로그인한 러너를 삭제(탈퇴)합니다.")
+    public ResponseEntity<Object> deleteRunner(
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId
+    ) throws FirebaseAuthException {
+        runnerService.deleteRunner(runnerId);
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonMessage("성공적으로 탈퇴되었습니다."));
     }
 }

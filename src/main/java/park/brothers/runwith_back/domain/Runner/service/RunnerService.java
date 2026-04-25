@@ -1,5 +1,6 @@
 package park.brothers.runwith_back.domain.Runner.service;
 
+import com.google.firebase.auth.FirebaseAuthException;
 import jakarta.validation.Valid;
 import org.springframework.web.multipart.MultipartFile;
 import park.brothers.runwith_back.domain.Runner.dto.Request.CreateRunnerRequestDto;
@@ -16,4 +17,6 @@ public interface RunnerService {
     GetMyInfoResponseDto findRunner(@Valid String runnerId);
 
     GetMyInfoResponseDto revise(String runnerId, ReviseMyInfoRequestDto reviseMyInfoRequestDto, MultipartFile image) throws IOException;
+
+    void deleteRunner(String runnerId) throws FirebaseAuthException;
 }

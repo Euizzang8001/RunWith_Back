@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import park.brothers.runwith_back.domain.Group.entity.Group;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 
@@ -23,11 +25,13 @@ public class JoinRequest {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "runners")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Runner runner;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "groups")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Group group;
 
     @CreationTimestamp

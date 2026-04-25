@@ -23,4 +23,8 @@ public interface BelongRepository {
     void changeIsLeader(String runnerId, UUID groupId, boolean isLeader);
 
     Optional<Belong> findById(@NotNull UUID id);
+
+    boolean existGroupWithOtherMembersWhereRunnerIsLeader(String runnerId);
+
+    List<Belong> findGroupsWhereRunnerIsLeader(String runnerId);
 }

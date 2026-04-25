@@ -1,10 +1,15 @@
 package park.brothers.runwith_back.domain.Runner.service;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import park.brothers.runwith_back.common.Exceptions.NotAcceptableException;
 import park.brothers.runwith_back.common.Exceptions.ResourceNotFoundException;
+import park.brothers.runwith_back.domain.Action.repository.ActionRepository;
 import park.brothers.runwith_back.domain.Belong.entity.Belong;
 import park.brothers.runwith_back.domain.Belong.repository.BelongRepository;
 import park.brothers.runwith_back.domain.Group.entity.Group;
@@ -15,9 +20,11 @@ import park.brothers.runwith_back.domain.Runner.dto.Response.CreateRunnerRespons
 import park.brothers.runwith_back.domain.Runner.dto.Response.GetMyInfoResponseDto;
 import park.brothers.runwith_back.domain.Runner.entity.Runner;
 import park.brothers.runwith_back.domain.Runner.repository.RunnerRepository;
+import park.brothers.runwith_back.domain.Schedule.repository.ScheduleRepository;
 import park.brothers.runwith_back.external.AWS_S3.AWSS3Service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -129,6 +136,29 @@ public class Version1RunnerService implements RunnerService {
                 runnerName,
                 presignedImageUrl
         );
+
+    }
+
+
+    //러너 삭제(탈퇴) 서비스
+    @Override
+    @Transactional
+    public void deleteRunner(String runnerId) throws FirebaseAuthException {
+        //데이터베이스 내 삭제
+        //특정 그룹의 리더이고, 그 그룹에 자신을 제외한 러너가 속해있으면 안된다.
+        if (belongRepository.existGroupWithOtherMembersWhereRunnerIsLeader(runnerId)) {
+            throw new NotAcceptableException("러너가 리더로 존재하는 그룹에 다른 러너가 속해있습니다.");
+        }
+
+        //리더로 속한 그룹 모두 삭제
+        List<Belong> belongs = belongRepository.findGroupsWhereRunnerIsLeader(runnerId);
+        for(Belong belong : belongs){
+            groupRepository.delete(belong.getGroup());
+        }
+        runnerRepository.delete(runnerId);
+
+        //파이어베이스 내 계정 삭제
+        FirebaseAuth.getInstance().deleteUser(runnerId);
 
     }
 
