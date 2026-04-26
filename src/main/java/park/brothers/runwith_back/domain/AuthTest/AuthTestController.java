@@ -3,7 +3,9 @@ package park.brothers.runwith_back.domain.AuthTest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,23 +15,27 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/public")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthTestController {
 
     private final AuthTestService authTestService;
 
     @PostMapping("/auth/login")
     @Operation(summary = "토큰 생성 테스트용 api",description = "이메일 로그인을 기반으로 토큰을 조회합니다.")
-    public ResponseEntity<AuthTestResponseDto> login(
+    public ResponseEntity<String> login(
             @Parameter(
                     description = "테스트할 로그인 정보",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
             )
-            @RequestBody AuthTestRequestDto loginRequest
+            @RequestBody AuthTestRequestDto loginRequest,
+            HttpServletRequest request
     ) {
+        String threadName = Thread.currentThread().getName();
+
         // 서비스 호출하여 토큰 받아오기
         AuthTestResponseDto tokenResponse = authTestService.loginWithEmail(loginRequest);
-
+        log.info("[{}] [{} {}] - 테스트 러너 조회", threadName, request.getMethod(), request.getRequestURI());
         // 결과 반환 (idToken이 포함되어 있음)
-        return ResponseEntity.ok(tokenResponse);
+        return ResponseEntity.ok(tokenResponse.getIdToken());
     }
 }

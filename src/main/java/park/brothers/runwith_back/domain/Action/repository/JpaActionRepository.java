@@ -2,7 +2,6 @@ package park.brothers.runwith_back.domain.Action.repository;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +13,6 @@ import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
-@Slf4j
 @Primary
 @Transactional(readOnly = true)
 public class JpaActionRepository implements ActionRepository{
