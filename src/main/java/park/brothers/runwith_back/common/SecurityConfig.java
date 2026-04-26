@@ -36,7 +36,8 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
                                 "/v3/api-docs.yaml",
-                                "/public/**"
+                                "/public/**",
+                                "/health-check"
                         ).permitAll()
                         .anyRequest().authenticated() //이외의 요청은 모두 인증 필요
                 )
