@@ -7,24 +7,10 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-22.04
+    environment: ${{ github.ref_name == 'master' && 'master'|| 'develop' }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
-      # 브랜치에 따라 변수 다르게 등록
-      - name: Set Environment Variables
-        run: |
-          if [[ "${{ github.ref_name }}" == "master" || "${{ github.base_ref }}" == "master" ]]; then
-            echo "Building for PRODUCTION (master)"
-            echo "TARGET_TAG=${{ secrets.DOCKER_PROD_TAG }}" >> $GITHUB_ENV
-            echo "BUILD_PORT=${{ secrets.SERVER_OUTER_PROD_PORT }}" >> $GITHUB_ENV
-          else
-            echo "Building for DEVELOPMENT (dev)"
-            echo "TARGET_TAG=${{ secrets.DOCKER_DEV_TAG }}" >> $GITHUB_ENV
-            echo "BUILD_PORT=${{ secrets.SERVER_OUTER_DEV_PORT }}" >> $GITHUB_ENV
-          fi
-          
-          echo 
 
       # 도커 허브 로그인
       # 도커 허브에 이미지를 push한 후, deploy시 다운 받을 예정
@@ -41,51 +27,39 @@ jobs:
           context: . # Dockerfile이 있는 경로
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}:${{ env.TARGET_TAG }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}:${{ secrets.DOCKER_TAG }}
           build-args: |
-            PORT=${{ env.BUILD_PORT }} 
+            PORT=${{ secrets.SERVER_OUTER_PORT }}
 
   deploy:
     needs: build-and-push
     runs-on: self-hosted
-    steps:
-      # deploy 잡에서 실행될 때 필요한 secret설정 -> master와 dev 분리
-      - name: Set Environment Variables for Deploy
-        run: |
-          if [[ "${{ github.ref_name }}" == "master" ]]; then
-            echo "Deploying to PRODUCTION"
-            echo "TARGET_TAG=${{ secrets.DOCKER_PROD_TAG }}" >> $GITHUB_ENV
-            echo "INNER_PORT=${{ secrets.SERVER_PROD_INNER_PORT }}" >> $GITHUB_ENV
-            echo "OUTER_PORT=${{ secrets.SERVER_OUTER_PROD_PORT }}" >> $GITHUB_ENV
-            echo "CONTAINER_NAME=${{ secrets.DOCKER_PROD_CONTAINER }}" >> $GITHUB_ENV
-          else
-            echo "Deploying to DEVELOPMENT"
-            echo "TARGET_TAG=${{ secrets.DOCKER_DEV_TAG }}" >> $GITHUB_ENV
-            echo "INNER_PORT=${{ secrets.SERVER_DEV_INNER_PORT }}" >> $GITHUB_ENV
-            echo "OUTER_PORT=${{ secrets.SERVER_OUTER_DEV_PORT }}" >> $GITHUB_ENV
-            echo "CONTAINER_NAME=${{ secrets.DOCKER_DEV_CONTAINER }}" >> $GITHUB_ENV
-          fi
-          
-          echo "prod container name: ${{ secrets.DOCKER_PROD_CONTAINER }}"
-          echo "dev container name: ${{ secrets.DOCKER_DEV_CONTAINER }}"
 
+    environment: ${{ github.ref_name == 'master' && 'master'|| 'develop' }}
+    steps:
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@master
         env:
-          TARGET_TAG: ${{ env.TARGET_TAG }}
-          CONTAINER_NAME: ${{ env.CONTAINER_NAME }}
-          INNER_PORT: ${{ env.INNER_PORT }}
-          OUTER_PORT: ${{ env.OUTER_PORT }}
+          # cicd 서버에 따른 변수
+          TARGET_TAG: ${{ secrets.DOCKER_TAG }}
+          CONTAINER_NAME: ${{ secrets.DOCKER_CONTAINER_NAME }}
+          INNER_PORT: ${{ secrets.SERVER_INNER_PORT }}
+          OUTER_PORT: ${{ secrets.SERVER_OUTER_PORT }}
           DB_URL: ${{ secrets.DB_URL }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_DRIVER: ${{ secrets.DB_DRIVER }}
           DB_PLATFORM: ${{ secrets.DB_PLATFORM }}
           DDL_AUTO: ${{ secrets.DDL_AUTO }}
+          AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
+          HIBERNATE_SHOW_SQL: ${{ secrets.HIBERNATE_SHOW_SQL }}
+          HIBERNATE_FORMAT_SQL: ${{ secrets.HIBERNATE_FORMAT_SQL }}
+          LOGGING_LEVEL: ${{ secrets.LOGGING_LEVEL }}
+
+          # 공통 변수
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
-          AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOCKER_IMAGE: ${{ secrets.DOCKER_IMAGE }}
@@ -93,12 +67,13 @@ jobs:
           FIREBASE_BASE_KEY: ${{ secrets.FIREBASE_BASE_KEY }}
 
         with:
+          # 운영 - 개발 서버 분리
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_SSH_KEY }}
           port: 22
-          # 정의한 env값들 ec2로 전달
-          envs: TARGET_TAG,CONTAINER_NAME,INNER_PORT,OUTER_PORT,DB_URL,DB_USERNAME,DB_PASSWORD,DB_DRIVER,DB_PLATFORM,DDL_AUTO,AWS_ACCESS_KEY,AWS_SECRET_KEY,AWS_REGION,AWS_S3_BUCKET_NAME,DOCKER_USERNAME,DOCKER_PASSWORD,DOCKER_IMAGE,FIREBASE_WEB_API_KEY,FIREBASE_BASE_KEY
+          # 정의한 env값들 EC2로 전달
+          envs: TARGET_TAG,CONTAINER_NAME,INNER_PORT,OUTER_PORT,DB_URL,DB_USERNAME,DB_PASSWORD,DB_DRIVER,DB_PLATFORM,DDL_AUTO,AWS_ACCESS_KEY,AWS_SECRET_KEY,AWS_REGION,AWS_S3_BUCKET_NAME,DOCKER_USERNAME,DOCKER_PASSWORD,DOCKER_IMAGE,FIREBASE_WEB_API_KEY,FIREBASE_BASE_KEY,HIBERNATE_SHOW_SQL,HIBERNATE_FORMAT_SQL,LOGGING_LEVEL
           script: |
             IMAGE_NAME="$DOCKER_USERNAME/$DOCKER_IMAGE"
             
@@ -111,11 +86,11 @@ jobs:
             sudo docker pull $IMAGE_NAME:$TARGET_TAG
             
             echo "container name: $CONTAINER_NAME"
-            #기존 컨테이너 중지 및 삭제
+            # 기존 컨테이너 중지 및 삭제
             sudo docker stop $CONTAINER_NAME || true
             sudo docker rm $CONTAINER_NAME || true
             
-            #환경변수 파일 세팅
+            # 환경변수 파일 세팅 (.env)
             echo "DB_URL=$DB_URL" > .env
             echo "DB_USERNAME=$DB_USERNAME" >> .env
             echo "DB_PASSWORD=$DB_PASSWORD" >> .env
@@ -128,7 +103,10 @@ jobs:
             echo "AWS_S3_BUCKET_NAME=$AWS_S3_BUCKET_NAME" >> .env
             echo "FIREBASE_WEB_API_KEY=$FIREBASE_WEB_API_KEY" >> .env
             echo "FIREBASE_BASE_KEY=$FIREBASE_BASE_KEY" >> .env
-
+            echo "HIBERNATE_SHOW_SQL=$HIBERNATE_SHOW_SQL" >> .env
+            echo "HIBERNATE_FORMAT_SQL=$HIBERNATE_FORMAT_SQL" >> .env
+            echo "LOGGING_LEVEL=$LOGGING_LEVEL">> .env
+            
             # 새 컨테이너 실행
             sudo docker run -d \
               -p ${OUTER_PORT}:${INNER_PORT} \
@@ -136,8 +114,8 @@ jobs:
               --env-file .env \
               $IMAGE_NAME:$TARGET_TAG
             
-            #실행 후 환경변수 파일 삭제
+            # 실행 후 환경변수 파일 삭제
             sudo rm .env
             
-            #미사용 이미지 정리
+            # 미사용 이미지 정리
             sudo docker image prune -f
