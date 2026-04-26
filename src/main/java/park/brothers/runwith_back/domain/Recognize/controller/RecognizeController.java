@@ -2,6 +2,7 @@ package park.brothers.runwith_back.domain.Recognize.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,13 +37,12 @@ public class RecognizeController {
                     description = "인정을 하는지 안 하는지 여부"
             )
             @RequestBody @Valid ChangeRecognizeRequestDto changeRecognizeRequestDto,
-            BindingResult bindingResult
+            HttpServletRequest request
     ){
-        if(bindingResult.hasErrors()){
-            return ValidationErrorUtils.handleValidationErrors(bindingResult);
-        }
-        ChangeRecognizeResponseDto changeRecognizeResponseDto = recognizeService.changeRecognize(runnerId, changeRecognizeRequestDto, scheduleId);
+        String threadName = Thread.currentThread().getName();
 
+        ChangeRecognizeResponseDto changeRecognizeResponseDto = recognizeService.changeRecognize(runnerId, changeRecognizeRequestDto, scheduleId);
+        log.info("[{}] [{} {}] runnerId: {} - 스케줄 인정 성공 | 요청 데이터 - scheduleId: {}, 인정 여부: {} | 응답 데이터: 변경된 인정 여부: {}", threadName, request.getMethod(), request.getRequestURI(), runnerId, scheduleId, changeRecognizeRequestDto.isRecognizing(), changeRecognizeResponseDto.isRecognizing());
         return ResponseEntity.status(HttpStatus.OK).body(changeRecognizeResponseDto);
     }
 }

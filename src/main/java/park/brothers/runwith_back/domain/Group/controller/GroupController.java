@@ -3,6 +3,7 @@ package park.brothers.runwith_back.domain.Group.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,18 +44,16 @@ public class GroupController {
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
             )
             @RequestPart(value = "request") @Valid CreateGroupRequestDto createGroupRequestDto,
-            BindingResult bindingResult,
             @Parameter(
                     description = "그룹 이미지"
             )
-            @RequestPart(value = "image", required = false)MultipartFile image
-            ) throws IOException { //BindingResult은 DTO만
-        if (bindingResult.hasErrors()) {
-            return ValidationErrorUtils.handleValidationErrors(bindingResult);
-        }
+            @RequestPart(value = "image", required = false)MultipartFile image,
+            HttpServletRequest request
+    ) throws IOException { //BindingResult은 DTO만
+        String threadName = Thread.currentThread().getName();
 
         CreateGroupResponseDto createGroupResponseDto = groupService.save(runnerId, createGroupRequestDto, image);
-
+        log.info("[{}] [{} {}] runnerId: {} - 그룹 생성 성공 | 응답 데이터 - groupId: {}", threadName, request.getMethod(), request.getRequestURI(), runnerId, createGroupResponseDto.getGroupId());
         return ResponseEntity.status(HttpStatus.CREATED).body(createGroupResponseDto);
     }
 
@@ -62,14 +61,19 @@ public class GroupController {
     @GetMapping
     @Operation(summary = "그룹 조회",description = "검색한 이름이 들어간 모든 그룹을 조회합니다. / groupName을 입력하지 않으면 전체 조회합니다.")
     public ResponseEntity<Object> findGroupsBySimilarName(
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId,
             @Parameter( description = "검색할 그룹 이름" )
             @RequestParam(required = false) String groupName,
             @Parameter( description = "검색을 시작할 index" )
             @RequestParam int offset,
             @Parameter( description = "검색 결과 수" )
-            @RequestParam int limit
+            @RequestParam int limit,
+            HttpServletRequest request
     ){
+        String threadName = Thread.currentThread().getName();
+
         List<GetGroupResponseDto> groups = groupService.getGroupsBySimilarName(groupName, offset, limit);
+        log.info("[{}] [{} {}] runnerId: {} - 그룹 조회 성공 | 요청 데이터 - groupName: {}, offset: {}, limit: {} | 응답 데이터 - 조회된 그룹 수: {}", threadName, request.getMethod(), request.getRequestURI(), runnerId, groupName, offset, limit, groups.size());
         return ResponseEntity.status(HttpStatus.OK).body(groups);
     }
 
@@ -78,9 +82,13 @@ public class GroupController {
     @Operation(summary = "그룹 삭제",description = "특정 그룹을 삭제합니다.")
     public ResponseEntity<Object> deleteGroup(
             @Parameter(hidden = true) @AuthenticationPrincipal String runnerId,
-            @PathVariable String groupId
+            @PathVariable String groupId,
+            HttpServletRequest request
     ) {
+        String threadName = Thread.currentThread().getName();
+
         groupService.delete(runnerId, groupId);
+        log.info("[{}] [{} {}] runnerId: {} - 그룹 삭제 성공 | 요청 데이터 - groupId: {}", threadName, request.getMethod(), request.getRequestURI(), runnerId, groupId);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonMessage("그룹이 성공적으로 삭제되었습니다."));
     }
 
@@ -98,17 +106,16 @@ public class GroupController {
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
             )
             @RequestPart(value = "request") @Valid ReviseGroupRequestDto reviseGroupRequestDto,
-            BindingResult bindingResult,
             @Parameter(
                     description = "그룹 수정 이미지"
             )
-            @RequestPart(value = "image", required = false) MultipartFile image
-            ) throws IllegalAccessException, IOException {
-        if(bindingResult.hasErrors()){
-            return ValidationErrorUtils.handleValidationErrors(bindingResult);
-        }
-        ReviseGroupResponseDto reviseGroupResponseDto = groupService.reviseGroup(runnerId, groupId, reviseGroupRequestDto, image);
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            HttpServletRequest request
+    ) throws IllegalAccessException, IOException {
+        String threadName = Thread.currentThread().getName();
 
+        ReviseGroupResponseDto reviseGroupResponseDto = groupService.reviseGroup(runnerId, groupId, reviseGroupRequestDto, image);
+        log.info("[{}] [{} {}] runnerId: {} - 그룹 수정 성공 | 요청 데이터 - groupId: {}", threadName, request.getMethod(), request.getRequestURI(), runnerId, groupId);
         return ResponseEntity.status(HttpStatus.OK).body(reviseGroupResponseDto);
     }
 
@@ -116,10 +123,13 @@ public class GroupController {
     @GetMapping("/self")
     @Operation(summary = "셀프 그룹 정보 조회",description = "로그인한 러너의 셀프 그룹을 조회합니다.")
     public ResponseEntity<Object> getMyGroupInfo(
-            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId,
+            HttpServletRequest request
     ){
-        GetGroupResponseDto getGroupResponseDto = groupService.getMyGroup(runnerId);
+        String threadName = Thread.currentThread().getName();
 
+        GetGroupResponseDto getGroupResponseDto = groupService.getMyGroup(runnerId);
+        log.info("[{}] [{} {}] runnerId: {} - 자신의 셀프 그룹 조회 성공 | 응답 데이터 - selfGroupId: {}", threadName, request.getMethod(), request.getRequestURI(), runnerId, getGroupResponseDto.getGroupId());
         return ResponseEntity.status(HttpStatus.OK).body(getGroupResponseDto);
     }
 }

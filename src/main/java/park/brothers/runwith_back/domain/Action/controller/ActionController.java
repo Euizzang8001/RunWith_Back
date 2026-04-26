@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import park.brothers.runwith_back.common.CommonMessage;
+import park.brothers.runwith_back.common.Exceptions.ImageLimitExceededException;
 import park.brothers.runwith_back.common.Response.ValidationErrorUtils;
 import park.brothers.runwith_back.domain.Action.dto.Request.CreateActionRequestDto;
 import park.brothers.runwith_back.domain.Action.dto.Request.ReviseActionRequestDto;
@@ -47,7 +49,6 @@ public class ActionController {
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
             )
             @RequestPart(value = "request") @Valid CreateActionRequestDto createActionRequestDto,
-            BindingResult bindingResult,
             @Parameter(
                     description = "액션 이미지 목록 (최대 5장)",
                     content = @Content(
@@ -55,18 +56,18 @@ public class ActionController {
                             array = @ArraySchema(schema = @Schema(type = "string", format = "binary"))
                     )
             )
-            @RequestPart(value = "image", required = false) List<MultipartFile> images
+            @RequestPart(value = "image", required = false) List<MultipartFile> images,
+            HttpServletRequest request
     ) throws IOException {
-        if(bindingResult.hasErrors()){
-            return ValidationErrorUtils.handleValidationErrors(bindingResult);
-        }
+        String threadName = Thread.currentThread().getName();
 
         //이미지 5장 초과면 경고
         if (images != null && images.size() > 5){
-            return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE).body(new CommonMessage("이미지는 최대 5장까지입니다."));
+            throw new ImageLimitExceededException("이미지는 최대 5장까지입니다.");
         }
 
         CreateActionResponseDto createActionResponseDto = actionService.createAction(runnerId, createActionRequestDto, images == null ? new ArrayList<>() : images) ;
+        log.info("[{}] [{} {}] runnerId: {} - 액션 생성 성공 | 응답 데이터 - actionId: {}", threadName, request.getMethod(), request.getRequestURI(), runnerId, createActionResponseDto.getActionId());
         return ResponseEntity.status(HttpStatus.CREATED).body(createActionResponseDto);
     }
 
@@ -74,23 +75,33 @@ public class ActionController {
     @GetMapping
     @Operation(summary = "Action들 조회", description = "ScheduleId에 속한 여러 액션들을 조회합니다.")
     public ResponseEntity<Object>  getActionsByScheduleId(
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId,
             @Parameter(
                     description = "Schedule Id"
             )
-            @RequestParam String scheduleId
+            @RequestParam String scheduleId,
+            HttpServletRequest request
     ){
-           List<GetActionsResponseDto> getActionsResponseDto = actionService.getActionsByScheduleId(scheduleId);
+        String threadName = Thread.currentThread().getName();
 
-           return ResponseEntity.status(HttpStatus.OK).body(getActionsResponseDto);
+        List<GetActionsResponseDto> getActionsResponseDto = actionService.getActionsByScheduleId(scheduleId);
+        log.info("[{}] [{} {}] runnerId: {} - 액션 조회 성공 | 요청 데이터 - scheduleId: {} | 응답 데이터 - 조회된 Action 수: {}", threadName, request.getMethod(), request.getRequestURI(), runnerId, scheduleId, getActionsResponseDto.size());
+        return ResponseEntity.status(HttpStatus.OK).body(getActionsResponseDto);
     }
 
     //id로 하나의 Action조회
     @GetMapping("/{actionId}")
     @Operation(summary = "하나의 Action 상세 보기", description = "특정 Action하나를 상세 보기 합니다.")
     public ResponseEntity<Object> getOneActionById(
-        @PathVariable String actionId
+            @Parameter(hidden = true) @AuthenticationPrincipal String runnerId,
+            @PathVariable String actionId,
+            HttpServletRequest request
     ){
+        String threadName = Thread.currentThread().getName();
+
         GetOneActionResponseDto getOneActionResponseDto = actionService.getActionById(actionId);
+        log.info("[{}] [{} {}] runnerId: {} - 액션 하나 상세 조회 성공 | 요청 데이터 - actionId: {} | 응답 데이터 - actionId: {}", threadName, request.getMethod(), request.getRequestURI(), runnerId, actionId, getOneActionResponseDto.getActionId());
+
         return ResponseEntity.status(HttpStatus.OK).body(getOneActionResponseDto);
     }
 
@@ -101,9 +112,13 @@ public class ActionController {
     @Operation(summary = "액션 삭제", description = "하나의 액션을 삭제합니다.")
     public ResponseEntity<Object> deleteAction(
             @Parameter(hidden = true) @AuthenticationPrincipal String runnerId,
-            @PathVariable String actionId
+            @PathVariable String actionId,
+            HttpServletRequest request
     ){
+        String threadName = Thread.currentThread().getName();
+
         actionService.deleteAction(runnerId, actionId);
+        log.info("[{}] [{} {}] runnerId: {} - 액션 삭제 성공 | 요청 데이터 - actionId: {}", threadName, request.getMethod(), request.getRequestURI(), runnerId, actionId);
 
         return ResponseEntity.status(HttpStatus.OK).body(new CommonMessage("액션 삭제가 완료되었습니다."));
     }
@@ -119,7 +134,6 @@ public class ActionController {
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
             )
             @RequestPart(value = "request") @Valid ReviseActionRequestDto reviseActionRequestDto,
-            BindingResult bindingResult,
             @Parameter(
                     description = "액션 이미지 목록 (최대 5장)",
                     content = @Content(
@@ -127,18 +141,18 @@ public class ActionController {
                             array = @ArraySchema(schema = @Schema(type = "string", format = "binary"))
                     )
             )
-            @RequestPart(value = "image", required = false) List<MultipartFile> images
+            @RequestPart(value = "image", required = false) List<MultipartFile> images,
+            HttpServletRequest request
     ) throws IOException {
-        if(bindingResult.hasErrors()){
-            return ValidationErrorUtils.handleValidationErrors(bindingResult);
-        }
+        String threadName = Thread.currentThread().getName();
 
         //이미지 5장 초과면 경고
         if (images != null && images.size() > 5){
-            return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE).body(new CommonMessage("이미지는 최대 5장까지입니다."));
+            throw new ImageLimitExceededException("이미지는 최대 5장까지입니다.");
         }
 
         ReviseActionResponseDto reviseActionResponseDto = actionService.reviseAction(runnerId, actionId, reviseActionRequestDto, images == null ? new ArrayList<>() : images);
+        log.info("[{}] [{} {}] runnerId: {} - 액션 수정 성공 | 요청 데이터 - actionId: {} | 응답 데이터 - actionId: {}", threadName, request.getMethod(), request.getRequestURI(), runnerId, actionId, reviseActionResponseDto.getActionId());
 
         return ResponseEntity.status(HttpStatus.OK).body(reviseActionResponseDto);
     }
