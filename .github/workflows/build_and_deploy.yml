@@ -7,7 +7,7 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-22.04
-    environment: ${{ github.ref_name == 'master' || 'develop' }}
+    environment: ${{ github.ref_name == 'master' && 'master'|| 'develop' }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -35,7 +35,7 @@ jobs:
     needs: build-and-push
     runs-on: self-hosted
 
-    environment: ${{ github.ref_name == 'master' || 'develop' }}
+    environment: ${{ github.ref_name == 'master' && 'master'|| 'develop' }}
     steps:
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@master
