@@ -39,6 +39,9 @@ WORKDIR /app
 # 보안을 위한 명령어로, 해킹을 당하더라도 시스템 전체를 장악당하지 않게 하는 보안 조치
 RUN groupadd --system appgroup && useradd --system --gid appgroup appuser
 
+# log 파일 생성 및 권한 부여
+RUN mkdir -p /app/logs && chmod 777 /app/logs
+
 # 위에서 생성한 비루트 사용자의 권한으로 실행하겠다 선언
 USER appuser
 

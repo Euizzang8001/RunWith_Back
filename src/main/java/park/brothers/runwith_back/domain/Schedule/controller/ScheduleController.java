@@ -3,6 +3,7 @@ package park.brothers.runwith_back.domain.Schedule.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,12 +44,11 @@ public class ScheduleController {
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
             )
             @RequestBody @Valid CreateScheduleRequestDto createScheduleRequestDto,
-            BindingResult bindingResult){
-        if(bindingResult.hasErrors()){
-            return ValidationErrorUtils.handleValidationErrors(bindingResult);
-        }
+            HttpServletRequest request
+    ){
+        String threadName = Thread.currentThread().getName();
         CreateScheduleResponseDto createScheduleResponseDto = scheduleService.create(runnerId, createScheduleRequestDto);
-
+        log.info("[{}] [{} {}] runnerId: {} - 스케줄 생성 성공 | 응답 데이터 - scheduleId: {}", threadName, request.getMethod(), request.getRequestURI(), runnerId, createScheduleResponseDto.getScheduleId());
         return ResponseEntity.status(HttpStatus.CREATED).body(createScheduleResponseDto);
     }
 
@@ -60,8 +60,12 @@ public class ScheduleController {
             @Parameter(
                     description = "삭제할 스케줄 ID"
             )
-            @PathVariable String scheduleId){
+            @PathVariable String scheduleId,
+            HttpServletRequest request
+    ){
+        String threadName = Thread.currentThread().getName();
         scheduleService.delete(runnerId, scheduleId);
+        log.info("[{}] [{} {}] runnerId: {} - 스케줄 삭제 성공 | 요청 데이터 - scheduleId: {}", threadName, request.getMethod(), request.getRequestURI(), runnerId, scheduleId);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonMessage("스케줄이 성공적으로 삭제되었습니다."));
     }
 
@@ -77,10 +81,14 @@ public class ScheduleController {
             @Parameter(
                     description = "오늘의 날짜 ex) 2026-03-01"
             )
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate localDate
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate localDate,
+            HttpServletRequest request
     ) {
-      List<GetSchedulesResponseDto> schedules = scheduleService.getSchedules(runnerId, belongId, localDate);
-      return ResponseEntity.status(HttpStatus.OK).body(schedules);
+        String threadName = Thread.currentThread().getName();
+
+        List<GetSchedulesResponseDto> schedules = scheduleService.getSchedules(runnerId, belongId, localDate);
+        log.info("[{}] [{} {}] runnerId: {} - 스케줄 조회 성공 | 요청 데이터 - belongId: {}, localDate: {} | 응답 데이터 - 조회된 스케줄 개수: {}", threadName, request.getMethod(), request.getRequestURI(), runnerId, belongId, localDate, schedules.size());
+        return ResponseEntity.status(HttpStatus.OK).body(schedules);
     }
 
     //특정 그룹에서의 나의 스케줄 조회
@@ -95,9 +103,13 @@ public class ScheduleController {
             @Parameter(
                     description = "오늘의 날짜 ex) 2026-03-01"
             )
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate localDate
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate localDate,
+            HttpServletRequest request
     ) {
+        String threadName = Thread.currentThread().getName();
+
         List<GetMySchedulesResponseDto> schedules = scheduleService.getMySchedules(runnerId, groupId, localDate);
+        log.info("[{}] [{} {}] runnerId: {} - 특정 그룹에서의 나의 스케줄 조회 성공 | 요청 데이터 - groupId: {}, localDate: {} | 응답 데이터 - 조회된 스케줄 개수: {}", threadName, request.getMethod(), request.getRequestURI(), runnerId, groupId, localDate, schedules.size());
         return ResponseEntity.status(HttpStatus.OK).body(schedules);
     }
 
@@ -115,12 +127,18 @@ public class ScheduleController {
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
             )
             @RequestBody @Valid ReviseScheduleRequestDto reviseScheduleRequestDto,
-            BindingResult bindingResult
+            BindingResult bindingResult,
+            HttpServletRequest request
     ){
+        String threadName = Thread.currentThread().getName();
+
         if(bindingResult.hasErrors()){
+            log.error("[{}] [{} {}] 요청 데이터 오류", threadName, request.getMethod(), request.getRequestURI());
             return ValidationErrorUtils.handleValidationErrors(bindingResult);
         }
+
         ReviseScheduleResponseDto reviseScheduleResponseDto = scheduleService.revise(runnerId, scheduleId, reviseScheduleRequestDto);
+        log.info("[{}] [{} {}] runnerId: {} - 스케줄 수정 성공 | 요청 데이터 - scheduleId: {} | 응답 데이터 - scheduleId: {}", threadName, request.getMethod(), request.getRequestURI(), runnerId, scheduleId, reviseScheduleResponseDto.getScheduleId());
         return ResponseEntity.status(HttpStatus.OK).body(reviseScheduleResponseDto);
     }
 

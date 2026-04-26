@@ -52,4 +52,10 @@ public class JPARunnerRepository implements RunnerRepository {
         em.merge(runner);
     }
 
+    //러너 삭제
+    @Override
+    @Transactional
+    public void delete(String runnerId) {
+        em.remove(em.find(Runner.class, runnerId));
+    }
 }

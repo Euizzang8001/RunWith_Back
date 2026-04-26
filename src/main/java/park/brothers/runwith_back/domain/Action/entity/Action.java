@@ -3,6 +3,8 @@ package park.brothers.runwith_back.domain.Action.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import park.brothers.runwith_back.domain.Schedule.entity.Schedule;
 
 import java.util.UUID;
@@ -20,6 +22,7 @@ public class Action {
 
     @JoinColumn(name = "schedules")
     @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Schedule schedule;
 
     @Column
