@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import park.brothers.runwith_back.common.CommonMessage;
@@ -21,7 +20,6 @@ import park.brothers.runwith_back.domain.Group.dto.Response.CreateGroupResponseD
 import park.brothers.runwith_back.domain.Group.dto.Response.GetGroupResponseDto;
 import park.brothers.runwith_back.domain.Group.dto.Response.ReviseGroupResponseDto;
 import park.brothers.runwith_back.domain.Group.service.GroupService;
-import park.brothers.runwith_back.common.Response.ValidationErrorUtils;
 
 import java.io.IOException;
 import java.util.List;
