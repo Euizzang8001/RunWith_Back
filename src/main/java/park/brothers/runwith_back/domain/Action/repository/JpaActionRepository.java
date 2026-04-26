@@ -14,7 +14,6 @@ import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
-@Slf4j
 @Primary
 @Transactional(readOnly = true)
 public class JpaActionRepository implements ActionRepository{
