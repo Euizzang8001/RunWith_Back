@@ -32,7 +32,7 @@ public class SwaggerConfig { //스웨거 config
 
         return new OpenAPI() //openapi 명세 설정
                 .info(new Info().title(swaggerTitle)
-                        .description("RunWith 프로젝트의" + serverType + "API 명세서 페이지입니다.")
+                        .description("RunWith 프로젝트의 " + serverType + " 서버 API 명세서 페이지입니다.")
                         .version("v1.0.0"))
                 .components(new Components().addSecuritySchemes("bearerAuth", securityScheme))
                 .addSecurityItem(securityRequirement);
